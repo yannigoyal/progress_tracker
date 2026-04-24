@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/models/category.dart';
+import '../../../../util/string_constant.dart';
 
 /// Shared wrapper for all log entry forms.
 class FormShell extends StatelessWidget {
@@ -79,9 +80,7 @@ class FormShell extends StatelessWidget {
           ),
           child: ElevatedButton(
             onPressed: isSaving ? null : onSave,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: category.color,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: category.color),
             child: isSaving
                 ? const SizedBox(
                     height: 20,
@@ -91,7 +90,7 @@ class FormShell extends StatelessWidget {
                       color: Colors.white,
                     ),
                   )
-                : const Text('Save log'),
+                : const Text(AppStrings.saveLog),
           ),
         ),
       ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
+import '../../../../util/string_constant.dart';
 import 'form_shell.dart';
 
 class MiscForm extends StatefulWidget {
@@ -51,7 +52,7 @@ class _MiscFormState extends State<MiscForm> {
   @override
   Widget build(BuildContext context) {
     return FormShell(
-      title: 'Quick Note',
+      title: AppStrings.miscFormTitle,
       category: Category.misc,
       onSave: _submit,
       child: Form(
@@ -60,7 +61,9 @@ class _MiscFormState extends State<MiscForm> {
           children: [
             TextFormField(
               controller: _titleCtrl,
-              decoration: const InputDecoration(labelText: 'Title (optional)'),
+              decoration: const InputDecoration(
+                labelText: AppStrings.titleOptional,
+              ),
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.next,
             ),
@@ -68,14 +71,15 @@ class _MiscFormState extends State<MiscForm> {
             TextFormField(
               controller: _noteCtrl,
               decoration: const InputDecoration(
-                labelText: 'What\'s on your mind? *',
+                labelText: AppStrings.whatsOnYourMindRequired,
                 alignLabelWithHint: true,
               ),
               maxLines: 7,
               textCapitalization: TextCapitalization.sentences,
               autofocus: true,
-              validator: (v) =>
-                  v == null || v.trim().isEmpty ? 'Required' : null,
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? AppStrings.requiredField
+                  : null,
             ),
           ],
         ),

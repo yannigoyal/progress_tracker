@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
+import '../../../../util/string_constant.dart';
 import 'form_shell.dart';
 
 class DsaForm extends StatefulWidget {
@@ -18,40 +19,12 @@ class _DsaFormState extends State<DsaForm> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _numCtrl;
   late final TextEditingController _nameCtrl;
-  String _topic = 'DP';
-  String _approach = 'Memoization';
+  String _topic = AppStrings.dsaTopicDp;
+  String _approach = AppStrings.dsaApproachMemoization;
   bool _isSolved = true;
 
-  static const _topics = [
-    'Array',
-    'Two Pointers',
-    'Sliding Window',
-    'Stack',
-    'Binary Search',
-    'Linked List',
-    'Trees',
-    'Heap',
-    'DP',
-    'Graph',
-    'Backtracking',
-    'Greedy',
-    'Intervals',
-    'Math',
-    'Bit Manipulation',
-    'HashMap',
-    'Trie',
-  ];
-  static const _approaches = [
-    'Brute Force',
-    'Two Pointers',
-    'BFS/DFS',
-    'Memoization',
-    'Tabulation',
-    'Space-Opt',
-    'Binary Search',
-    'Greedy',
-    'Divide & Conquer',
-  ];
+  static const _topics = [...AppStrings.dsaTopics];
+  static const _approaches = [...AppStrings.dsaApproaches];
 
   @override
   void initState() {
@@ -68,7 +41,7 @@ class _DsaFormState extends State<DsaForm> {
       _approach = p['approach'] as String;
     }
     if (p['status'] != null) {
-      _isSolved = p['status'] == 'Solved';
+      _isSolved = p['status'] == AppStrings.solved;
     }
   }
 
@@ -90,7 +63,7 @@ class _DsaFormState extends State<DsaForm> {
         'problemName': _nameCtrl.text.trim(),
         'topic': _topic,
         'approach': _approach,
-        'status': _isSolved ? 'Solved' : 'Revised',
+        'status': _isSolved ? AppStrings.solved : AppStrings.revised,
       };
     widget.onSave(entry);
   }
@@ -98,7 +71,7 @@ class _DsaFormState extends State<DsaForm> {
   @override
   Widget build(BuildContext context) {
     return FormShell(
-      title: 'DSA / Coding',
+      title: AppStrings.dsaFormTitle,
       category: Category.dsa,
       onSave: _submit,
       child: Form(
@@ -109,22 +82,25 @@ class _DsaFormState extends State<DsaForm> {
             TextFormField(
               controller: _numCtrl,
               decoration: const InputDecoration(
-                labelText: 'LeetCode # (optional)',
+                labelText: AppStrings.leetCodeOptional,
               ),
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _nameCtrl,
-              decoration: const InputDecoration(labelText: 'Problem Name *'),
+              decoration: const InputDecoration(
+                labelText: AppStrings.problemNameRequired,
+              ),
               textCapitalization: TextCapitalization.words,
-              validator: (v) =>
-                  v == null || v.trim().isEmpty ? 'Required' : null,
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? AppStrings.requiredField
+                  : null,
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: _topic,
-              decoration: const InputDecoration(labelText: 'Topic'),
+              decoration: const InputDecoration(labelText: AppStrings.topic),
               isExpanded: true,
               items: _topics
                   .map((t) => DropdownMenuItem(value: t, child: Text(t)))
@@ -134,7 +110,7 @@ class _DsaFormState extends State<DsaForm> {
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: _approach,
-              decoration: const InputDecoration(labelText: 'Approach'),
+              decoration: const InputDecoration(labelText: AppStrings.approach),
               isExpanded: true,
               items: _approaches
                   .map((a) => DropdownMenuItem(value: a, child: Text(a)))
@@ -142,15 +118,22 @@ class _DsaFormState extends State<DsaForm> {
               onChanged: (v) => setState(() => _approach = v!),
             ),
             const SizedBox(height: 16),
-            Text('Status', style: Theme.of(context).textTheme.labelLarge),
+            Text(
+              AppStrings.status,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
             const SizedBox(height: 8),
             SwitchListTile.adaptive(
               contentPadding: EdgeInsets.zero,
-              title: Text(_isSolved ? '✅ Solved' : '🔄 Revised'),
+              title: Text(
+                _isSolved
+                    ? AppStrings.solvedStatusLabel
+                    : AppStrings.revisedStatusLabel,
+              ),
               subtitle: Text(
                 _isSolved
-                    ? 'Counts as solved in the tracker'
-                    : 'Keeps it marked as revision only',
+                    ? AppStrings.trackerSolvedSubtitle
+                    : AppStrings.trackerRevisionSubtitle,
               ),
               value: _isSolved,
               onChanged: (value) => setState(() => _isSolved = value),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/models/category.dart';
+import '../../util/string_constant.dart';
 import 'providers/stats_provider.dart';
 import 'widgets/contribution_heatmap.dart';
 import 'widgets/weekly_bar_chart.dart';
@@ -17,7 +18,7 @@ class StatsScreen extends ConsumerWidget {
       body: statsAsync.when(
         data: (data) => _StatsBody(data: data),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => Center(child: Text(AppStrings.errorWithDetails(e))),
       ),
     );
   }
@@ -36,7 +37,7 @@ class _StatsBody extends StatelessWidget {
       slivers: [
         SliverAppBar(
           pinned: true,
-          title: const Text('Stats'),
+          title: const Text(AppStrings.statsScreenTitle),
           backgroundColor: theme.scaffoldBackgroundColor,
           surfaceTintColor: Colors.transparent,
         ),
@@ -49,7 +50,7 @@ class _StatsBody extends StatelessWidget {
                 children: [
                   Expanded(
                     child: _StreakCard(
-                      label: 'Current Streak',
+                      label: AppStrings.currentStreak,
                       value: data.currentStreak,
                       emoji: '🔥',
                     ),
@@ -57,7 +58,7 @@ class _StatsBody extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: _StreakCard(
-                      label: 'Longest Streak',
+                      label: AppStrings.longestStreak,
                       value: data.longestStreak,
                       emoji: '🏆',
                     ),
@@ -82,8 +83,10 @@ class _StatsBody extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Last 7 days',
-                          style: theme.textTheme.titleSmall),
+                      Text(
+                        AppStrings.last7Days,
+                        style: theme.textTheme.titleSmall,
+                      ),
                       const SizedBox(height: 12),
                       WeeklyBarChart(counts: data.weeklyLogCounts),
                     ],
@@ -93,12 +96,14 @@ class _StatsBody extends StatelessWidget {
               const SizedBox(height: 24),
 
               // ── Category totals ──────────────────────────────────────
-              Text('Totals', style: theme.textTheme.titleMedium),
+              Text(AppStrings.totals, style: theme.textTheme.titleMedium),
               const SizedBox(height: 12),
-              ...Category.values.map((cat) => _CategoryStatRow(
-                    category: cat,
-                    value: data.categoryTotals[cat] ?? 0,
-                  )),
+              ...Category.values.map(
+                (cat) => _CategoryStatRow(
+                  category: cat,
+                  value: data.categoryTotals[cat] ?? 0,
+                ),
+              ),
             ]),
           ),
         ),
@@ -112,8 +117,11 @@ class _StreakCard extends StatelessWidget {
   final int value;
   final String emoji;
 
-  const _StreakCard(
-      {required this.label, required this.value, required this.emoji});
+  const _StreakCard({
+    required this.label,
+    required this.value,
+    required this.emoji,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -127,9 +135,10 @@ class _StreakCard extends StatelessWidget {
             Text(emoji, style: const TextStyle(fontSize: 28)),
             const SizedBox(height: 8),
             Text(
-              '$value day${value == 1 ? '' : 's'}',
-              style: theme.textTheme.titleLarge
-                  ?.copyWith(color: theme.colorScheme.primary),
+              AppStrings.dayCount(value),
+              style: theme.textTheme.titleLarge?.copyWith(
+                color: theme.colorScheme.primary,
+              ),
             ),
             const SizedBox(height: 2),
             Text(label, style: theme.textTheme.bodySmall),
@@ -147,13 +156,14 @@ class _CategoryStatRow extends StatelessWidget {
   const _CategoryStatRow({required this.category, required this.value});
 
   String get _unit => switch (category) {
-        Category.dsa => 'problems solved',
-        Category.content => 'videos uploaded',
-        Category.workout => 'total reps / seconds',
-        Category.reading => 'pages read',
-        Category.learning => 'notes',
-        Category.misc => 'notes',
-      };
+    Category.dsa => AppStrings.unitProblemsSolved,
+    Category.content => AppStrings.unitVideosUploaded,
+    Category.workout => AppStrings.unitTotalRepsOrSeconds,
+    Category.reading => AppStrings.unitPagesRead,
+    Category.learning => AppStrings.unitNotes,
+    Category.misc => AppStrings.unitNotes,
+    Category.project => AppStrings.unitSessionsLogged,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -176,18 +186,19 @@ class _CategoryStatRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(category.label,
-                    style: theme.textTheme.bodyLarge
-                        ?.copyWith(fontWeight: FontWeight.w500)),
-                Text('$value $_unit',
-                    style: theme.textTheme.bodySmall),
+                Text(
+                  category.label,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text('$value $_unit', style: theme.textTheme.bodySmall),
               ],
             ),
           ),
           Text(
             '$value',
-            style: theme.textTheme.titleMedium
-                ?.copyWith(color: category.color),
+            style: theme.textTheme.titleMedium?.copyWith(color: category.color),
           ),
         ],
       ),

@@ -1,53 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
 import '../../../../util/string_constant.dart';
 import 'form_shell.dart';
 
-class ReadingForm extends StatefulWidget {
+class ProjectForm extends StatefulWidget {
   final void Function(LogEntry) onSave;
   final LogEntry? existingLog;
 
-  const ReadingForm({super.key, required this.onSave, this.existingLog});
+  const ProjectForm({super.key, required this.onSave, this.existingLog});
 
   @override
-  State<ReadingForm> createState() => _ReadingFormState();
+  State<ProjectForm> createState() => _ProjectFormState();
 }
 
-class _ReadingFormState extends State<ReadingForm> {
+class _ProjectFormState extends State<ProjectForm> {
   final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _bookCtrl;
-  late final TextEditingController _pagesCtrl;
-  late final TextEditingController _quoteCtrl;
+  late final TextEditingController _projectCtrl;
+  late final TextEditingController _whatDoneCtrl;
+  late final TextEditingController _whatLearntCtrl;
 
   @override
   void initState() {
     super.initState();
     final p = widget.existingLog?.payload ?? {};
-    _bookCtrl = TextEditingController(text: p['bookName'] as String? ?? '');
-    _pagesCtrl = TextEditingController(text: p['pagesRead']?.toString() ?? '');
-    _quoteCtrl = TextEditingController(text: p['quote'] as String? ?? '');
+    _projectCtrl = TextEditingController(
+      text: p['projectName'] as String? ?? '',
+    );
+    _whatDoneCtrl = TextEditingController(text: p['whatDone'] as String? ?? '');
+    _whatLearntCtrl = TextEditingController(
+      text: p['whatLearnt'] as String? ?? '',
+    );
   }
 
   @override
   void dispose() {
-    _bookCtrl.dispose();
-    _pagesCtrl.dispose();
-    _quoteCtrl.dispose();
+    _projectCtrl.dispose();
+    _whatDoneCtrl.dispose();
+    _whatLearntCtrl.dispose();
     super.dispose();
   }
 
-  void _submit() {
+  void _submit() async {
     if (!_formKey.currentState!.validate()) return;
     final entry = (widget.existingLog ?? LogEntry())
-      ..category = Category.reading
+      ..category = Category.project
       ..createdAt = widget.existingLog?.createdAt ?? DateTime.now().toUtc()
       ..payload = {
-        'bookName': _bookCtrl.text.trim(),
-        'pagesRead': int.tryParse(_pagesCtrl.text.trim()) ?? 0,
-        if (_quoteCtrl.text.trim().isNotEmpty) 'quote': _quoteCtrl.text.trim(),
+        'projectName': _projectCtrl.text.trim(),
+        'whatDone': _whatDoneCtrl.text.trim(),
+        'whatLearnt': _whatLearntCtrl.text.trim(),
       };
     widget.onSave(entry);
   }
@@ -55,17 +58,18 @@ class _ReadingFormState extends State<ReadingForm> {
   @override
   Widget build(BuildContext context) {
     return FormShell(
-      title: AppStrings.readingFormTitle,
-      category: Category.reading,
+      title: AppStrings.projectFormTitle,
+      category: Category.project,
       onSave: _submit,
       child: Form(
         key: _formKey,
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextFormField(
-              controller: _bookCtrl,
+              controller: _projectCtrl,
               decoration: const InputDecoration(
-                labelText: AppStrings.bookNameRequired,
+                labelText: AppStrings.projectName,
               ),
               textCapitalization: TextCapitalization.words,
               validator: (v) => v == null || v.trim().isEmpty
@@ -74,22 +78,23 @@ class _ReadingFormState extends State<ReadingForm> {
             ),
             const SizedBox(height: 12),
             TextFormField(
-              controller: _pagesCtrl,
+              controller: _whatDoneCtrl,
               decoration: const InputDecoration(
-                labelText: AppStrings.pagesReadRequired,
+                labelText: AppStrings.whatDidYouDo,
+                hintText: AppStrings.describeYourProgress,
               ),
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+              maxLines: 4,
+              textCapitalization: TextCapitalization.sentences,
               validator: (v) => v == null || v.trim().isEmpty
                   ? AppStrings.requiredField
                   : null,
             ),
             const SizedBox(height: 12),
             TextFormField(
-              controller: _quoteCtrl,
+              controller: _whatLearntCtrl,
               decoration: const InputDecoration(
-                labelText: AppStrings.keyTakeawayOrQuoteOptional,
-                alignLabelWithHint: true,
+                labelText: AppStrings.whatDidYouLearn,
+                hintText: AppStrings.keyTakeaways,
               ),
               maxLines: 3,
               textCapitalization: TextCapitalization.sentences,

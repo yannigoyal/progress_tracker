@@ -8,6 +8,7 @@ import '../../core/models/category.dart';
 import '../../core/models/log_entry.dart';
 import '../../core/providers/isar_provider.dart';
 import '../../core/providers/theme_provider.dart';
+import '../../util/string_constant.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -22,7 +23,7 @@ class SettingsScreen extends ConsumerWidget {
         slivers: [
           SliverAppBar(
             pinned: true,
-            title: const Text('Settings'),
+            title: const Text(AppStrings.settingsScreenTitle),
             backgroundColor: theme.scaffoldBackgroundColor,
             surfaceTintColor: Colors.transparent,
           ),
@@ -31,34 +32,40 @@ class SettingsScreen extends ConsumerWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Appearance ─────────────────────────────────────────
-                _SectionHeader(title: 'Appearance'),
+                _SectionHeader(title: AppStrings.appearance),
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Theme', style: theme.textTheme.labelLarge),
+                        Text(
+                          AppStrings.theme,
+                          style: theme.textTheme.labelLarge,
+                        ),
                         const SizedBox(height: 12),
                         SegmentedButton<ThemeMode>(
                           segments: const [
                             ButtonSegment(
-                                value: ThemeMode.dark,
-                                icon: Icon(Icons.dark_mode_outlined, size: 16),
-                                label: Text('Dark')),
+                              value: ThemeMode.dark,
+                              icon: Icon(Icons.dark_mode_outlined, size: 16),
+                              label: Text(AppStrings.dark),
+                            ),
                             ButtonSegment(
-                                value: ThemeMode.light,
-                                icon: Icon(Icons.light_mode_outlined, size: 16),
-                                label: Text('Light')),
+                              value: ThemeMode.light,
+                              icon: Icon(Icons.light_mode_outlined, size: 16),
+                              label: Text(AppStrings.light),
+                            ),
                             ButtonSegment(
-                                value: ThemeMode.system,
-                                icon: Icon(Icons.contrast_outlined, size: 16),
-                                label: Text('System')),
+                              value: ThemeMode.system,
+                              icon: Icon(Icons.contrast_outlined, size: 16),
+                              label: Text(AppStrings.system),
+                            ),
                           ],
                           selected: {themeMode},
-                          onSelectionChanged: (s) => ref
-                              .read(themeModeProvider.notifier)
-                              .state = s.first,
+                          onSelectionChanged: (s) =>
+                              ref.read(themeModeProvider.notifier).state =
+                                  s.first,
                         ),
                       ],
                     ),
@@ -67,25 +74,26 @@ class SettingsScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
 
                 // ── Data ───────────────────────────────────────────────
-                _SectionHeader(title: 'Data'),
+                _SectionHeader(title: AppStrings.data),
                 Card(
                   child: Column(
                     children: [
                       ListTile(
                         leading: const Icon(Icons.upload_outlined),
-                        title: const Text('Export data as JSON'),
-                        subtitle: const Text('Save all logs to a JSON file'),
+                        title: const Text(AppStrings.exportDataAsJson),
+                        subtitle: const Text(AppStrings.saveAllLogsToJson),
                         trailing: const Icon(Icons.chevron_right, size: 18),
                         onTap: () => _exportData(context, ref),
                       ),
                       Divider(
-                          height: 1,
-                          indent: 56,
-                          color: theme.colorScheme.outlineVariant),
+                        height: 1,
+                        indent: 56,
+                        color: theme.colorScheme.outlineVariant,
+                      ),
                       ListTile(
                         leading: const Icon(Icons.download_outlined),
-                        title: const Text('Import data from JSON'),
-                        subtitle: const Text('Merge logs from a JSON file'),
+                        title: const Text(AppStrings.importDataFromJson),
+                        subtitle: const Text(AppStrings.mergeLogsFromJson),
                         trailing: const Icon(Icons.chevron_right, size: 18),
                         onTap: () => _showImportDialog(context, ref),
                       ),
@@ -95,25 +103,32 @@ class SettingsScreen extends ConsumerWidget {
                 const SizedBox(height: 16),
 
                 // ── About ──────────────────────────────────────────────
-                _SectionHeader(title: 'About'),
+                _SectionHeader(title: AppStrings.about),
                 Card(
                   child: Column(
                     children: [
                       ListTile(
-                        leading: const Text('📓',
-                            style: TextStyle(fontSize: 20)),
-                        title: const Text('DailyLog'),
-                        subtitle: const Text('v1.0.0 · Offline first · No cloud'),
+                        leading: const Text(
+                          AppStrings.aboutEmoji,
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        title: const Text(AppStrings.appName),
+                        subtitle: const Text(AppStrings.appVersionSubtitle),
                       ),
                       Divider(
-                          height: 1,
-                          indent: 56,
-                          color: theme.colorScheme.outlineVariant),
+                        height: 1,
+                        indent: 56,
+                        color: theme.colorScheme.outlineVariant,
+                      ),
                       ListTile(
-                        leading: const Icon(Icons.delete_outline,
-                            color: Color(0xFFF87171)),
-                        title: const Text('Clear all data',
-                            style: TextStyle(color: Color(0xFFF87171))),
+                        leading: const Icon(
+                          Icons.delete_outline,
+                          color: Color(0xFFF87171),
+                        ),
+                        title: const Text(
+                          AppStrings.clearAllData,
+                          style: TextStyle(color: Color(0xFFF87171)),
+                        ),
                         onTap: () => _confirmClear(context, ref),
                       ),
                     ],
@@ -132,15 +147,20 @@ class SettingsScreen extends ConsumerWidget {
     final isar = ref.read(isarProvider);
     final logs = await isar.logEntrys
         .where()
-        .createdAtBetween(DateTime.fromMillisecondsSinceEpoch(0), DateTime(2100))
+        .createdAtBetween(
+          DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime(2100),
+        )
         .findAll();
     final jsonList = logs
-        .map((l) => {
-              'id': l.id,
-              'createdAt': l.createdAt.toIso8601String(),
-              'category': l.category.name,
-              'payload': l.payload,
-            })
+        .map(
+          (l) => {
+            'id': l.id,
+            'createdAt': l.createdAt.toIso8601String(),
+            'category': l.category.name,
+            'payload': l.payload,
+          },
+        )
         .toList();
     final jsonStr = const JsonEncoder.withIndent('  ').convert(jsonList);
 
@@ -148,7 +168,7 @@ class SettingsScreen extends ConsumerWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Export Data'),
+        title: const Text(AppStrings.exportDataTitle),
         content: SingleChildScrollView(
           child: SelectableText(
             jsonStr,
@@ -158,7 +178,7 @@ class SettingsScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Close'),
+            child: const Text(AppStrings.close),
           ),
         ],
       ),
@@ -170,21 +190,23 @@ class SettingsScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Import JSON'),
+        title: const Text(AppStrings.importJsonTitle),
         content: TextField(
           controller: ctrl,
           maxLines: 8,
           decoration: const InputDecoration(
-            hintText: 'Paste JSON array here…',
+            hintText: AppStrings.pasteJsonArrayHere,
           ),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text(AppStrings.cancel),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Import')),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(AppStrings.import),
+          ),
         ],
       ),
     );
@@ -204,17 +226,19 @@ class SettingsScreen extends ConsumerWidget {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Imported ${entries.length} logs'),
-              behavior: SnackBarBehavior.floating),
+            content: Text(AppStrings.importedLogsMessage(entries.length)),
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Import failed: $e'),
-              backgroundColor: const Color(0xFFF87171),
-              behavior: SnackBarBehavior.floating),
+            content: Text(AppStrings.importFailedMessage(e)),
+            backgroundColor: const Color(0xFFF87171),
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     }
@@ -224,17 +248,19 @@ class SettingsScreen extends ConsumerWidget {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Clear all data?'),
-        content: const Text(
-            'This will permanently delete every log. Consider exporting first.'),
+        title: const Text(AppStrings.clearAllDataTitle),
+        content: const Text(AppStrings.clearAllDataMessage),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancel')),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text(AppStrings.cancel),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete all',
-                style: TextStyle(color: Color(0xFFF87171))),
+            child: const Text(
+              AppStrings.deleteAll,
+              style: TextStyle(color: Color(0xFFF87171)),
+            ),
           ),
         ],
       ),
@@ -245,15 +271,17 @@ class SettingsScreen extends ConsumerWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('All data cleared'),
-            behavior: SnackBarBehavior.floating),
+          content: Text(AppStrings.allDataCleared),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
   }
 
-  Category _categoryFromName(String name) =>
-      Category.values.firstWhere((c) => c.name == name,
-          orElse: () => Category.misc);
+  Category _categoryFromName(String name) => Category.values.firstWhere(
+    (c) => c.name == name,
+    orElse: () => Category.misc,
+  );
 }
 
 class _SectionHeader extends StatelessWidget {
@@ -267,9 +295,9 @@ class _SectionHeader extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8, left: 4),
       child: Text(
         title.toUpperCase(),
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              letterSpacing: 1.2,
-            ),
+        style: Theme.of(
+          context,
+        ).textTheme.labelSmall?.copyWith(letterSpacing: 1.2),
       ),
     );
   }

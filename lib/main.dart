@@ -7,6 +7,7 @@ import 'core/providers/progress_seed.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'util/string_constant.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +30,7 @@ class DailyLogApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     return MaterialApp.router(
-      title: 'DailyLog',
+      title: AppStrings.appName,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: themeMode,

@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/models/category.dart';
 import '../../core/models/log_entry.dart';
+import '../../util/string_constant.dart';
 import 'providers/history_provider.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
@@ -33,7 +34,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         slivers: [
           SliverAppBar(
             pinned: true,
-            title: const Text('Journal'),
+            title: const Text(AppStrings.historyScreenTitle),
             backgroundColor: theme.scaffoldBackgroundColor,
             surfaceTintColor: Colors.transparent,
             bottom: PreferredSize(
@@ -46,7 +47,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                     TextField(
                       controller: _searchCtrl,
                       decoration: InputDecoration(
-                        hintText: 'Search logs…',
+                        hintText: AppStrings.searchLogs,
                         prefixIcon: const Icon(Icons.search, size: 20),
                         suffixIcon: _searchCtrl.text.isNotEmpty
                             ? IconButton(
@@ -72,7 +73,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                         scrollDirection: Axis.horizontal,
                         children: [
                           _FilterChip(
-                            label: 'All',
+                            label: AppStrings.all,
                             selected: activeFilter == null,
                             onTap: () =>
                                 ref
@@ -125,7 +126,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             ),
             error: (e, _) => SliverFillRemaining(
               hasScrollBody: false,
-              child: Center(child: Text('$e')),
+              child: Center(child: Text(AppStrings.errorWithDetails(e))),
             ),
           ),
           const SliverToBoxAdapter(child: SizedBox(height: 32)),
@@ -219,7 +220,7 @@ class _DayCardState extends State<_DayCard> {
                         children: [
                           Text(
                             isToday
-                                ? 'Today'
+                                ? AppStrings.historyToday
                                 : DateFormat('EEE, d MMM').format(date),
                             style: theme.textTheme.titleSmall,
                           ),
@@ -358,15 +359,18 @@ class _EmptyHistory extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('📋', style: TextStyle(fontSize: 64)),
+          const Text(
+            AppStrings.historyEmptyEmoji,
+            style: TextStyle(fontSize: 64),
+          ),
           const SizedBox(height: 16),
           Text(
-            'No entries found',
+            AppStrings.historyEmptyTitle,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
           Text(
-            'Start logging to see your history here',
+            AppStrings.historyEmptySubtitle,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],

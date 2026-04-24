@@ -4,6 +4,7 @@ import 'package:isar/isar.dart';
 import '../../../core/models/category.dart';
 import '../../../core/models/log_entry.dart';
 import '../../../core/providers/isar_provider.dart';
+import '../../../util/string_constant.dart';
 import '../data/blind75_problems.dart';
 
 class DsaProblemStatus {
@@ -42,7 +43,9 @@ final dsaTrackerProvider = FutureProvider.autoDispose<List<DsaProblemStatus>>((
   return blind75Problems.map((prob) {
     final key = prob.name.toLowerCase();
     final attempts = byName[key] ?? [];
-    final isSolved = attempts.any((l) => l.payload['status'] == 'Solved');
+    final isSolved = attempts.any(
+      (l) => l.payload['status'] == AppStrings.solved,
+    );
     final hasTrackerProgress = attempts.any(
       (l) => l.payload['kind'] == 'tracker_progress',
     );

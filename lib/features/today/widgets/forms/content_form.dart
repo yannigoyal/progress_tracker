@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
+import '../../../../util/string_constant.dart';
 import 'form_shell.dart';
 
 class ContentForm extends StatefulWidget {
@@ -17,11 +18,11 @@ class ContentForm extends StatefulWidget {
 class _ContentFormState extends State<ContentForm> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleCtrl;
-  String _platform = 'YouTube';
-  String _status = 'Scripted';
+  String _platform = AppStrings.contentPlatformYoutube;
+  String _status = AppStrings.contentStatusScripted;
 
-  static const _platforms = ['YouTube', 'Shorts', 'Instagram', 'LinkedIn', 'Other'];
-  static const _statuses = ['Scripted', 'Recorded', 'Edited', 'Uploaded'];
+  static const _platforms = [...AppStrings.contentPlatforms];
+  static const _statuses = [...AppStrings.contentStatuses];
 
   @override
   void initState() {
@@ -58,7 +59,7 @@ class _ContentFormState extends State<ContentForm> {
   @override
   Widget build(BuildContext context) {
     return FormShell(
-      title: 'Content Creation',
+      title: AppStrings.contentFormTitle,
       category: Category.content,
       onSave: _submit,
       child: Form(
@@ -68,7 +69,7 @@ class _ContentFormState extends State<ContentForm> {
           children: [
             DropdownButtonFormField<String>(
               initialValue: _platform,
-              decoration: const InputDecoration(labelText: 'Platform'),
+              decoration: const InputDecoration(labelText: AppStrings.platform),
               isExpanded: true,
               items: _platforms
                   .map((p) => DropdownMenuItem(value: p, child: Text(p)))
@@ -78,13 +79,19 @@ class _ContentFormState extends State<ContentForm> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _titleCtrl,
-              decoration: const InputDecoration(labelText: 'Title / Topic *'),
+              decoration: const InputDecoration(
+                labelText: AppStrings.titleOrTopicRequired,
+              ),
               textCapitalization: TextCapitalization.sentences,
-              validator: (v) =>
-                  v == null || v.trim().isEmpty ? 'Required' : null,
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? AppStrings.requiredField
+                  : null,
             ),
             const SizedBox(height: 16),
-            Text('Progress', style: Theme.of(context).textTheme.labelLarge),
+            Text(
+              AppStrings.progress,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,

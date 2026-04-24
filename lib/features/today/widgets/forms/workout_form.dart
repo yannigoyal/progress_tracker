@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
+import '../../../../util/string_constant.dart';
 import 'form_shell.dart';
 
 class WorkoutForm extends StatefulWidget {
@@ -20,27 +21,28 @@ class _WorkoutFormState extends State<WorkoutForm> {
   late final TextEditingController _countCtrl;
   late final TextEditingController _setsCtrl;
   late final TextEditingController _customExerciseCtrl;
-  String _exercise = 'Pushups';
+  String _exercise = AppStrings.workoutPushups;
   bool _useCustom = false;
 
-  static const _exercises = [
-    'Pushups', 'Plank', 'Squats', 'Pull-ups', 'Dips',
-    'Lunges', 'Burpees', 'Sit-ups', 'Mountain Climbers', 'Other…',
-  ];
+  static const _exercises = [...AppStrings.workoutExercises];
 
-  bool get _isTimeBased => _exercise == 'Plank' || _exercise == 'Wall Sit';
+  bool get _isTimeBased =>
+      _exercise == AppStrings.workoutPlank ||
+      _exercise == AppStrings.workoutWallSit;
 
   @override
   void initState() {
     super.initState();
     final p = widget.existingLog?.payload ?? {};
-    final ex = p['exercise'] as String? ?? 'Pushups';
-    _exercise = _exercises.contains(ex) ? ex : 'Other…';
+    final ex = p['exercise'] as String? ?? AppStrings.workoutPushups;
+    _exercise = _exercises.contains(ex) ? ex : AppStrings.otherEllipsis;
     _customExerciseCtrl = TextEditingController(
-        text: _exercises.contains(ex) ? '' : ex);
+      text: _exercises.contains(ex) ? '' : ex,
+    );
     _useCustom = !_exercises.contains(ex);
     _countCtrl = TextEditingController(
-        text: (p['count'] ?? p['duration'])?.toString() ?? '');
+      text: (p['count'] ?? p['duration'])?.toString() ?? '',
+    );
     _setsCtrl = TextEditingController(text: p['sets']?.toString() ?? '3');
   }
 
@@ -54,8 +56,9 @@ class _WorkoutFormState extends State<WorkoutForm> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    final exerciseName =
-        _useCustom ? _customExerciseCtrl.text.trim() : _exercise;
+    final exerciseName = _useCustom
+        ? _customExerciseCtrl.text.trim()
+        : _exercise;
     final val = int.tryParse(_countCtrl.text.trim()) ?? 0;
     final sets = int.tryParse(_setsCtrl.text.trim()) ?? 1;
     final entry = (widget.existingLog ?? LogEntry())
@@ -72,7 +75,7 @@ class _WorkoutFormState extends State<WorkoutForm> {
   @override
   Widget build(BuildContext context) {
     return FormShell(
-      title: 'Workout',
+      title: AppStrings.workoutFormTitle,
       category: Category.workout,
       onSave: _submit,
       child: Form(
@@ -82,25 +85,27 @@ class _WorkoutFormState extends State<WorkoutForm> {
           children: [
             DropdownButtonFormField<String>(
               initialValue: _exercise,
-              decoration: const InputDecoration(labelText: 'Exercise'),
+              decoration: const InputDecoration(labelText: AppStrings.exercise),
               isExpanded: true,
               items: _exercises
                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                   .toList(),
               onChanged: (v) => setState(() {
                 _exercise = v!;
-                _useCustom = v == 'Other…';
+                _useCustom = v == AppStrings.otherEllipsis;
               }),
             ),
             if (_useCustom) ...[
               const SizedBox(height: 12),
               TextFormField(
                 controller: _customExerciseCtrl,
-                decoration:
-                    const InputDecoration(labelText: 'Exercise name *'),
+                decoration: const InputDecoration(
+                  labelText: AppStrings.exerciseNameRequired,
+                ),
                 textCapitalization: TextCapitalization.words,
-                validator: (v) =>
-                    v == null || v.trim().isEmpty ? 'Required' : null,
+                validator: (v) => v == null || v.trim().isEmpty
+                    ? AppStrings.requiredField
+                    : null,
               ),
             ],
             const SizedBox(height: 12),
@@ -111,20 +116,23 @@ class _WorkoutFormState extends State<WorkoutForm> {
                     controller: _countCtrl,
                     decoration: InputDecoration(
                       labelText: _isTimeBased
-                          ? 'Duration (seconds) *'
-                          : 'Count / Reps *',
+                          ? AppStrings.durationSecondsRequired
+                          : AppStrings.countOrRepsRequired,
                     ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    validator: (v) =>
-                        v == null || v.trim().isEmpty ? 'Required' : null,
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? AppStrings.requiredField
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextFormField(
                     controller: _setsCtrl,
-                    decoration: const InputDecoration(labelText: 'Sets'),
+                    decoration: const InputDecoration(
+                      labelText: AppStrings.sets,
+                    ),
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   ),

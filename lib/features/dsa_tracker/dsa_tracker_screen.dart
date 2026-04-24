@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../core/models/category.dart';
 import '../../core/models/log_entry.dart';
 import '../../core/providers/isar_provider.dart';
+import '../../util/string_constant.dart';
 import 'providers/dsa_provider.dart';
 
 class DsaTrackerScreen extends ConsumerWidget {
@@ -20,7 +21,7 @@ class DsaTrackerScreen extends ConsumerWidget {
         slivers: [
           SliverAppBar(
             pinned: true,
-            title: const Text('Blind 75'),
+            title: const Text(AppStrings.dsaTrackerScreenTitle),
             backgroundColor: theme.scaffoldBackgroundColor,
             surfaceTintColor: Colors.transparent,
           ),
@@ -45,7 +46,10 @@ class DsaTrackerScreen extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Text('solved', style: theme.textTheme.bodyMedium),
+                            Text(
+                              AppStrings.dsaSolvedLowercase,
+                              style: theme.textTheme.bodyMedium,
+                            ),
                             const Spacer(),
                             Text(
                               '${(solved / total * 100).round()}%',
@@ -83,7 +87,7 @@ class DsaTrackerScreen extends ConsumerWidget {
             ),
             error: (e, _) => SliverFillRemaining(
               hasScrollBody: false,
-              child: Center(child: Text('$e')),
+              child: Center(child: Text(AppStrings.errorWithDetails(e))),
             ),
           ),
         ],
@@ -254,8 +258,8 @@ class _ProblemRow extends ConsumerWidget {
           'problemNumber': status.problem.id,
           'problemName': status.problem.name,
           'topic': status.problem.topic,
-          'approach': 'Tracker Marked',
-          'status': 'Solved',
+          'approach': AppStrings.trackerMarked,
+          'status': AppStrings.solved,
           'kind': 'tracker_progress',
         };
 
@@ -270,8 +274,8 @@ class _ProblemRow extends ConsumerWidget {
         SnackBar(
           content: Text(
             removed
-                ? 'Removed progress for ${status.problem.name}'
-                : 'Marked ${status.problem.name} as solved',
+                ? AppStrings.removedProgressMessage(status.problem.name)
+                : AppStrings.markedSolvedMessage(status.problem.name),
           ),
           behavior: SnackBarBehavior.floating,
         ),
@@ -353,7 +357,7 @@ class _ProblemDetailsSheet extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            'Attempts (${status.attempts.length})',
+            AppStrings.attemptsWithCount(status.attempts.length),
             style: theme.textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
@@ -364,10 +368,10 @@ class _ProblemDetailsSheet extends StatelessWidget {
               child: Row(
                 children: [
                   Icon(
-                    p['status'] == 'Solved'
+                    p['status'] == AppStrings.solved
                         ? Icons.check_circle
                         : Icons.refresh,
-                    color: p['status'] == 'Solved'
+                    color: p['status'] == AppStrings.solved
                         ? const Color(0xFF22C55E)
                         : const Color(0xFFF59E0B),
                     size: 16,

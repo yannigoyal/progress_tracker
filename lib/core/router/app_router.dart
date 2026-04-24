@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/dsa_tracker/dsa_tracker_screen.dart';
 import '../../features/history/history_screen.dart';
+import '../../features/project/project_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/stats/stats_screen.dart';
 import '../../features/today/today_screen.dart';
@@ -24,6 +25,9 @@ final appRouter = GoRouter(
         ]),
         StatefulShellBranch(routes: [
           GoRoute(path: '/dsa', builder: (_, __) => const DsaTrackerScreen()),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(path: '/projects', builder: (_, __) => const ProjectScreen()),
         ]),
         StatefulShellBranch(routes: [
           GoRoute(
@@ -69,6 +73,11 @@ class _ScaffoldWithNavBar extends StatelessWidget {
             icon: Icon(Icons.code_outlined),
             selectedIcon: Icon(Icons.code),
             label: 'DSA',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.folder_outlined),
+            selectedIcon: Icon(Icons.folder),
+            label: 'Projects',
           ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),

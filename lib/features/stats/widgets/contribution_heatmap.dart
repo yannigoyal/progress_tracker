@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../util/string_constant.dart';
+
 /// GitHub-style contribution heatmap for the last 90 days.
 class ContributionHeatmap extends StatelessWidget {
   final Map<DateTime, int> data;
@@ -16,8 +18,9 @@ class ContributionHeatmap extends StatelessWidget {
     // Build 13 complete weeks ending today
     // Start at Monday of the week 12 weeks ago
     final dayOfWeek = todayDate.weekday; // 1=Mon, 7=Sun
-    final startDate = todayDate
-        .subtract(Duration(days: dayOfWeek - 1 + 12 * 7));
+    final startDate = todayDate.subtract(
+      Duration(days: dayOfWeek - 1 + 12 * 7),
+    );
 
     final weeks = <List<DateTime?>>[];
     DateTime cursor = startDate;
@@ -37,22 +40,28 @@ class ContributionHeatmap extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Last 3 months', style: theme.textTheme.titleSmall),
+        Text(
+          AppStrings.contributionHeatmapTitle,
+          style: theme.textTheme.titleSmall,
+        ),
         const SizedBox(height: 10),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Day-of-week labels
             Column(
-              children: ['M', '', 'W', '', 'F', '', 'S']
-                  .map((label) => SizedBox(
-                        height: 13,
-                        child: Text(
-                          label,
-                          style: theme.textTheme.labelSmall
-                              ?.copyWith(fontSize: 9),
+              children: AppStrings.contributionHeatmapWeekdayLabels
+                  .map(
+                    (label) => SizedBox(
+                      height: 13,
+                      child: Text(
+                        label,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          fontSize: 9,
                         ),
-                      ))
+                      ),
+                    ),
+                  )
                   .toList(),
             ),
             const SizedBox(width: 4),
@@ -77,9 +86,12 @@ class ContributionHeatmap extends StatelessWidget {
                         SizedBox(
                           height: 12,
                           child: monthLabel != null
-                              ? Text(monthLabel,
-                                  style: theme.textTheme.labelSmall
-                                      ?.copyWith(fontSize: 9))
+                              ? Text(
+                                  monthLabel,
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    fontSize: 9,
+                                  ),
+                                )
                               : null,
                         ),
                         ...week.map((day) {
@@ -98,8 +110,10 @@ class ContributionHeatmap extends StatelessWidget {
                                   intensity,
                                 )!;
                           return Tooltip(
-                            message:
-                                '${DateFormat('MMM d').format(day)}: $count log${count == 1 ? '' : 's'}',
+                            message: AppStrings.contributionTooltip(
+                              DateFormat('MMM d').format(day),
+                              count,
+                            ),
                             child: Container(
                               width: 11,
                               height: 11,

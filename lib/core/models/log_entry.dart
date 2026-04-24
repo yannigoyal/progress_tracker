@@ -61,6 +61,11 @@ class LogEntry {
         if (title != null && title.isNotEmpty) return title;
         return (p['note'] as String? ?? '').split('\n').first;
       }(),
+      Category.project => () {
+        final name = p['projectName'] as String? ?? '';
+        final done = p['whatDone'] as String? ?? '';
+        return name.isNotEmpty ? '$name — ${done.split('\n').first}' : done;
+      }(),
     };
   }
 
@@ -120,6 +125,14 @@ class LogEntry {
           return lines.join(' · ');
         }
         return lines.length <= 1 ? '' : lines.skip(1).join(' · ');
+      }(),
+      Category.project => () {
+        final done = p['whatDone'] as String? ?? '';
+        final learnt = p['whatLearnt'] as String? ?? '';
+        if (done.isNotEmpty && learnt.isNotEmpty) {
+          return '$done · $learnt';
+        }
+        return done.isNotEmpty ? done : learnt;
       }(),
     };
   }

@@ -4,6 +4,7 @@ import 'package:isar/isar.dart';
 import '../../../core/models/category.dart';
 import '../../../core/models/log_entry.dart';
 import '../../../core/providers/isar_provider.dart';
+import '../../../util/string_constant.dart';
 
 class StatsData {
   final int currentStreak;
@@ -30,7 +31,10 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
 
     final allLogs = await isar.logEntrys
         .where()
-        .createdAtBetween(DateTime.fromMillisecondsSinceEpoch(0), DateTime(2100))
+        .createdAtBetween(
+          DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime(2100),
+        )
         .findAll();
 
     // Group by local date
@@ -66,7 +70,8 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
     // Heatmap: last 90 days
     final heatmapData = {
       for (var i = 89; i >= 0; i--)
-        today.subtract(Duration(days: i)): byDay[today.subtract(Duration(days: i))]?.length ?? 0,
+        today.subtract(Duration(days: i)):
+            byDay[today.subtract(Duration(days: i))]?.length ?? 0,
     };
 
     // Specialised category totals
@@ -75,12 +80,17 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
       final p = log.payload;
       switch (log.category) {
         case Category.dsa:
-          if (p['status'] == 'Solved') totals[Category.dsa] = totals[Category.dsa]! + 1;
+          if (p['status'] == AppStrings.solved) {
+            totals[Category.dsa] = totals[Category.dsa]! + 1;
+          }
         case Category.content:
-          if (p['status'] == 'Uploaded') totals[Category.content] = totals[Category.content]! + 1;
+          if (p['status'] == AppStrings.contentStatusUploaded) {
+            totals[Category.content] = totals[Category.content]! + 1;
+          }
         case Category.workout:
           totals[Category.workout] =
-              totals[Category.workout]! + ((p['count'] ?? p['duration'] ?? 0) as int);
+              totals[Category.workout]! +
+              ((p['count'] ?? p['duration'] ?? 0) as int);
         case Category.reading:
           totals[Category.reading] =
               totals[Category.reading]! + ((p['pagesRead'] ?? 0) as int);
@@ -88,6 +98,8 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
           totals[Category.learning] = totals[Category.learning]! + 1;
         case Category.misc:
           totals[Category.misc] = totals[Category.misc]! + 1;
+        case Category.project:
+          totals[Category.project] = totals[Category.project]! + 1;
       }
     }
 
@@ -107,5 +119,6 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
   }
 }
 
-final statsProvider =
-    AsyncNotifierProvider<StatsNotifier, StatsData>(StatsNotifier.new);
+final statsProvider = AsyncNotifierProvider<StatsNotifier, StatsData>(
+  StatsNotifier.new,
+);

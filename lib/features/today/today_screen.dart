@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/models/category.dart';
+import '../../util/string_constant.dart';
 import 'providers/today_provider.dart';
 import 'widgets/add_log_bottom_sheet.dart';
 import 'widgets/category_chip_row.dart';
@@ -33,12 +34,14 @@ class TodayScreen extends ConsumerWidget {
                   children: [
                     dayAsync.when(
                       data: (d) => Text(
-                        'Day $d',
+                        AppStrings.todayScreenDay(d),
                         style: theme.textTheme.displayLarge,
                       ),
-                      loading: () => Text('Day —',
-                          style: theme.textTheme.displayLarge),
-                      error: (_, __) => const SizedBox.shrink(),
+                      loading: () => Text(
+                        AppStrings.todayScreenLoadingDay,
+                        style: theme.textTheme.displayLarge,
+                      ),
+                      error: (error, stackTrace) => const SizedBox.shrink(),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -52,8 +55,7 @@ class TodayScreen extends ConsumerWidget {
 
             // ── Category chips ───────────────────────────────────────────
             SliverToBoxAdapter(
-              child: CategoryChipRow(
-                  logs: logsAsync.valueOrNull ?? []),
+              child: CategoryChipRow(logs: logsAsync.valueOrNull ?? []),
             ),
 
             const SliverToBoxAdapter(child: SizedBox(height: 12)),
@@ -73,8 +75,10 @@ class TodayScreen extends ConsumerWidget {
               error: (e, _) => SliverFillRemaining(
                 hasScrollBody: false,
                 child: Center(
-                  child: Text('Something went wrong\n$e',
-                      textAlign: TextAlign.center),
+                  child: Text(
+                    AppStrings.genericScreenError(e),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
             ),
@@ -85,7 +89,7 @@ class TodayScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showCategoryPicker(context, ref),
-        tooltip: 'Add log',
+        tooltip: AppStrings.todayScreenAddLogTooltip,
         child: const Icon(Icons.add, size: 26),
       ),
     );
@@ -132,15 +136,18 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text('🌱', style: TextStyle(fontSize: 72)),
+          const Text(
+            AppStrings.todayScreenEmptyEmoji,
+            style: TextStyle(fontSize: 72),
+          ),
           const SizedBox(height: 20),
           Text(
-            'Nothing logged yet today',
+            AppStrings.todayScreenEmptyTitle,
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
           Text(
-            'Tap + to add your first entry',
+            AppStrings.todayScreenEmptySubtitle,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],

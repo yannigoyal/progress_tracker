@@ -4,6 +4,7 @@ import 'package:isar/isar.dart';
 import '../../../core/models/category.dart';
 import '../../../core/models/log_entry.dart';
 import '../../../core/providers/isar_provider.dart';
+import '../../../util/string_constant.dart';
 
 // ── Filter state ──────────────────────────────────────────────────────────────
 
@@ -31,17 +32,17 @@ class DayLogs {
     }
 
     if (byCat[Category.dsa] case final dsa? when dsa.isNotEmpty) {
-      parts.add('${dsa.length} DSA');
+      parts.add(AppStrings.historyDsaSummary(dsa.length));
     }
     if (byCat[Category.content] case final c? when c.isNotEmpty) {
-      parts.add('${c.length} video${c.length > 1 ? 's' : ''}');
+      parts.add(AppStrings.historyVideoSummary(c.length));
     }
     if (byCat[Category.workout] case final w? when w.isNotEmpty) {
       final reps = w.fold(0, (s, l) => s + ((l.payload['count'] ?? 0) as int));
       parts.add(
         reps > 0
-            ? '$reps reps'
-            : '${w.length} workout${w.length > 1 ? 's' : ''}',
+            ? AppStrings.historyRepsSummary(reps)
+            : AppStrings.historyWorkoutSummary(w.length),
       );
     }
     if (byCat[Category.reading] case final r? when r.isNotEmpty) {
@@ -49,12 +50,12 @@ class DayLogs {
         0,
         (s, l) => s + ((l.payload['pagesRead'] ?? 0) as int),
       );
-      parts.add('$pages pages');
+      parts.add(AppStrings.historyPagesSummary(pages));
     }
     if (byCat[Category.learning] case final l? when l.isNotEmpty) {
-      parts.add('${l.length} note${l.length > 1 ? 's' : ''}');
+      parts.add(AppStrings.historyNotesSummary(l.length));
     }
-    return parts.isEmpty ? 'No tracked work' : parts.join(' · ');
+    return parts.isEmpty ? AppStrings.historyNoTrackedWork : parts.join(' · ');
   }
 
   bool _isPlaceholder(LogEntry log) {
@@ -63,8 +64,8 @@ class DayLogs {
 
     final note = (payload['note'] as String?)?.trim().toLowerCase();
     return note != null &&
-        note.startsWith('no ') &&
-        note.endsWith(' activity logged.');
+        note.startsWith(AppStrings.noPrefix) &&
+        note.endsWith(AppStrings.activityLoggedSuffix);
   }
 }
 

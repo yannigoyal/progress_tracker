@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/models/category.dart';
 import '../../../core/models/log_entry.dart';
+import '../../../util/string_constant.dart';
 import '../providers/today_provider.dart';
 import 'add_log_bottom_sheet.dart';
 
@@ -167,7 +168,10 @@ class _LogItem extends ConsumerWidget {
           children: [
             Icon(Icons.delete_outline, color: Colors.white, size: 20),
             SizedBox(height: 2),
-            Text('Delete', style: TextStyle(color: Colors.white, fontSize: 10)),
+            Text(
+              AppStrings.delete,
+              style: TextStyle(color: Colors.white, fontSize: 10),
+            ),
           ],
         ),
       ),
@@ -175,17 +179,17 @@ class _LogItem extends ConsumerWidget {
         return await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
-            title: const Text('Delete log?'),
-            content: Text('Remove "${log.displayTitle}"?'),
+            title: const Text(AppStrings.deleteLogTitle),
+            content: Text(AppStrings.deleteLogMessage(log.displayTitle)),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text('Cancel'),
+                child: const Text(AppStrings.cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, true),
                 child: const Text(
-                  'Delete',
+                  AppStrings.delete,
                   style: TextStyle(color: Color(0xFFF87171)),
                 ),
               ),

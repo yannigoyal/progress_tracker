@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
+import '../../../../util/string_constant.dart';
 import 'form_shell.dart';
 
 class LearningForm extends StatefulWidget {
@@ -19,10 +20,7 @@ class _LearningFormState extends State<LearningForm> {
   late final TextEditingController _noteCtrl;
   late final Set<String> _selectedTags;
 
-  static const _availableTags = [
-    'Flutter', 'Dart', 'DSA', 'AI', 'Web3', 'Backend',
-    'System Design', 'DevOps', 'iOS', 'Android', 'Web', 'Math',
-  ];
+  static const _availableTags = [...AppStrings.learningTags];
 
   @override
   void initState() {
@@ -30,7 +28,8 @@ class _LearningFormState extends State<LearningForm> {
     final p = widget.existingLog?.payload ?? {};
     _noteCtrl = TextEditingController(text: p['note'] as String? ?? '');
     _selectedTags = Set<String>.from(
-        (p['tags'] as List?)?.cast<String>() ?? []);
+      (p['tags'] as List?)?.cast<String>() ?? [],
+    );
   }
 
   @override
@@ -54,7 +53,7 @@ class _LearningFormState extends State<LearningForm> {
   @override
   Widget build(BuildContext context) {
     return FormShell(
-      title: 'Learning',
+      title: AppStrings.learningFormTitle,
       category: Category.learning,
       onSave: _submit,
       child: Form(
@@ -65,16 +64,20 @@ class _LearningFormState extends State<LearningForm> {
             TextFormField(
               controller: _noteCtrl,
               decoration: const InputDecoration(
-                labelText: 'What did you learn? *',
+                labelText: AppStrings.whatDidYouLearnRequired,
                 alignLabelWithHint: true,
               ),
               maxLines: 4,
               textCapitalization: TextCapitalization.sentences,
-              validator: (v) =>
-                  v == null || v.trim().isEmpty ? 'Required' : null,
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? AppStrings.requiredField
+                  : null,
             ),
             const SizedBox(height: 16),
-            Text('Tags', style: Theme.of(context).textTheme.labelLarge),
+            Text(
+              AppStrings.tags,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,

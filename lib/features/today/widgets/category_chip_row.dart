@@ -15,8 +15,7 @@ class CategoryChipRow extends StatelessWidget {
       counts[l.category] = (counts[l.category] ?? 0) + 1;
     }
 
-    final active =
-        Category.values.where((c) => counts.containsKey(c)).toList();
+    final active = Category.values.where((c) => counts.containsKey(c)).toList();
 
     if (active.isEmpty) return const SizedBox(height: 8);
 
@@ -26,7 +25,7 @@ class CategoryChipRow extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: active.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        separatorBuilder: (context, index) => const SizedBox(width: 8),
         itemBuilder: (context, i) {
           final cat = active[i];
           final count = counts[cat]!;
