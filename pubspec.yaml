@@ -1,0 +1,49 @@
+name: daily_log
+description: DailyLog — Personal daily progress tracker
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.6.1
+  hooks_riverpod: ^2.6.1
+  flutter_hooks: ^0.21.2
+  riverpod_annotation: ^2.6.1
+
+  # Storage
+  isar: ^3.1.0+1
+  isar_flutter_libs:
+    path: third_party/isar_flutter_libs
+  path_provider: ^2.1.5
+
+  # Navigation
+  go_router: ^14.6.3
+
+  # Charts
+  fl_chart: ^0.70.2
+
+  # Fonts & localisation
+  google_fonts: ^6.2.1
+  intl: ^0.19.0
+
+  # Utils
+  uuid: ^4.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner: ^2.4.13
+  isar_generator: ^3.1.0+1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - PROGRESS.md
+    - PROGRESS.json

@@ -1,0 +1,804 @@
+{
+  "journal": {
+    "month": "April 2026",
+    "days": [
+      {
+        "day_number": 1,
+        "date": "2026-04-01",
+        "entries": {
+          "dsa": [],
+          "long_video": [],
+          "short_video": [
+            {
+              "title": "DP Basics",
+              "status": "edited"
+            }
+          ],
+          "workout": [],
+          "reading": [],
+          "misc": []
+        }
+      },
+      {
+        "day_number": 2,
+        "date": "2026-04-02",
+        "entries": {
+          "dsa": [],
+          "long_video": [
+            {
+              "title": "Climbing Stairs Problem in Flutter",
+              "status": "edited"
+            }
+          ],
+          "short_video": [],
+          "workout": [],
+          "reading": [
+            {
+              "book": "Read about Claude",
+              "pages": null
+            }
+          ],
+          "misc": [
+            {
+              "note": "Stoic mindset - I'll prepare well, but results are not in my control -> stable mindset -> consistent effort"
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 3,
+        "date": "2026-04-03",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Climbing Stairs",
+              "problem_number": null,
+              "tasks": ["source code written", "explanation written"]
+            },
+            {
+              "problem": "Coin Change II",
+              "problem_number": null,
+              "tasks": ["recursion solution written", "script written for YouTube"]
+            }
+          ],
+          "long_video": [],
+          "short_video": [
+            {
+              "title": "Coin Change II - Flutter checkout bug",
+              "status": "made"
+            }
+          ],
+          "workout": [],
+          "reading": [
+            {
+              "book": "The Obstacle Is the Way",
+              "pages": 6
+            }
+          ],
+          "misc": [
+            { "note": "Readme added in Blind75 Series GitHub repo" },
+            { "note": "Checked out transitions for video edit" },
+            { "note": "Organised bookmark bar in Chrome" },
+            {
+              "note": "Acceptance doesn't mean giving up-it means moving forward without unnecessary suffering."
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 4,
+        "date": "2026-04-04",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Coin Change II",
+              "problem_number": null,
+              "tasks": ["source code written", "explanation written"]
+            }
+          ],
+          "long_video": [
+            {
+              "title": "Coin Change II - memorisation, tabulation, space optimisation",
+              "status": "edited"
+            }
+          ],
+          "short_video": [],
+          "workout": [
+            { "exercise": "pushups", "reps": 12 }
+          ],
+          "reading": [
+            {
+              "book": "The Obstacle Is the Way",
+              "pages": 6
+            }
+          ],
+          "misc": [
+            { "note": "Readme updated in Blind75 GitHub repo" },
+            {
+              "note": "Video creation taking 4-5 hrs. Decision: simplify to 1-2 approaches, improve speed and consistency."
+            },
+            { "note": "Greatness is loving your fate exactly as it is." }
+          ]
+        }
+      },
+      {
+        "day_number": 5,
+        "date": "2026-04-05",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Longest Increasing Subsequence",
+              "problem_number": null,
+              "tasks": ["source code written", "explanation written"],
+              "notes": "lower_bound: finds first element >= specified value in sorted range"
+            }
+          ],
+          "long_video": [
+            {
+              "title": "LIS - memorisation, recursion",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [],
+          "workout": [
+            { "exercise": "pushups", "reps": 20 }
+          ],
+          "reading": [
+            {
+              "book": "The Obstacle Is the Way",
+              "pages": 5
+            }
+          ],
+          "misc": [
+            { "note": "Readme updated in Blind75 GitHub repo" },
+            { "note": "Revised 18 problems solved till now" },
+            {
+              "note": "Shifted focus toward consistency and faster execution by reducing overthinking and perfectionism."
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 6,
+        "date": "2026-04-06",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Longest Common Subsequence",
+              "problem_number": null,
+              "tasks": ["source code written", "explanation written"]
+            }
+          ],
+          "long_video": [
+            {
+              "title": "LCS - memorisation, recursion",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [
+            {
+              "title": "Word Break",
+              "status": "script written (AI assisted)"
+            }
+          ],
+          "workout": [
+            { "exercise": "pushups", "reps": 20 }
+          ],
+          "reading": [
+            {
+              "book": "The Obstacle Is the Way",
+              "pages": 6
+            }
+          ],
+          "misc": [
+            { "note": "Readme updated in Blind75 GitHub repo" },
+            {
+              "note": "Do what you can to make the world better, even if your impact feels small."
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 7,
+        "date": "2026-04-07",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Word Break",
+              "problem_number": null,
+              "tasks": ["source code written", "explanation written"]
+            }
+          ],
+          "long_video": [
+            {
+              "title": "Word Break - memorisation, recursion",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [
+            {
+              "title": "Word Break Problem Short",
+              "status": "uploaded"
+            }
+          ],
+          "workout": [
+            { "exercise": "pushups", "reps": 15 }
+          ],
+          "reading": [
+            {
+              "book": "The Obstacle Is the Way",
+              "pages": 7
+            }
+          ],
+          "misc": [
+            { "note": "Readme updated in Blind75 GitHub repo" },
+            { "note": "Wrote down prompts for easy copy-paste" },
+            { "note": "Managed work update tasks" }
+          ]
+        }
+      },
+      {
+        "day_number": 8,
+        "date": "2026-04-08",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Combination Sum",
+              "problem_number": null,
+              "tasks": ["source code written", "explanation written"]
+            }
+          ],
+          "long_video": [
+            {
+              "title": "Combination Sum - backtracking",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [
+            {
+              "title": "setState Internal Working in Flutter",
+              "status": "uploaded"
+            }
+          ],
+          "workout": [
+            { "exercise": "pushups", "reps": 25 }
+          ],
+          "reading": [
+            {
+              "book": "The Obstacle Is the Way",
+              "pages": 6
+            }
+          ],
+          "misc": [
+            { "note": "Readme updated in Blind75 GitHub repo" },
+            { "note": "Wrote down prompt for YT script" },
+            {
+              "note": "See reality clearly. Do your best. Stay strong through challenges."
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 9,
+        "date": "2026-04-09",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "House Robber",
+              "problem_number": null,
+              "tasks": ["video made", "different code approaches understood"]
+            }
+          ],
+          "long_video": [],
+          "short_video": [
+            {
+              "title": "Advantages of Using Flutter",
+              "status": "uploaded"
+            }
+          ],
+          "workout": [
+            { "exercise": "pushups", "reps": 26 }
+          ],
+          "reading": [
+            {
+              "book": "The Obstacle Is the Way",
+              "pages": 6,
+              "note": "Book Completed"
+            }
+          ],
+          "misc": [
+            {
+              "note": "Real philosophy is not what you say, it's how you live."
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 10,
+        "date": "2026-04-10",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "House Robber II",
+              "problem_number": null,
+              "tasks": ["video made", "different code approaches understood"]
+            }
+          ],
+          "long_video": [
+            {
+              "title": "House Robber",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [],
+          "workout": [
+            { "exercise": "pushups", "reps": 27 }
+          ],
+          "reading": [
+            {
+              "book": "The 4-Hour Work Week",
+              "pages": 5
+            }
+          ],
+          "misc": [
+            { "note": "Fixed hard disk and partition space issues" }
+          ]
+        }
+      },
+      {
+        "day_number": 11,
+        "date": "2026-04-11",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Decode Ways",
+              "problem_number": 24,
+              "tasks": ["video made", "memorisation and recursion understood"],
+              "github": "Blind75 updated"
+            }
+          ],
+          "long_video": [
+            {
+              "title": "House Robber II",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [],
+          "workout": [
+            { "exercise": "pushups", "reps": 39, "sets": [29, 10] }
+          ],
+          "reading": [
+            {
+              "book": "The 4-Hour Work Week",
+              "pages": 14
+            }
+          ],
+          "misc": [
+            {
+              "note": "Revision of 10/24 problems, wrote notes in notebook (Total: 10)"
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 12,
+        "date": "2026-04-12",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Grid Unique Paths",
+              "problem_number": 25,
+              "tasks": ["video made", "memorisation and recursion understood"],
+              "github": "Blind75 updated"
+            }
+          ],
+          "long_video": [
+            {
+              "title": "Decode Ways",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [],
+          "workout": [
+            { "exercise": "pushups", "reps": 30 }
+          ],
+          "reading": [
+            {
+              "book": "The 4-Hour Work Week",
+              "pages": 8
+            }
+          ],
+          "misc": [
+            {
+              "note": "Revision of 18/24 problems from problem 10, notes in notebook (Total: 8)"
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 13,
+        "date": "2026-04-13",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Jump Game I",
+              "problem_number": 26,
+              "tasks": [
+                "video made",
+                "memorisation, recursion, and optimal technique understood"
+              ],
+              "github": "Blind75 updated"
+            }
+          ],
+          "long_video": [
+            {
+              "title": "Unique Paths",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [],
+          "workout": [
+            { "exercise": "pushups", "reps": 31 }
+          ],
+          "reading": [
+            {
+              "book": "The 4-Hour Work Week",
+              "pages": 4
+            }
+          ],
+          "misc": [
+            {
+              "note": "Revision of 19/24 problems from problem 18, notes in notebook (Total: 1)"
+            },
+            {
+              "note": "Tried Gemini and Perplexity for short video Python script generation"
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 14,
+        "date": "2026-04-14",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Basics of Graph, Adjacency List, BFS, DFS",
+              "problem_number": null,
+              "tasks": ["concepts studied"]
+            }
+          ],
+          "long_video": [
+            {
+              "title": "Jump Game",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [
+            {
+              "title": "Jump Game Short",
+              "status": "uploaded"
+            }
+          ],
+          "workout": [
+            { "exercise": "pushups", "reps": 52, "sets": [32, 20] }
+          ],
+          "reading": [
+            {
+              "book": "The 4-Hour Work Week",
+              "pages": 5
+            }
+          ],
+          "misc": []
+        }
+      },
+      {
+        "day_number": 15,
+        "date": "2026-04-15",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Clone Graph",
+              "problem_number": 27,
+              "tasks": ["video created", "DFS understanding"],
+              "github": "Blind75 updated"
+            }
+          ],
+          "long_video": [],
+          "short_video": [
+            {
+              "title": "Flutter Trees",
+              "status": "uploaded"
+            }
+          ],
+          "workout": [
+            { "exercise": "pushups", "reps": 33 }
+          ],
+          "reading": [],
+          "misc": [
+            { "note": "Explored new AI tools and prompts for short videos" },
+            {
+              "note": "Revised problems 19-20/27, noted recursion and memoisation (Total: 1)"
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 16,
+        "date": "2026-04-16",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Course Schedule",
+              "problem_number": 28,
+              "tasks": ["video completed", "DFS understanding"],
+              "github": "Blind75 updated"
+            }
+          ],
+          "long_video": [
+            {
+              "title": "Clone Graph",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [],
+          "workout": [
+            { "exercise": "pushups", "reps": 35 },
+            { "exercise": "plank", "duration_seconds": 80 }
+          ],
+          "reading": [
+            {
+              "book": "The 4-Hour Work Week",
+              "pages": 10
+            }
+          ],
+          "misc": [
+            { "note": "Revised Word Break (Tabulation)" },
+            {
+              "note": "Revised problems 20-23/28, noted recursion, memoisation, tabulation (Total: 3)"
+            },
+            { "note": "Researched idea for the app" }
+          ]
+        }
+      },
+      {
+        "day_number": 17,
+        "date": "2026-04-17",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Pacific Atlantic Water Flow",
+              "problem_number": 29,
+              "tasks": ["video completed"]
+            }
+          ],
+          "long_video": [
+            {
+              "title": "Course Schedule",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [],
+          "workout": [
+            { "exercise": "pushups", "reps": 35 }
+          ],
+          "reading": [],
+          "misc": [
+            {
+              "note": "Revised problems 23-25/29, noted recursion, memoisation, tabulation (Total: 2)"
+            },
+            {
+              "note": "Baatchit with Claude about clarity of things and performance"
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 18,
+        "date": "2026-04-18",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Number of Islands",
+              "problem_number": 30,
+              "tasks": ["video completed"]
+            }
+          ],
+          "long_video": [
+            {
+              "title": "Pacific Atlantic Water Flow",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [],
+          "workout": [
+            { "exercise": "pushups", "reps": 30 }
+          ],
+          "reading": [
+            {
+              "book": "The 4-Hour Work Week",
+              "pages": 4
+            }
+          ],
+          "misc": [
+            {
+              "note": "Revised problems 25-30/30, made notes (Total: 4)"
+            },
+            {
+              "note": "Being busy is a form of laziness - lazy thinking and indiscriminate action."
+            },
+            {
+              "note": "Parkinson's Law: Give yourself less time, get more done."
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 19,
+        "date": "2026-04-19",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Longest Consecutive Sequence",
+              "problem_number": 31,
+              "tasks": ["video completed", "uploaded"]
+            }
+          ],
+          "long_video": [
+            {
+              "title": "Number of Islands",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [],
+          "workout": [
+            { "exercise": "pushups", "reps": 50, "sets": [20, 15, 15] }
+          ],
+          "reading": [
+            {
+              "book": "The 4-Hour Work Week",
+              "pages": 9
+            }
+          ],
+          "misc": [
+            { "note": "Reported bug: Instagram 60 min != 1 hr" },
+            { "note": "Wrote script for Udemy 1-hour course after research" },
+            {
+              "note": "We create stress for ourselves because we feel like we have to do it."
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 20,
+        "date": "2026-04-20",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Alien Dictionary",
+              "problem_number": 32,
+              "tasks": ["video completed"]
+            }
+          ],
+          "long_video": [],
+          "short_video": [],
+          "workout": [],
+          "reading": [
+            {
+              "book": "The 4-Hour Work Week",
+              "pages": 20
+            }
+          ],
+          "misc": [
+            { "note": "Revision of Flutter Notes (Till 60 Points)" },
+            { "note": "Found NoteGPT for YouTube video summary" },
+            {
+              "note": "Learning to ignore things is one of the great paths to inner peace."
+            }
+          ]
+        }
+      },
+      {
+        "day_number": 21,
+        "date": "2026-04-21",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Graph Valid Tree",
+              "problem_number": 33,
+              "tasks": ["video completed"]
+            },
+            {
+              "problem": "Connected Components",
+              "problem_number": 34,
+              "tasks": ["video completed"]
+            }
+          ],
+          "long_video": [
+            {
+              "title": "Alien Dictionary",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [],
+          "workout": [],
+          "reading": [
+            {
+              "book": "The 4-Hour Work Week",
+              "pages": null
+            }
+          ],
+          "misc": [
+            { "note": "Revision of Flutter Notes Complete" }
+          ]
+        }
+      },
+      {
+        "day_number": 22,
+        "date": "2026-04-22",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Insert Interval",
+              "problem_number": 35,
+              "tasks": ["video completed"]
+            }
+          ],
+          "long_video": [
+            {
+              "title": "Graph Valid Tree",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [
+            {
+              "title": "MVVM vs Feature-First in Flutter",
+              "status": "uploaded"
+            }
+          ],
+          "workout": [],
+          "reading": [
+            {
+              "book": "The 4-Hour Work Week",
+              "pages": null
+            }
+          ],
+          "misc": [
+            { "note": "R&D on Tracker app" }
+          ]
+        }
+      },
+      {
+        "day_number": 23,
+        "date": "2026-04-23",
+        "entries": {
+          "dsa": [
+            {
+              "problem": "Merge Intervals",
+              "problem_number": 36,
+              "tasks": ["video completed"]
+            }
+          ],
+          "long_video": [
+            {
+              "title": "Connected Components",
+              "status": "uploaded"
+            }
+          ],
+          "short_video": [],
+          "workout": [],
+          "reading": [
+            {
+              "book": "Blockchain and Web3 research",
+              "pages": null
+            }
+          ],
+          "misc": [
+            {
+              "note": "Nobody can give you freedom. Nobody can give you equality or justice or anything. If you're a man, you take it."
+            }
+          ]
+        }
+      }
+    ]
+  }
+}

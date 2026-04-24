@@ -1,0 +1,150 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+
+import '../../core/models/category.dart';
+import 'providers/today_provider.dart';
+import 'widgets/add_log_bottom_sheet.dart';
+import 'widgets/category_chip_row.dart';
+import 'widgets/log_list_view.dart';
+
+class TodayScreen extends ConsumerWidget {
+  const TodayScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final logsAsync = ref.watch(todayLogsProvider);
+    final dayAsync = ref.watch(dayNumberProvider);
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      body: RefreshIndicator(
+        onRefresh: () => ref.refresh(todayLogsProvider.future),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            // ── Header ──────────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(20, 56, 20, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    dayAsync.when(
+                      data: (d) => Text(
+                        'Day $d',
+                        style: theme.textTheme.displayLarge,
+                      ),
+                      loading: () => Text('Day —',
+                          style: theme.textTheme.displayLarge),
+                      error: (_, __) => const SizedBox.shrink(),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      DateFormat('EEE, d MMM').format(DateTime.now()),
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ── Category chips ───────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: CategoryChipRow(
+                  logs: logsAsync.valueOrNull ?? []),
+            ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 12)),
+
+            // ── Log list / empty state ───────────────────────────────────
+            logsAsync.when(
+              data: (logs) => logs.isEmpty
+                  ? const SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: _EmptyState(),
+                    )
+                  : LogListView(logs: logs),
+              loading: () => const SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              error: (e, _) => SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: Text('Something went wrong\n$e',
+                      textAlign: TextAlign.center),
+                ),
+              ),
+            ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 100)),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showCategoryPicker(context, ref),
+        tooltip: 'Add log',
+        child: const Icon(Icons.add, size: 26),
+      ),
+    );
+  }
+
+  void _showCategoryPicker(BuildContext context, WidgetRef ref) {
+    HapticFeedback.mediumImpact();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetCtx) => AddLogBottomSheet(
+        onCategorySelected: (category) {
+          Navigator.of(sheetCtx).pop();
+          _showLogForm(context, ref, category);
+        },
+      ),
+    );
+  }
+
+  void _showLogForm(BuildContext context, WidgetRef ref, Category category) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (formCtx) => LogFormSheet(
+        category: category,
+        onSave: (entry) async {
+          Navigator.of(formCtx).pop();
+          HapticFeedback.lightImpact();
+          await ref.read(todayLogsProvider.notifier).addLog(entry);
+        },
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('🌱', style: TextStyle(fontSize: 72)),
+          const SizedBox(height: 20),
+          Text(
+            'Nothing logged yet today',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Tap + to add your first entry',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+        ],
+      ),
+    );
+  }
+}

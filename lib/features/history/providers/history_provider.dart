@@ -1,0 +1,116 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:isar/isar.dart';
+
+import '../../../core/models/category.dart';
+import '../../../core/models/log_entry.dart';
+import '../../../core/providers/isar_provider.dart';
+
+// ── Filter state ──────────────────────────────────────────────────────────────
+
+final historySearchProvider = StateProvider<String>((ref) => '');
+final historyCategoryFilterProvider = StateProvider<Category?>((ref) => null);
+
+// ── Grouped day model ─────────────────────────────────────────────────────────
+
+class DayLogs {
+  final DateTime date;
+  final List<LogEntry> logs;
+
+  DayLogs({required this.date, required this.logs});
+
+  List<LogEntry> get actualLogs =>
+      logs.where((log) => !_isPlaceholder(log)).toList();
+
+  int get actualCount => actualLogs.length;
+
+  String get summary {
+    final parts = <String>[];
+    final byCat = <Category, List<LogEntry>>{};
+    for (final l in actualLogs) {
+      (byCat[l.category] ??= []).add(l);
+    }
+
+    if (byCat[Category.dsa] case final dsa? when dsa.isNotEmpty) {
+      parts.add('${dsa.length} DSA');
+    }
+    if (byCat[Category.content] case final c? when c.isNotEmpty) {
+      parts.add('${c.length} video${c.length > 1 ? 's' : ''}');
+    }
+    if (byCat[Category.workout] case final w? when w.isNotEmpty) {
+      final reps = w.fold(0, (s, l) => s + ((l.payload['count'] ?? 0) as int));
+      parts.add(
+        reps > 0
+            ? '$reps reps'
+            : '${w.length} workout${w.length > 1 ? 's' : ''}',
+      );
+    }
+    if (byCat[Category.reading] case final r? when r.isNotEmpty) {
+      final pages = r.fold(
+        0,
+        (s, l) => s + ((l.payload['pagesRead'] ?? 0) as int),
+      );
+      parts.add('$pages pages');
+    }
+    if (byCat[Category.learning] case final l? when l.isNotEmpty) {
+      parts.add('${l.length} note${l.length > 1 ? 's' : ''}');
+    }
+    return parts.isEmpty ? 'No tracked work' : parts.join(' · ');
+  }
+
+  bool _isPlaceholder(LogEntry log) {
+    final payload = log.payload;
+    if (payload['placeholder'] == true) return true;
+
+    final note = (payload['note'] as String?)?.trim().toLowerCase();
+    return note != null &&
+        note.startsWith('no ') &&
+        note.endsWith(' activity logged.');
+  }
+}
+
+// ── Provider ──────────────────────────────────────────────────────────────────
+
+final historyProvider = FutureProvider.autoDispose<List<DayLogs>>((ref) async {
+  final isar = ref.watch(isarProvider);
+  final query = ref.watch(historySearchProvider);
+  final categoryFilter = ref.watch(historyCategoryFilterProvider);
+
+  List<LogEntry> all;
+  if (categoryFilter != null) {
+    all = await isar.logEntrys
+        .where()
+        .categoryIndexEqualTo(categoryFilter.index)
+        .sortByCreatedAtDesc()
+        .findAll();
+  } else {
+    all = await isar.logEntrys
+        .where()
+        .createdAtBetween(
+          DateTime.fromMillisecondsSinceEpoch(0),
+          DateTime(2100),
+        )
+        .sortByCreatedAtDesc()
+        .findAll();
+  }
+
+  // Search filter
+  if (query.isNotEmpty) {
+    final q = query.toLowerCase();
+    all = all.where((l) {
+      return l.displayTitle.toLowerCase().contains(q) ||
+          l.displaySubtitle.toLowerCase().contains(q) ||
+          l.payloadJson.toLowerCase().contains(q);
+    }).toList();
+  }
+
+  // Group by local date
+  final Map<DateTime, List<LogEntry>> byDay = {};
+  for (final l in all) {
+    final local = l.createdAt.toLocal();
+    final day = DateTime(local.year, local.month, local.day);
+    (byDay[day] ??= []).add(l);
+  }
+
+  final days = byDay.keys.toList()..sort((a, b) => b.compareTo(a));
+  return days.map((d) => DayLogs(date: d, logs: byDay[d]!)).toList();
+});
