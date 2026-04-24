@@ -3,23 +3,6 @@
     "month": "April 2026",
     "days": [
       {
-        "day_number": 1,
-        "date": "2026-04-01",
-        "entries": {
-          "dsa": [],
-          "long_video": [],
-          "short_video": [
-            {
-              "title": "DP Basics",
-              "status": "edited"
-            }
-          ],
-          "workout": [],
-          "reading": [],
-          "misc": []
-        }
-      },
-      {
         "day_number": 2,
         "date": "2026-04-02",
         "entries": {
@@ -79,9 +62,7 @@
             { "note": "Readme added in Blind75 Series GitHub repo" },
             { "note": "Checked out transitions for video edit" },
             { "note": "Organised bookmark bar in Chrome" },
-            {
-              "note": "Acceptance doesn't mean giving up-it means moving forward without unnecessary suffering."
-            }
+            { "note": "Acceptance doesn't mean giving up - it means moving forward without unnecessary suffering." }
           ]
         }
       },
@@ -114,9 +95,7 @@
           ],
           "misc": [
             { "note": "Readme updated in Blind75 GitHub repo" },
-            {
-              "note": "Video creation taking 4-5 hrs. Decision: simplify to 1-2 approaches, improve speed and consistency."
-            },
+            { "note": "Video creation taking 4-5 hrs. Decision: simplify to 1-2 approaches, improve speed and consistency." },
             { "note": "Greatness is loving your fate exactly as it is." }
           ]
         }
@@ -152,9 +131,7 @@
           "misc": [
             { "note": "Readme updated in Blind75 GitHub repo" },
             { "note": "Revised 18 problems solved till now" },
-            {
-              "note": "Shifted focus toward consistency and faster execution by reducing overthinking and perfectionism."
-            }
+            { "note": "Shifted focus toward consistency and faster execution by reducing overthinking and perfectionism." }
           ]
         }
       },
@@ -192,9 +169,7 @@
           ],
           "misc": [
             { "note": "Readme updated in Blind75 GitHub repo" },
-            {
-              "note": "Do what you can to make the world better, even if your impact feels small."
-            }
+            { "note": "Do what you can to make the world better, even if your impact feels small." }
           ]
         }
       },
@@ -272,9 +247,7 @@
           "misc": [
             { "note": "Readme updated in Blind75 GitHub repo" },
             { "note": "Wrote down prompt for YT script" },
-            {
-              "note": "See reality clearly. Do your best. Stay strong through challenges."
-            }
+            { "note": "See reality clearly. Do your best. Stay strong through challenges." }
           ]
         }
       },
@@ -307,9 +280,7 @@
             }
           ],
           "misc": [
-            {
-              "note": "Real philosophy is not what you say, it's how you live."
-            }
+            { "note": "Real philosophy is not what you say, it's how you live." }
           ]
         }
       },
@@ -374,9 +345,7 @@
             }
           ],
           "misc": [
-            {
-              "note": "Revision of 10/24 problems, wrote notes in notebook (Total: 10)"
-            }
+            { "note": "Revision of 10/24 problems, wrote notes in notebook (Total: 10)" }
           ]
         }
       },
@@ -409,9 +378,7 @@
             }
           ],
           "misc": [
-            {
-              "note": "Revision of 18/24 problems from problem 10, notes in notebook (Total: 8)"
-            }
+            { "note": "Revision of 18/24 problems from problem 10, notes in notebook (Total: 8)" }
           ]
         }
       },
@@ -423,10 +390,7 @@
             {
               "problem": "Jump Game I",
               "problem_number": 26,
-              "tasks": [
-                "video made",
-                "memorisation, recursion, and optimal technique understood"
-              ],
+              "tasks": ["video made", "memorisation, recursion, and optimal technique understood"],
               "github": "Blind75 updated"
             }
           ],
@@ -447,12 +411,8 @@
             }
           ],
           "misc": [
-            {
-              "note": "Revision of 19/24 problems from problem 18, notes in notebook (Total: 1)"
-            },
-            {
-              "note": "Tried Gemini and Perplexity for short video Python script generation"
-            }
+            { "note": "Revision of 19/24 problems from problem 18, notes in notebook (Total: 1)" },
+            { "note": "Tried Gemini and Perplexity for short video Python script generation" }
           ]
         }
       },
@@ -516,9 +476,7 @@
           "reading": [],
           "misc": [
             { "note": "Explored new AI tools and prompts for short videos" },
-            {
-              "note": "Revised problems 19-20/27, noted recursion and memoisation (Total: 1)"
-            }
+            { "note": "Revised problems 19-20/27, noted recursion and memoisation (Total: 1)" }
           ]
         }
       },
@@ -553,9 +511,7 @@
           ],
           "misc": [
             { "note": "Revised Word Break (Tabulation)" },
-            {
-              "note": "Revised problems 20-23/28, noted recursion, memoisation, tabulation (Total: 3)"
-            },
+            { "note": "Revised problems 20-23/28, noted recursion, memoisation, tabulation (Total: 3)" },
             { "note": "Researched idea for the app" }
           ]
         }
@@ -583,12 +539,8 @@
           ],
           "reading": [],
           "misc": [
-            {
-              "note": "Revised problems 23-25/29, noted recursion, memoisation, tabulation (Total: 2)"
-            },
-            {
-              "note": "Baatchit with Claude about clarity of things and performance"
-            }
+            { "note": "Revised problems 23-25/29, noted recursion, memoisation, tabulation (Total: 2)" },
+            { "note": "Baatchit with Claude about clarity of things and performance" }
           ]
         }
       },
@@ -620,15 +572,9 @@
             }
           ],
           "misc": [
-            {
-              "note": "Revised problems 25-30/30, made notes (Total: 4)"
-            },
-            {
-              "note": "Being busy is a form of laziness - lazy thinking and indiscriminate action."
-            },
-            {
-              "note": "Parkinson's Law: Give yourself less time, get more done."
-            }
+            { "note": "Revised problems 25-30/30, made notes (Total: 4)" },
+            { "note": "Being busy is a form of laziness - lazy thinking and indiscriminate action." },
+            { "note": "Parkinson's Law: Give yourself less time, get more done." }
           ]
         }
       },
@@ -662,9 +608,7 @@
           "misc": [
             { "note": "Reported bug: Instagram 60 min != 1 hr" },
             { "note": "Wrote script for Udemy 1-hour course after research" },
-            {
-              "note": "We create stress for ourselves because we feel like we have to do it."
-            }
+            { "note": "We create stress for ourselves because we feel like we have to do it." }
           ]
         }
       },
@@ -691,9 +635,7 @@
           "misc": [
             { "note": "Revision of Flutter Notes (Till 60 Points)" },
             { "note": "Found NoteGPT for YouTube video summary" },
-            {
-              "note": "Learning to ignore things is one of the great paths to inner peace."
-            }
+            { "note": "Learning to ignore things is one of the great paths to inner peace." }
           ]
         }
       },
@@ -793,9 +735,7 @@
             }
           ],
           "misc": [
-            {
-              "note": "Nobody can give you freedom. Nobody can give you equality or justice or anything. If you're a man, you take it."
-            }
+            { "note": "Nobody can give you freedom. Nobody can give you equality or justice or anything. If you're a man, you take it." }
           ]
         }
       }
