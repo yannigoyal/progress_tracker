@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/models/category.dart';
+import '../../../../shared/widgets/log_date_selector.dart';
 import '../../../../util/string_constant.dart';
+import '../log_form_date_scope.dart';
 
 /// Shared wrapper for all log entry forms.
 class FormShell extends StatelessWidget {
@@ -23,6 +25,7 @@ class FormShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final dateScope = LogFormDateScope.maybeOf(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -67,7 +70,19 @@ class FormShell extends StatelessWidget {
               20,
               MediaQuery.of(context).viewInsets.bottom + 20,
             ),
-            child: child,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (dateScope != null) ...[
+                  LogDateSelector(
+                    selectedDate: dateScope.selectedDate,
+                    onDateChanged: dateScope.onDateChanged,
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                child,
+              ],
+            ),
           ),
         ),
         // Save button

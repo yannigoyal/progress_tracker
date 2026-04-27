@@ -19,7 +19,7 @@ class _ContentFormState extends State<ContentForm> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleCtrl;
   String _platform = AppStrings.contentPlatformYoutube;
-  String _status = AppStrings.contentStatusScripted;
+  late final Set<String> _selectedStatuses;
 
   static const _platforms = [...AppStrings.contentPlatforms];
   static const _statuses = [...AppStrings.contentStatuses];
@@ -32,9 +32,7 @@ class _ContentFormState extends State<ContentForm> {
     if (p['platform'] != null && _platforms.contains(p['platform'])) {
       _platform = p['platform'] as String;
     }
-    if (p['status'] != null && _statuses.contains(p['status'])) {
-      _status = p['status'] as String;
-    }
+    _selectedStatuses = _statusListFromPayload(p).toSet();
   }
 
   @override
@@ -45,15 +43,31 @@ class _ContentFormState extends State<ContentForm> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
+    final statuses = _statuses
+        .where((status) => _selectedStatuses.contains(status))
+        .toList();
     final entry = (widget.existingLog ?? LogEntry())
       ..category = Category.content
       ..createdAt = widget.existingLog?.createdAt ?? DateTime.now().toUtc()
       ..payload = {
         'platform': _platform,
         'title': _titleCtrl.text.trim(),
-        'status': _status,
+        'statuses': statuses,
       };
     widget.onSave(entry);
+  }
+
+  List<String> _statusListFromPayload(Map<String, dynamic> payload) {
+    final statuses = (payload['statuses'] as List?)
+        ?.whereType<String>()
+        .where(_statuses.contains)
+        .toList();
+    if (statuses != null && statuses.isNotEmpty) return statuses;
+
+    final status = payload['status'] as String?;
+    if (status != null && _statuses.contains(status)) return [status];
+
+    return [AppStrings.contentStatusRecorded];
   }
 
   @override
@@ -96,12 +110,17 @@ class _ContentFormState extends State<ContentForm> {
             Wrap(
               spacing: 8,
               children: _statuses.map((s) {
-                final selected = _status == s;
-                return ChoiceChip(
+                final selected = _selectedStatuses.contains(s);
+                return FilterChip(
                   label: Text(s),
                   selected: selected,
                   selectedColor: Category.content.color.withAlpha(40),
-                  onSelected: (_) => setState(() => _status = s),
+                  checkmarkColor: Category.content.color,
+                  onSelected: (_) => setState(() {
+                    selected
+                        ? _selectedStatuses.remove(s)
+                        : _selectedStatuses.add(s);
+                  }),
                 );
               }).toList(),
             ),

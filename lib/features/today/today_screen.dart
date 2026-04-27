@@ -5,6 +5,10 @@ import 'package:intl/intl.dart';
 
 import '../../core/models/category.dart';
 import '../../util/string_constant.dart';
+import '../dsa_tracker/providers/dsa_provider.dart';
+import '../history/providers/history_provider.dart';
+import '../project/providers/project_provider.dart';
+import '../stats/providers/stats_provider.dart';
 import 'providers/today_provider.dart';
 import 'widgets/add_log_bottom_sheet.dart';
 import 'widgets/category_chip_row.dart';
@@ -121,9 +125,19 @@ class TodayScreen extends ConsumerWidget {
           Navigator.of(formCtx).pop();
           HapticFeedback.lightImpact();
           await ref.read(todayLogsProvider.notifier).addLog(entry);
+          _refreshLogDependents(ref);
         },
       ),
     );
+  }
+
+  void _refreshLogDependents(WidgetRef ref) {
+    ref.invalidate(dayNumberProvider);
+    ref.invalidate(historyProvider);
+    ref.invalidate(projectsProvider);
+    ref.invalidate(statsProvider);
+    ref.invalidate(dsaTrackerProvider);
+    ref.invalidate(dsaSolvedCountProvider);
   }
 }
 

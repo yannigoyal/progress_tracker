@@ -9,10 +9,10 @@ class AppStrings {
   static const close = 'Close';
   static const cancel = 'Cancel';
   static const create = 'Create';
-  static const import = 'Import';
   static const delete = 'Delete';
   static const deleteAll = 'Delete all';
   static const requiredField = 'Required';
+  static const logDate = 'Date';
 
   static const todayScreenAddLogTooltip = 'Add log';
   static const todayScreenEmptyEmoji = '🌱';
@@ -30,7 +30,7 @@ class AppStrings {
 
   static const projectScreenTitle = 'Projects';
   static const projectDialogTitle = 'New Project';
-  static const projectName = 'Project Name';
+  static const projectName = 'Project Name *';
   static const description = 'Description';
   static const sessionLogged = 'Session logged';
   static const projectEmptyEmoji = '📁';
@@ -145,19 +145,19 @@ class AppStrings {
   static const contentPlatforms = [
     contentPlatformYoutube,
     contentPlatformShorts,
-    contentPlatformInstagram,
-    contentPlatformLinkedIn,
+    // contentPlatformInstagram,
+    // contentPlatformLinkedIn,
     contentPlatformOther,
   ];
-  static const contentStatusScripted = 'Scripted';
   static const contentStatusRecorded = 'Recorded';
   static const contentStatusEdited = 'Edited';
   static const contentStatusUploaded = 'Uploaded';
+  static const contentStatusMadeWithPyProgram = 'Made with py program';
   static const contentStatuses = [
-    contentStatusScripted,
     contentStatusRecorded,
     contentStatusEdited,
     contentStatusUploaded,
+    contentStatusMadeWithPyProgram,
   ];
 
   static const learningFormTitle = 'Learning';
@@ -189,6 +189,9 @@ class AppStrings {
   static const historyEmptyEmoji = '📋';
   static const historyEmptyTitle = 'No entries found';
   static const historyEmptySubtitle = 'Start logging to see your history here';
+  static const historyViewDetails = 'View';
+  static const historyDetailTitle = 'Day details';
+  static const historyDetailEmpty = 'No entries for this day';
   static String historyDsaSummary(int count) => '$count DSA';
   static String historyVideoSummary(int count) =>
       '$count video${count > 1 ? 's' : ''}';
@@ -198,6 +201,8 @@ class AppStrings {
   static String historyPagesSummary(int pages) => '$pages pages';
   static String historyNotesSummary(int count) =>
       '$count note${count > 1 ? 's' : ''}';
+  static String historyProjectSummary(int count) =>
+      '$count project update${count > 1 ? 's' : ''}';
   static const historyNoTrackedWork = 'No tracked work';
   static const noPrefix = 'no ';
   static const activityLoggedSuffix = ' activity logged.';
@@ -245,17 +250,11 @@ class AppStrings {
   static const system = 'System';
   static const data = 'Data';
   static const exportDataAsJson = 'Export data as JSON';
-  static const saveAllLogsToJson = 'Save all logs to a JSON file';
-  static const importDataFromJson = 'Import data from JSON';
-  static const mergeLogsFromJson = 'Merge logs from a JSON file';
+  static const saveAllLogsToJson = 'Save progress, history, and projects';
   static const about = 'About';
   static const aboutEmoji = '📓';
   static const clearAllData = 'Clear all data';
   static const exportDataTitle = 'Export Data';
-  static const importJsonTitle = 'Import JSON';
-  static const pasteJsonArrayHere = 'Paste JSON array here…';
-  static String importedLogsMessage(int count) => 'Imported $count logs';
-  static String importFailedMessage(Object error) => 'Import failed: $error';
   static const clearAllDataTitle = 'Clear all data?';
   static const clearAllDataMessage =
       'This will permanently delete every log. Consider exporting first.';

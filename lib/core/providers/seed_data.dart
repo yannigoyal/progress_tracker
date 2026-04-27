@@ -73,7 +73,7 @@ Future<void> seedIfEmpty(Isar isar) async {
     'Go Router + Bottom Nav Tutorial',
     'Dart Isolates Explained',
   ];
-  const contentStatuses = ['Scripted', 'Recorded', 'Edited', 'Uploaded'];
+  const contentStatuses = ['Recorded', 'Edited', 'Uploaded'];
   const exercises = [
     'Pushups',
     'Plank',

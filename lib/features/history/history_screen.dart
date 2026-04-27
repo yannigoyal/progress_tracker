@@ -4,7 +4,12 @@ import 'package:intl/intl.dart';
 
 import '../../core/models/category.dart';
 import '../../core/models/log_entry.dart';
+import '../../core/providers/isar_provider.dart';
 import '../../util/string_constant.dart';
+import '../dsa_tracker/providers/dsa_provider.dart';
+import '../stats/providers/stats_provider.dart';
+import '../today/providers/today_provider.dart';
+import 'history_detail_screen.dart';
 import 'providers/history_provider.dart';
 
 class HistoryScreen extends ConsumerStatefulWidget {
@@ -254,6 +259,21 @@ class _DayCardState extends State<_DayCard> {
                       ),
                     ),
                     const SizedBox(width: 8),
+                    TextButton.icon(
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              HistoryDetailScreen(dayLogs: widget.dayLogs),
+                        ),
+                      ),
+                      icon: const Icon(Icons.visibility_outlined, size: 16),
+                      label: const Text(AppStrings.historyViewDetails),
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
                     AnimatedRotation(
                       turns: _expanded ? 0.5 : 0,
                       duration: const Duration(milliseconds: 200),
@@ -282,7 +302,7 @@ class _DayCardState extends State<_DayCard> {
   }
 }
 
-class _LogsList extends StatelessWidget {
+class _LogsList extends ConsumerWidget {
   final List<LogEntry> logs;
 
   const _LogsList({required this.logs});
@@ -292,7 +312,7 @@ class _LogsList extends StatelessWidget {
       (log.payload['kind'] as String?) == 'daily_progress';
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     return Column(
       children: [
@@ -341,12 +361,67 @@ class _LogsList extends StatelessWidget {
                   DateFormat('HH:mm').format(log.createdAt.toLocal()),
                   style: theme.textTheme.labelSmall,
                 ),
+                const SizedBox(width: 4),
+                IconButton(
+                  tooltip: AppStrings.delete,
+                  visualDensity: VisualDensity.compact,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 32,
+                    height: 32,
+                  ),
+                  padding: EdgeInsets.zero,
+                  icon: Icon(
+                    Icons.delete_outline,
+                    size: 18,
+                    color: theme.colorScheme.error,
+                  ),
+                  onPressed: () => _confirmDelete(context, ref, log),
+                ),
               ],
             ),
           );
         }),
       ],
     );
+  }
+
+  Future<void> _confirmDelete(
+    BuildContext context,
+    WidgetRef ref,
+    LogEntry log,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text(AppStrings.deleteLogTitle),
+        content: Text(AppStrings.deleteLogMessage(log.displayTitle)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text(AppStrings.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text(
+              AppStrings.delete,
+              style: TextStyle(color: Color(0xFFF87171)),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    final isar = ref.read(isarProvider);
+    await isar.writeTxn(() => isar.logEntrys.delete(log.id));
+
+    ref.invalidate(historyProvider);
+    ref.invalidate(todayLogsProvider);
+    ref.invalidate(dayNumberProvider);
+    ref.invalidate(statsProvider);
+    ref.invalidate(dsaTrackerProvider);
+    ref.invalidate(dsaSolvedCountProvider);
   }
 }
 

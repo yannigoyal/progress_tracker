@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:isar/isar.dart';
 
+import '../../../core/models/category.dart';
 import '../../../core/models/log_entry.dart';
+import '../../../core/models/project.dart';
 import '../../../core/providers/isar_provider.dart';
 
 // ── Today's logs ──────────────────────────────────────────────────────────────
@@ -26,27 +28,78 @@ class TodayLogsNotifier extends AsyncNotifier<List<LogEntry>> {
 
   Future<void> addLog(LogEntry entry) async {
     final isar = ref.read(isarProvider);
-    await isar.writeTxn(() => isar.logEntrys.put(entry));
-    ref.invalidateSelf();
+    await _putLog(isar, entry);
+    await _reloadToday(isar);
   }
 
   Future<void> deleteLog(int id) async {
     final isar = ref.read(isarProvider);
     await isar.writeTxn(() => isar.logEntrys.delete(id));
-    ref.invalidateSelf();
+    await _reloadToday(isar);
   }
 
   Future<void> updateLog(LogEntry entry) async {
     final isar = ref.read(isarProvider);
-    await isar.writeTxn(() => isar.logEntrys.put(entry));
-    ref.invalidateSelf();
+    await _putLog(isar, entry);
+    await _reloadToday(isar);
+  }
+
+  Future<void> _putLog(Isar isar, LogEntry entry) async {
+    if (entry.category != Category.project) {
+      await isar.writeTxn(() => isar.logEntrys.put(entry));
+      return;
+    }
+
+    await _putProjectLog(isar, entry);
+  }
+
+  Future<void> _putProjectLog(Isar isar, LogEntry entry) async {
+    final payload = entry.payload;
+    final name = (payload['projectName'] as String? ?? '').trim();
+    if (name.isEmpty) {
+      await isar.writeTxn(() => isar.logEntrys.put(entry));
+      return;
+    }
+
+    final existingId = payload['projectId'] as int?;
+    Project? project = existingId == null
+        ? null
+        : await isar.projects.get(existingId);
+    project ??= await isar.projects
+        .filter()
+        .nameEqualTo(name, caseSensitive: false)
+        .findFirst();
+
+    await isar.writeTxn(() async {
+      project ??= Project()
+        ..name = name
+        ..description = ''
+        ..status = ProjectStatus.active
+        ..createdAt = entry.createdAt.toLocal();
+
+      if (project!.name != name) {
+        project!.name = name;
+      }
+
+      final projectId = await isar.projects.put(project!);
+      entry.payload = {
+        ...payload,
+        'projectId': projectId,
+        'projectName': project!.name,
+      };
+      await isar.logEntrys.put(entry);
+    });
+  }
+
+  Future<void> _reloadToday(Isar isar) async {
+    state = AsyncValue.data(await _fetchToday(isar));
   }
 }
 
 final todayLogsProvider =
     AsyncNotifierProvider<TodayLogsNotifier, List<LogEntry>>(
-  TodayLogsNotifier.new,
-);
+      TodayLogsNotifier.new,
+    );
 
 // ── Day counter: how many unique days have been tracked ───────────────────────
 

@@ -7,7 +7,7 @@ import '../models/category.dart';
 import '../models/log_entry.dart';
 import 'seed_data.dart';
 
-const _progressImportVersion = 3;
+const _progressImportVersion = 5;
 
 Future<void> seedInitialData(Isar isar) async {
   final count = await isar.logEntrys.count();
@@ -92,6 +92,12 @@ List<LogEntry> _parseProgressJson(Map<String, dynamic> data) {
     entries.addAll(
       _buildReadingEntries(dayNumber, baseDate, rawEntries['reading']),
     );
+    entries.addAll(
+      _buildLearningEntries(dayNumber, baseDate, rawEntries['learning']),
+    );
+    entries.addAll(
+      _buildProjectEntries(dayNumber, baseDate, rawEntries['project']),
+    );
     entries.addAll(_buildMiscEntries(dayNumber, baseDate, rawEntries['misc']));
   }
 
@@ -113,11 +119,8 @@ List<LogEntry> _buildDsaEntries(
     final tasks = _stringList(item['tasks']);
     final notes = _optionalString(item['notes']);
     final github = _optionalString(item['github']);
-    final detailLines = <String>[
-      ...tasks,
-      if (notes != null) notes,
-      if (github != null) github,
-    ];
+    final status = _optionalString(item['status']) ?? 'Solved';
+    final detailLines = <String>[...tasks, ?notes, ?github];
 
     entries.add(
       LogEntry()
@@ -129,7 +132,7 @@ List<LogEntry> _buildDsaEntries(
               _optionalString(item['problem']) ?? 'Day $dayNumber DSA',
           'topic': 'Daily Progress',
           'approach': tasks.isNotEmpty ? tasks.join(', ') : 'Tracked',
-          'status': 'Tracked',
+          'status': status,
           if (detailLines.isNotEmpty) 'note': detailLines.join('\n'),
           'kind': 'daily_progress',
           'importVersion': _progressImportVersion,
@@ -160,7 +163,9 @@ List<LogEntry> _buildContentEntries(
             .add(Duration(hours: isShort ? 14 : 16, minutes: i * 10))
             .toUtc()
         ..payload = {
-          'platform': isShort ? 'Shorts' : 'YouTube',
+          'platform':
+              _optionalString(item['platform']) ??
+              (isShort ? 'Shorts' : 'YouTube'),
           'title':
               _optionalString(item['title']) ??
               'Day $dayNumber ${isShort ? 'Short' : 'Long'} Video',
@@ -198,7 +203,7 @@ List<LogEntry> _buildWorkoutEntries(
             _optionalString(item['exercise']) ?? 'Workout',
           ),
           if (item['reps'] != null) 'count': (item['reps'] as num).toInt(),
-          if (durationSeconds case final value?) 'duration': value,
+          'duration': ?durationSeconds,
           'sets': sets is List ? sets.length : (sets as num?)?.toInt() ?? 1,
           if (sets is List) 'setBreakdown': sets,
           'kind': 'daily_progress',
@@ -230,7 +235,73 @@ List<LogEntry> _buildReadingEntries(
         ..payload = {
           'bookName': _optionalString(item['book']) ?? 'Reading',
           'pagesRead': (item['pages'] as num?)?.toInt(),
-          if (extraNote case final value?) 'quote': value,
+          'quote': ?extraNote,
+          'kind': 'daily_progress',
+          'importVersion': _progressImportVersion,
+          'dayNumber': dayNumber,
+        },
+    );
+  }
+  return entries;
+}
+
+List<LogEntry> _buildLearningEntries(
+  int dayNumber,
+  DateTime baseDate,
+  Object? rawList,
+) {
+  if (rawList is! List) return const <LogEntry>[];
+
+  final entries = <LogEntry>[];
+  for (var i = 0; i < rawList.length; i++) {
+    final item = rawList[i];
+    if (item is! Map<String, dynamic>) continue;
+
+    final note = _optionalString(item['note']);
+    if (note == null || note.isEmpty) continue;
+
+    final tags = _stringList(item['tags']);
+    entries.add(
+      LogEntry()
+        ..category = Category.learning
+        ..createdAt = baseDate.add(Duration(hours: 11, minutes: i * 8)).toUtc()
+        ..payload = {
+          'note': note,
+          if (tags.isNotEmpty) 'tags': tags,
+          'kind': 'daily_progress',
+          'importVersion': _progressImportVersion,
+          'dayNumber': dayNumber,
+        },
+    );
+  }
+  return entries;
+}
+
+List<LogEntry> _buildProjectEntries(
+  int dayNumber,
+  DateTime baseDate,
+  Object? rawList,
+) {
+  if (rawList is! List) return const <LogEntry>[];
+
+  final entries = <LogEntry>[];
+  for (var i = 0; i < rawList.length; i++) {
+    final item = rawList[i];
+    if (item is! Map<String, dynamic>) continue;
+
+    final projectName = _optionalString(item['project']) ?? 'Progress Tracker';
+    final done = _optionalString(item['done']) ?? _optionalString(item['note']);
+    if (done == null || done.isEmpty) continue;
+
+    final learnt = _optionalString(item['learnt']);
+    entries.add(
+      LogEntry()
+        ..category = Category.project
+        ..createdAt = baseDate.add(Duration(hours: 18, minutes: i * 10)).toUtc()
+        ..payload = {
+          'projectName': projectName,
+          'whatDone': done,
+          'whatLearnt': ?learnt,
           'kind': 'daily_progress',
           'importVersion': _progressImportVersion,
           'dayNumber': dayNumber,

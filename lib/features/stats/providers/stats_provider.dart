@@ -84,7 +84,10 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
             totals[Category.dsa] = totals[Category.dsa]! + 1;
           }
         case Category.content:
-          if (p['status'] == AppStrings.contentStatusUploaded) {
+          final statuses =
+              (p['statuses'] as List?)?.whereType<String>().toList() ??
+              [if (p['status'] != null) p['status'] as String];
+          if (statuses.contains(AppStrings.contentStatusUploaded)) {
             totals[Category.content] = totals[Category.content]! + 1;
           }
         case Category.workout:

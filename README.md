@@ -123,9 +123,13 @@ flutter pub get
 flutter run
 ```
 
+### Android Release Build
+```bash
+flutter build apk --release --obfuscate --split-debug-info=build/app/outputs/symbols
+```
+
 ## Development Notes
 
 - **Day Number**: Calculated as days since first log entry (or seed data start)
 - **Streak Calculation**: Consecutive days with at least one log entry
 - **Heatmap**: GitHub-style contribution graph showing activity intensity
-

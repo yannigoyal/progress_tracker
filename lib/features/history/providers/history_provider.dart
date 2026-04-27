@@ -52,8 +52,14 @@ class DayLogs {
       );
       parts.add(AppStrings.historyPagesSummary(pages));
     }
-    if (byCat[Category.learning] case final l? when l.isNotEmpty) {
-      parts.add(AppStrings.historyNotesSummary(l.length));
+    final noteCount =
+        (byCat[Category.learning]?.length ?? 0) +
+        (byCat[Category.misc]?.length ?? 0);
+    if (noteCount > 0) {
+      parts.add(AppStrings.historyNotesSummary(noteCount));
+    }
+    if (byCat[Category.project] case final p? when p.isNotEmpty) {
+      parts.add(AppStrings.historyProjectSummary(p.length));
     }
     return parts.isEmpty ? AppStrings.historyNoTrackedWork : parts.join(' · ');
   }

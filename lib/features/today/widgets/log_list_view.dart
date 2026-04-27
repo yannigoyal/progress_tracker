@@ -5,6 +5,10 @@ import 'package:intl/intl.dart';
 import '../../../core/models/category.dart';
 import '../../../core/models/log_entry.dart';
 import '../../../util/string_constant.dart';
+import '../../dsa_tracker/providers/dsa_provider.dart';
+import '../../history/providers/history_provider.dart';
+import '../../project/providers/project_provider.dart';
+import '../../stats/providers/stats_provider.dart';
 import '../providers/today_provider.dart';
 import 'add_log_bottom_sheet.dart';
 
@@ -197,8 +201,10 @@ class _LogItem extends ConsumerWidget {
           ),
         );
       },
-      onDismissed: (_) =>
-          ref.read(todayLogsProvider.notifier).deleteLog(log.id),
+      onDismissed: (_) async {
+        await ref.read(todayLogsProvider.notifier).deleteLog(log.id);
+        _refreshLogDependents(ref);
+      },
       child: GestureDetector(
         onTap: () => _openEdit(context, ref),
         child: Container(
@@ -265,11 +271,21 @@ class _LogItem extends ConsumerWidget {
       builder: (_) => LogFormSheet(
         category: log.category,
         existingLog: log,
-        onSave: (updated) {
+        onSave: (updated) async {
           Navigator.of(context).pop();
-          ref.read(todayLogsProvider.notifier).updateLog(updated);
+          await ref.read(todayLogsProvider.notifier).updateLog(updated);
+          _refreshLogDependents(ref);
         },
       ),
     );
   }
+}
+
+void _refreshLogDependents(WidgetRef ref) {
+  ref.invalidate(dayNumberProvider);
+  ref.invalidate(historyProvider);
+  ref.invalidate(projectsProvider);
+  ref.invalidate(statsProvider);
+  ref.invalidate(dsaTrackerProvider);
+  ref.invalidate(dsaSolvedCountProvider);
 }

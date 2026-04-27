@@ -6,6 +6,7 @@ import 'package:isar/isar.dart';
 
 import '../../core/models/category.dart';
 import '../../core/models/log_entry.dart';
+import '../../core/models/project.dart';
 import '../../core/providers/isar_provider.dart';
 import '../../core/providers/theme_provider.dart';
 import '../../util/string_constant.dart';
@@ -85,18 +86,6 @@ class SettingsScreen extends ConsumerWidget {
                         trailing: const Icon(Icons.chevron_right, size: 18),
                         onTap: () => _exportData(context, ref),
                       ),
-                      Divider(
-                        height: 1,
-                        indent: 56,
-                        color: theme.colorScheme.outlineVariant,
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.download_outlined),
-                        title: const Text(AppStrings.importDataFromJson),
-                        subtitle: const Text(AppStrings.mergeLogsFromJson),
-                        trailing: const Icon(Icons.chevron_right, size: 18),
-                        onTap: () => _showImportDialog(context, ref),
-                      ),
                     ],
                   ),
                 ),
@@ -151,18 +140,20 @@ class SettingsScreen extends ConsumerWidget {
           DateTime.fromMillisecondsSinceEpoch(0),
           DateTime(2100),
         )
+        .sortByCreatedAtDesc()
         .findAll();
-    final jsonList = logs
-        .map(
-          (l) => {
-            'id': l.id,
-            'createdAt': l.createdAt.toIso8601String(),
-            'category': l.category.name,
-            'payload': l.payload,
-          },
-        )
-        .toList();
-    final jsonStr = const JsonEncoder.withIndent('  ').convert(jsonList);
+    final projects = await isar.projects
+        .where()
+        .sortByCreatedAtDesc()
+        .findAll();
+    final export = {
+      'app': AppStrings.appName,
+      'exportedAt': DateTime.now().toUtc().toIso8601String(),
+      'progress': _progressSummary(logs, projects),
+      'projects': projects.map((p) => _projectToExport(p, logs)).toList(),
+      'history': _historyToExport(logs),
+    };
+    final jsonStr = const JsonEncoder.withIndent('  ').convert(export);
 
     if (!context.mounted) return;
     showDialog(
@@ -183,65 +174,6 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
-  }
-
-  Future<void> _showImportDialog(BuildContext context, WidgetRef ref) async {
-    final ctrl = TextEditingController();
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text(AppStrings.importJsonTitle),
-        content: TextField(
-          controller: ctrl,
-          maxLines: 8,
-          decoration: const InputDecoration(
-            hintText: AppStrings.pasteJsonArrayHere,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text(AppStrings.cancel),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(AppStrings.import),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !context.mounted) return;
-
-    try {
-      final list = jsonDecode(ctrl.text) as List;
-      final isar = ref.read(isarProvider);
-      final entries = list.map((e) {
-        final map = e as Map<String, dynamic>;
-        return LogEntry()
-          ..createdAt = DateTime.parse(map['createdAt'] as String)
-          ..category = _categoryFromName(map['category'] as String)
-          ..payload = map['payload'] as Map<String, dynamic>;
-      }).toList();
-      await isar.writeTxn(() => isar.logEntrys.putAll(entries));
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppStrings.importedLogsMessage(entries.length)),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppStrings.importFailedMessage(e)),
-            backgroundColor: const Color(0xFFF87171),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
   }
 
   Future<void> _confirmClear(BuildContext context, WidgetRef ref) async {
@@ -278,10 +210,88 @@ class SettingsScreen extends ConsumerWidget {
     }
   }
 
-  Category _categoryFromName(String name) => Category.values.firstWhere(
-    (c) => c.name == name,
-    orElse: () => Category.misc,
-  );
+  Map<String, Object> _progressSummary(
+    List<LogEntry> logs,
+    List<Project> projects,
+  ) {
+    final days = logs.map((log) {
+      final local = log.createdAt.toLocal();
+      return DateTime(local.year, local.month, local.day);
+    }).toSet();
+
+    return {
+      'totalEntries': logs.length,
+      'trackedDays': days.length,
+      'totalProjects': projects.length,
+      'activeProjects': projects
+          .where((project) => project.status == ProjectStatus.active)
+          .length,
+      'byCategory': {
+        for (final category in Category.values)
+          category.name: logs.where((log) => log.category == category).length,
+      },
+    };
+  }
+
+  Map<String, Object?> _projectToExport(Project project, List<LogEntry> logs) {
+    final entries = logs
+        .where((log) => _isProjectEntry(log, project))
+        .map(_logToExport)
+        .toList();
+
+    return {
+      'id': project.id,
+      'name': project.name,
+      'description': project.description,
+      'status': project.status.name,
+      'createdAt': project.createdAt.toLocal().toIso8601String(),
+      'entries': entries,
+    };
+  }
+
+  List<Map<String, Object?>> _historyToExport(List<LogEntry> logs) {
+    final byDay = <DateTime, List<LogEntry>>{};
+    for (final log in logs) {
+      final local = log.createdAt.toLocal();
+      final day = DateTime(local.year, local.month, local.day);
+      (byDay[day] ??= []).add(log);
+    }
+
+    final days = byDay.keys.toList()..sort((a, b) => b.compareTo(a));
+    return [
+      for (final day in days)
+        {
+          'date': _dateKey(day),
+          'entries': byDay[day]!.map(_logToExport).toList(),
+        },
+    ];
+  }
+
+  Map<String, Object?> _logToExport(LogEntry log) {
+    final subtitle = log.displaySubtitle;
+    return {
+      'id': log.id,
+      'createdAt': log.createdAt.toLocal().toIso8601String(),
+      'category': log.category.name,
+      'title': log.displayTitle,
+      if (subtitle.isNotEmpty) 'subtitle': subtitle,
+      'payload': log.payload,
+    };
+  }
+
+  bool _isProjectEntry(LogEntry log, Project project) {
+    if (log.category != Category.project) return false;
+    final payload = log.payload;
+    if (payload['projectId'] == project.id) return true;
+    final projectName = (payload['projectName'] as String?)?.trim();
+    return projectName != null &&
+        projectName.toLowerCase() == project.name.trim().toLowerCase();
+  }
+
+  String _dateKey(DateTime date) {
+    String twoDigits(int value) => value.toString().padLeft(2, '0');
+    return '${date.year}-${twoDigits(date.month)}-${twoDigits(date.day)}';
+  }
 }
 
 class _SectionHeader extends StatelessWidget {

@@ -95,9 +95,12 @@ class LogEntry {
         return parts.join(' · ');
       }(),
       Category.content => () {
+        final statuses =
+            (p['statuses'] as List?)?.whereType<String>().toList() ??
+            [if (p['status'] != null) p['status'] as String];
         final parts = <String>[
           if (p['platform'] != null) p['platform'] as String,
-          if (p['status'] != null) p['status'] as String,
+          if (statuses.isNotEmpty) statuses.join(' · '),
         ];
         return parts.join(' · ');
       }(),
