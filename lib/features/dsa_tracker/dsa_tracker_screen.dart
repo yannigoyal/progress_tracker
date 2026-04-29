@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../util/colors.dart';
 import '../../util/string_constant.dart';
 import '../history/providers/history_provider.dart';
 import '../stats/providers/stats_provider.dart';
@@ -23,7 +24,7 @@ class DsaTrackerScreen extends ConsumerWidget {
             pinned: true,
             title: const Text(AppStrings.dsaTrackerScreenTitle),
             backgroundColor: theme.scaffoldBackgroundColor,
-            surfaceTintColor: Colors.transparent,
+            surfaceTintColor: AppColors.transparent,
           ),
           statusesAsync.when(
             data: (statuses) {
@@ -184,7 +185,7 @@ class _ProblemRow extends ConsumerWidget {
                 height: 24,
                 decoration: BoxDecoration(
                   color: solved
-                      ? const Color(0xFF22C55E)
+                      ? AppColors.success
                       : theme.colorScheme.surfaceContainerHighest,
                   shape: BoxShape.circle,
                   border: solved
@@ -195,7 +196,7 @@ class _ProblemRow extends ConsumerWidget {
                         ),
                 ),
                 child: solved
-                    ? const Icon(Icons.check, color: Colors.white, size: 14)
+                    ? const Icon(Icons.check, color: AppColors.white, size: 14)
                     : null,
               ),
             ),
@@ -231,7 +232,7 @@ class _ProblemRow extends ConsumerWidget {
     if (status.attempts.isEmpty) return;
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (_) => _ProblemDetailsSheet(status: status),
     );
   }
@@ -269,9 +270,9 @@ class _DifficultyBadge extends StatelessWidget {
   const _DifficultyBadge({required this.difficulty});
 
   Color get _color => switch (difficulty) {
-    'Easy' => const Color(0xFF22C55E),
-    'Medium' => const Color(0xFFF59E0B),
-    _ => const Color(0xFFF87171),
+    'Easy' => AppColors.success,
+    'Medium' => AppColors.warning,
+    _ => AppColors.danger,
   };
 
   @override
@@ -351,8 +352,8 @@ class _ProblemDetailsSheet extends StatelessWidget {
                         ? Icons.check_circle
                         : Icons.refresh,
                     color: p['status'] == AppStrings.solved
-                        ? const Color(0xFF22C55E)
-                        : const Color(0xFFF59E0B),
+                        ? AppColors.success
+                        : AppColors.warning,
                     size: 16,
                   ),
                   const SizedBox(width: 8),

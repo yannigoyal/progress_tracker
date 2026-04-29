@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/models/project.dart';
+import '../../util/colors.dart';
 import '../../util/string_constant.dart';
 import '../dsa_tracker/providers/dsa_provider.dart';
 import '../history/providers/history_provider.dart';
@@ -97,7 +98,7 @@ class ProjectScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (sheetCtx) => ProjectSessionForm(
         project: project,
         onSave: (whatDone, whatLearnt) async {
@@ -186,9 +187,9 @@ class _ProjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final statusColor = switch (project.status) {
-      ProjectStatus.active => const Color(0xFF22C55E),
-      ProjectStatus.paused => const Color(0xFFF59E0B),
-      ProjectStatus.completed => const Color(0xFF6366F1),
+      ProjectStatus.active => AppColors.success,
+      ProjectStatus.paused => AppColors.warning,
+      ProjectStatus.completed => AppColors.primary,
     };
     return Card(
       margin: const EdgeInsets.only(bottom: 12),

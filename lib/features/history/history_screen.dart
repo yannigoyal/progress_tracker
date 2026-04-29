@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/models/category.dart';
 import '../../core/models/log_entry.dart';
+import '../../util/colors.dart';
 import '../../util/string_constant.dart';
 import '../dsa_tracker/providers/dsa_provider.dart';
 import '../project/providers/project_provider.dart';
@@ -41,7 +42,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             pinned: true,
             title: const Text(AppStrings.historyScreenTitle),
             backgroundColor: theme.scaffoldBackgroundColor,
-            surfaceTintColor: Colors.transparent,
+            surfaceTintColor: AppColors.transparent,
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(104),
               child: Padding(
@@ -164,7 +165,7 @@ class _FilterChip extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: selected ? color.withAlpha(40) : Colors.transparent,
+            color: selected ? color.withAlpha(40) : AppColors.transparent,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: selected ? color : color.withAlpha(60)),
           ),
@@ -404,7 +405,7 @@ class _LogsList extends ConsumerWidget {
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text(
               AppStrings.delete,
-              style: TextStyle(color: Color(0xFFF87171)),
+              style: TextStyle(color: AppColors.danger),
             ),
           ),
         ],

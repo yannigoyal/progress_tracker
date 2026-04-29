@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../shared/widgets/log_date_selector.dart';
+import '../../../../util/colors.dart';
 import '../../../../util/string_constant.dart';
 import '../log_form_date_scope.dart';
 
@@ -102,7 +103,7 @@ class FormShell extends StatelessWidget {
                     width: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
+                      color: AppColors.white,
                     ),
                   )
                 : const Text(AppStrings.saveLog),

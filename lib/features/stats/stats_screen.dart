@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/models/category.dart';
+import '../../util/colors.dart';
 import '../../util/string_constant.dart';
 import 'providers/stats_provider.dart';
 import 'widgets/contribution_heatmap.dart';
@@ -39,7 +40,7 @@ class _StatsBody extends StatelessWidget {
           pinned: true,
           title: const Text(AppStrings.statsScreenTitle),
           backgroundColor: theme.scaffoldBackgroundColor,
-          surfaceTintColor: Colors.transparent,
+          surfaceTintColor: AppColors.transparent,
         ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),

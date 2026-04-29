@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/models/category.dart';
 import '../../../core/models/log_entry.dart';
+import '../../../util/colors.dart';
 import '../../../util/string_constant.dart';
 import '../../dsa_tracker/providers/dsa_provider.dart';
 import '../../history/providers/history_provider.dart';
@@ -162,7 +163,7 @@ class _LogItem extends ConsumerWidget {
       background: Container(
         margin: const EdgeInsets.symmetric(vertical: 4),
         decoration: BoxDecoration(
-          color: const Color(0xFFF87171),
+          color: AppColors.danger,
           borderRadius: BorderRadius.circular(12),
         ),
         alignment: Alignment.centerRight,
@@ -170,11 +171,11 @@ class _LogItem extends ConsumerWidget {
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.delete_outline, color: Colors.white, size: 20),
+            Icon(Icons.delete_outline, color: AppColors.white, size: 20),
             SizedBox(height: 2),
             Text(
               AppStrings.delete,
-              style: TextStyle(color: Colors.white, fontSize: 10),
+              style: TextStyle(color: AppColors.white, fontSize: 10),
             ),
           ],
         ),
@@ -194,7 +195,7 @@ class _LogItem extends ConsumerWidget {
                 onPressed: () => Navigator.pop(ctx, true),
                 child: const Text(
                   AppStrings.delete,
-                  style: TextStyle(color: Color(0xFFF87171)),
+                  style: TextStyle(color: AppColors.danger),
                 ),
               ),
             ],
@@ -267,7 +268,7 @@ class _LogItem extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.transparent,
       builder: (_) => LogFormSheet(
         category: log.category,
         existingLog: log,

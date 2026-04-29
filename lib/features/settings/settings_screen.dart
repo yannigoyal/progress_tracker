@@ -7,6 +7,7 @@ import '../../core/models/category.dart';
 import '../../core/models/log_entry.dart';
 import '../../core/models/project.dart';
 import '../../core/providers/theme_provider.dart';
+import '../../util/colors.dart';
 import '../../util/string_constant.dart';
 import '../dsa_tracker/providers/dsa_provider.dart';
 import '../history/providers/history_provider.dart';
@@ -30,7 +31,7 @@ class SettingsScreen extends ConsumerWidget {
             pinned: true,
             title: const Text(AppStrings.settingsScreenTitle),
             backgroundColor: theme.scaffoldBackgroundColor,
-            surfaceTintColor: Colors.transparent,
+            surfaceTintColor: AppColors.transparent,
           ),
           SliverPadding(
             padding: const EdgeInsets.all(16),
@@ -116,11 +117,11 @@ class SettingsScreen extends ConsumerWidget {
                       ListTile(
                         leading: const Icon(
                           Icons.delete_outline,
-                          color: Color(0xFFF87171),
+                          color: AppColors.danger,
                         ),
                         title: const Text(
                           AppStrings.clearAllData,
-                          style: TextStyle(color: Color(0xFFF87171)),
+                          style: TextStyle(color: AppColors.danger),
                         ),
                         onTap: () => _confirmClear(context, ref),
                       ),
@@ -185,7 +186,7 @@ class SettingsScreen extends ConsumerWidget {
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text(
               AppStrings.deleteAll,
-              style: TextStyle(color: Color(0xFFF87171)),
+              style: TextStyle(color: AppColors.danger),
             ),
           ),
         ],
