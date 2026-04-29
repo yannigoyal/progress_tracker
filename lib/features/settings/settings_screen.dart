@@ -2,14 +2,18 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:isar/isar.dart';
 
 import '../../core/models/category.dart';
 import '../../core/models/log_entry.dart';
 import '../../core/models/project.dart';
-import '../../core/providers/isar_provider.dart';
 import '../../core/providers/theme_provider.dart';
 import '../../util/string_constant.dart';
+import '../dsa_tracker/providers/dsa_provider.dart';
+import '../history/providers/history_provider.dart';
+import '../project/providers/project_provider.dart';
+import '../stats/providers/stats_provider.dart';
+import '../today/providers/today_provider.dart';
+import 'providers/settings_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -133,19 +137,9 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Future<void> _exportData(BuildContext context, WidgetRef ref) async {
-    final isar = ref.read(isarProvider);
-    final logs = await isar.logEntrys
-        .where()
-        .createdAtBetween(
-          DateTime.fromMillisecondsSinceEpoch(0),
-          DateTime(2100),
-        )
-        .sortByCreatedAtDesc()
-        .findAll();
-    final projects = await isar.projects
-        .where()
-        .sortByCreatedAtDesc()
-        .findAll();
+    final data = await ref.refresh(settingsExportProvider.future);
+    final logs = data.logs;
+    final projects = data.projects;
     final export = {
       'app': AppStrings.appName,
       'exportedAt': DateTime.now().toUtc().toIso8601String(),
@@ -198,8 +192,10 @@ class SettingsScreen extends ConsumerWidget {
       ),
     );
     if (confirmed != true) return;
-    final isar = ref.read(isarProvider);
-    await isar.writeTxn(() => isar.logEntrys.clear());
+
+    await ref.read(settingsDataNotifierProvider.notifier).clearLogs();
+    _refreshLogDependents(ref);
+
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -208,6 +204,17 @@ class SettingsScreen extends ConsumerWidget {
         ),
       );
     }
+  }
+
+  void _refreshLogDependents(WidgetRef ref) {
+    ref.invalidate(settingsExportProvider);
+    ref.invalidate(todayLogsProvider);
+    ref.invalidate(dayNumberProvider);
+    ref.invalidate(historyProvider);
+    ref.invalidate(projectsProvider);
+    ref.invalidate(statsProvider);
+    ref.invalidate(dsaTrackerProvider);
+    ref.invalidate(dsaSolvedCountProvider);
   }
 
   Map<String, Object> _progressSummary(

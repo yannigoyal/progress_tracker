@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/models/category.dart';
-import '../../../core/models/log_entry.dart';
 import '../../../core/models/project.dart';
-import '../../../core/providers/isar_provider.dart';
 import '../../../util/string_constant.dart';
 
 class ProjectSessionForm extends StatefulWidget {
   final Project project;
-  final VoidCallback onSave;
+  final Future<void> Function(String whatDone, String whatLearnt) onSave;
 
   const ProjectSessionForm({
     super.key,
@@ -40,25 +36,10 @@ class _ProjectSessionFormState extends State<ProjectSessionForm> {
     super.dispose();
   }
 
-  void _submit() async {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final entry = LogEntry()
-      ..category = Category.project
-      ..createdAt = DateTime.now().toUtc()
-      ..payload = {
-        'projectId': widget.project.id,
-        'projectName': widget.project.name,
-        'whatDone': _whatDoneCtrl.text.trim(),
-        'whatLearnt': _whatLearntCtrl.text.trim(),
-      };
-
-    final isar = ProviderScope.containerOf(context).read(isarProvider);
-    await isar.writeTxn(() => isar.logEntrys.put(entry));
-
-    if (mounted) {
-      widget.onSave();
-    }
+    await widget.onSave(_whatDoneCtrl.text.trim(), _whatLearntCtrl.text.trim());
   }
 
   @override

@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
 import '../../../../util/string_constant.dart';
+import '../../providers/today_provider.dart';
 import 'form_shell.dart';
 
-class ReadingForm extends StatefulWidget {
+class ReadingForm extends ConsumerStatefulWidget {
   final void Function(LogEntry) onSave;
   final LogEntry? existingLog;
 
   const ReadingForm({super.key, required this.onSave, this.existingLog});
 
   @override
-  State<ReadingForm> createState() => _ReadingFormState();
+  ConsumerState<ReadingForm> createState() => _ReadingFormState();
 }
 
-class _ReadingFormState extends State<ReadingForm> {
+class _ReadingFormState extends ConsumerState<ReadingForm> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _bookCtrl;
   late final TextEditingController _pagesCtrl;
@@ -54,6 +57,10 @@ class _ReadingFormState extends State<ReadingForm> {
 
   @override
   Widget build(BuildContext context) {
+    final bookSuggestions =
+        ref.watch(readingBookNameSuggestionsProvider).valueOrNull ??
+        const <String>[];
+
     return FormShell(
       title: AppStrings.readingFormTitle,
       category: Category.reading,
@@ -62,15 +69,40 @@ class _ReadingFormState extends State<ReadingForm> {
         key: _formKey,
         child: Column(
           children: [
-            TextFormField(
+            TypeAheadField<String>(
               controller: _bookCtrl,
-              decoration: const InputDecoration(
-                labelText: AppStrings.bookNameRequired,
-              ),
-              textCapitalization: TextCapitalization.words,
-              validator: (v) => v == null || v.trim().isEmpty
-                  ? AppStrings.requiredField
-                  : null,
+              direction: VerticalDirection.down,
+              debounceDuration: Duration.zero,
+              hideOnEmpty: true,
+              constraints: const BoxConstraints(maxHeight: 220),
+              suggestionsCallback: (pattern) {
+                return _filterSuggestions(bookSuggestions, pattern);
+              },
+              builder: (context, controller, focusNode) {
+                return TextFormField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  decoration: const InputDecoration(
+                    labelText: AppStrings.bookNameRequired,
+                  ),
+                  textCapitalization: TextCapitalization.words,
+                  validator: (v) => v == null || v.trim().isEmpty
+                      ? AppStrings.requiredField
+                      : null,
+                );
+              },
+              itemBuilder: (context, bookName) {
+                return ListTile(
+                  dense: true,
+                  title: Text(
+                    bookName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                );
+              },
+              onSelected: _selectBook,
+              decorationBuilder: _buildSuggestionsDecoration,
             ),
             const SizedBox(height: 12),
             TextFormField(
@@ -97,6 +129,31 @@ class _ReadingFormState extends State<ReadingForm> {
           ],
         ),
       ),
+    );
+  }
+
+  List<String> _filterSuggestions(List<String> suggestions, String pattern) {
+    final query = pattern.trim().toLowerCase();
+    if (query.isEmpty) return const <String>[];
+
+    return suggestions
+        .where((suggestion) => suggestion.toLowerCase().contains(query))
+        .take(8)
+        .toList(growable: false);
+  }
+
+  void _selectBook(String bookName) {
+    _bookCtrl.text = bookName;
+    _bookCtrl.selection = TextSelection.collapsed(offset: bookName.length);
+  }
+
+  Widget _buildSuggestionsDecoration(BuildContext context, Widget child) {
+    return Material(
+      elevation: 4,
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(8),
+      clipBehavior: Clip.antiAlias,
+      child: child,
     );
   }
 }

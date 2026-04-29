@@ -4,9 +4,9 @@ import 'package:intl/intl.dart';
 
 import '../../core/models/category.dart';
 import '../../core/models/log_entry.dart';
-import '../../core/providers/isar_provider.dart';
 import '../../util/string_constant.dart';
 import '../dsa_tracker/providers/dsa_provider.dart';
+import '../project/providers/project_provider.dart';
 import '../stats/providers/stats_provider.dart';
 import '../today/providers/today_provider.dart';
 import 'history_detail_screen.dart';
@@ -413,12 +413,12 @@ class _LogsList extends ConsumerWidget {
 
     if (confirmed != true) return;
 
-    final isar = ref.read(isarProvider);
-    await isar.writeTxn(() => isar.logEntrys.delete(log.id));
+    await ref.read(historyLogNotifierProvider.notifier).deleteLog(log.id);
 
     ref.invalidate(historyProvider);
     ref.invalidate(todayLogsProvider);
     ref.invalidate(dayNumberProvider);
+    ref.invalidate(projectsProvider);
     ref.invalidate(statsProvider);
     ref.invalidate(dsaTrackerProvider);
     ref.invalidate(dsaSolvedCountProvider);

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../core/models/category.dart';
-import '../../core/models/log_entry.dart';
-import '../../core/providers/isar_provider.dart';
 import '../../util/string_constant.dart';
+import '../history/providers/history_provider.dart';
+import '../stats/providers/stats_provider.dart';
+import '../today/providers/today_provider.dart';
 import 'providers/dsa_provider.dart';
 
 class DsaTrackerScreen extends ConsumerWidget {
@@ -237,36 +237,8 @@ class _ProblemRow extends ConsumerWidget {
   }
 
   Future<void> _toggleProgress(BuildContext context, WidgetRef ref) async {
-    final isar = ref.read(isarProvider);
-
-    if (status.isSolved && status.hasTrackerProgress) {
-      final trackerAttemptIds = status.attempts
-          .where((log) => log.payload['kind'] == 'tracker_progress')
-          .map((log) => log.id)
-          .toList();
-
-      await isar.writeTxn(() async {
-        for (final id in trackerAttemptIds) {
-          await isar.logEntrys.delete(id);
-        }
-      });
-    } else if (!status.isSolved) {
-      final entry = LogEntry()
-        ..category = Category.dsa
-        ..createdAt = DateTime.now().toUtc()
-        ..payload = {
-          'problemNumber': status.problem.id,
-          'problemName': status.problem.name,
-          'topic': status.problem.topic,
-          'approach': AppStrings.trackerMarked,
-          'status': AppStrings.solved,
-          'kind': 'tracker_progress',
-        };
-
-      await isar.writeTxn(() => isar.logEntrys.put(entry));
-    }
-
-    ref.invalidate(dsaTrackerProvider);
+    await ref.read(dsaProgressNotifierProvider.notifier).toggleProgress(status);
+    _refreshLogDependents(ref);
 
     if (context.mounted) {
       final removed = status.isSolved && status.hasTrackerProgress;
@@ -281,6 +253,13 @@ class _ProblemRow extends ConsumerWidget {
         ),
       );
     }
+  }
+
+  void _refreshLogDependents(WidgetRef ref) {
+    ref.invalidate(todayLogsProvider);
+    ref.invalidate(dayNumberProvider);
+    ref.invalidate(historyProvider);
+    ref.invalidate(statsProvider);
   }
 }
 

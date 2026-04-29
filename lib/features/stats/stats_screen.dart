@@ -5,7 +5,7 @@ import '../../core/models/category.dart';
 import '../../util/string_constant.dart';
 import 'providers/stats_provider.dart';
 import 'widgets/contribution_heatmap.dart';
-import 'widgets/weekly_bar_chart.dart';
+import 'widgets/line_chart_last_30_days.dart';
 
 class StatsScreen extends ConsumerWidget {
   const StatsScreen({super.key});
@@ -42,7 +42,7 @@ class _StatsBody extends StatelessWidget {
           surfaceTintColor: Colors.transparent,
         ),
         SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 4, 16, 100),
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
           sliver: SliverList(
             delegate: SliverChildListDelegate([
               // ── Streak cards ─────────────────────────────────────────
@@ -65,49 +65,52 @@ class _StatsBody extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 16),
 
-              // ── Heatmap ──────────────────────────────────────────────
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: ContributionHeatmap(data: data.heatmapData),
-                ),
-              ),
-              const SizedBox(height: 24),
+              _buildContributionHeatmap(),
+              const SizedBox(height: 16),
 
-              // ── Weekly bar chart ─────────────────────────────────────
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppStrings.last7Days,
-                        style: theme.textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: 12),
-                      WeeklyBarChart(counts: data.weeklyLogCounts),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
+              _buildLineChart(theme),
+              // const SizedBox(height: 24),
 
               // ── Category totals ──────────────────────────────────────
-              Text(AppStrings.totals, style: theme.textTheme.titleMedium),
-              const SizedBox(height: 12),
-              ...Category.values.map(
-                (cat) => _CategoryStatRow(
-                  category: cat,
-                  value: data.categoryTotals[cat] ?? 0,
-                ),
-              ),
+              // Text(AppStrings.totals, style: theme.textTheme.titleMedium),
+              // const SizedBox(height: 12),
+              // ...Category.values.map(
+              //   (cat) => _CategoryStatRow(
+              //     category: cat,
+              //     value: data.categoryTotals[cat] ?? 0,
+              //   ),
+              // ),
             ]),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildContributionHeatmap() {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ContributionHeatmap(data: data.heatmapData),
+      ),
+    );
+  }
+
+  Widget _buildLineChart(ThemeData theme) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(AppStrings.last30Days, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 12),
+            LineChartLast30Days(data: data.last30DaysData),
+          ],
+        ),
+      ),
     );
   }
 }

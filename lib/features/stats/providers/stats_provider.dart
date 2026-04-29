@@ -1,41 +1,40 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:isar/isar.dart';
 
 import '../../../core/models/category.dart';
 import '../../../core/models/log_entry.dart';
 import '../../../core/providers/isar_provider.dart';
 import '../../../util/string_constant.dart';
+import '../data/stats_repository.dart';
+
+final statsRepositoryProvider = Provider<StatsRepository>((ref) {
+  final isar = ref.watch(isarProvider);
+  return StatsRepository(isar);
+});
 
 class StatsData {
   final int currentStreak;
   final int longestStreak;
   final Map<DateTime, int> heatmapData;
   final Map<Category, int> categoryTotals;
-  final List<int> weeklyLogCounts;
+  final List<int> last30DaysData;
 
   const StatsData({
     required this.currentStreak,
     required this.longestStreak,
     required this.heatmapData,
     required this.categoryTotals,
-    required this.weeklyLogCounts,
+    required this.last30DaysData,
   });
 }
 
 class StatsNotifier extends AsyncNotifier<StatsData> {
   @override
   Future<StatsData> build() async {
-    final isar = ref.watch(isarProvider);
+    final repository = ref.watch(statsRepositoryProvider);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    final allLogs = await isar.logEntrys
-        .where()
-        .createdAtBetween(
-          DateTime.fromMillisecondsSinceEpoch(0),
-          DateTime(2100),
-        )
-        .findAll();
+    final allLogs = await repository.fetchAllLogs();
 
     // Group by local date
     final Map<DateTime, List<LogEntry>> byDay = {};
@@ -67,9 +66,9 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
       prev = day;
     }
 
-    // Heatmap: last 90 days
+    // Heatmap: last 365 days
     final heatmapData = {
-      for (var i = 89; i >= 0; i--)
+      for (var i = 364; i >= 0; i--)
         today.subtract(Duration(days: i)):
             byDay[today.subtract(Duration(days: i))]?.length ?? 0,
     };
@@ -106,9 +105,9 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
       }
     }
 
-    // Weekly counts: last 7 days, oldest → newest
-    final weeklyLogCounts = [
-      for (var i = 6; i >= 0; i--)
+    // Last 30 days, oldest → newest
+    final last30DaysData = [
+      for (var i = 29; i >= 0; i--)
         byDay[today.subtract(Duration(days: i))]?.length ?? 0,
     ];
 
@@ -117,7 +116,7 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
       longestStreak: longestStreak,
       heatmapData: heatmapData,
       categoryTotals: totals,
-      weeklyLogCounts: weeklyLogCounts,
+      last30DaysData: last30DaysData,
     );
   }
 }

@@ -3,6 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/models/project.dart';
 import '../../util/string_constant.dart';
+import '../dsa_tracker/providers/dsa_provider.dart';
+import '../history/providers/history_provider.dart';
+import '../stats/providers/stats_provider.dart';
+import '../today/providers/today_provider.dart';
 import 'providers/project_provider.dart';
 import 'widgets/project_session_form.dart';
 
@@ -96,7 +100,12 @@ class ProjectScreen extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       builder: (sheetCtx) => ProjectSessionForm(
         project: project,
-        onSave: () {
+        onSave: (whatDone, whatLearnt) async {
+          await ref
+              .read(projectNotifierProvider.notifier)
+              .addSession(project, whatDone, whatLearnt);
+          _refreshLogDependents(ref);
+          if (!sheetCtx.mounted || !context.mounted) return;
           Navigator.pop(sheetCtx);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text(AppStrings.sessionLogged)),
@@ -113,6 +122,15 @@ class ProjectScreen extends ConsumerWidget {
       ProjectStatus.completed => ProjectStatus.active,
     };
     ref.read(projectNotifierProvider.notifier).updateStatus(project.id, next);
+  }
+
+  void _refreshLogDependents(WidgetRef ref) {
+    ref.invalidate(todayLogsProvider);
+    ref.invalidate(dayNumberProvider);
+    ref.invalidate(historyProvider);
+    ref.invalidate(statsProvider);
+    ref.invalidate(dsaTrackerProvider);
+    ref.invalidate(dsaSolvedCountProvider);
   }
 }
 

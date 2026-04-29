@@ -46,9 +46,11 @@ class WeeklyBarChart extends StatelessWidget {
           titlesData: FlTitlesData(
             show: true,
             leftTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false)),
+              sideTitles: SideTitles(showTitles: false),
+            ),
             rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false)),
+              sideTitles: SideTitles(showTitles: false),
+            ),
             topTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -59,9 +61,10 @@ class WeeklyBarChart extends StatelessWidget {
                   return Text(
                     '$count',
                     style: TextStyle(
-                        fontSize: 10,
-                        color: theme.colorScheme.onSurface.withAlpha(180),
-                        fontWeight: FontWeight.w600),
+                      fontSize: 10,
+                      color: theme.colorScheme.onSurface.withAlpha(180),
+                      fontWeight: FontWeight.w600,
+                    ),
                   );
                 },
               ),
@@ -82,9 +85,7 @@ class WeeklyBarChart extends StatelessWidget {
                         color: isToday
                             ? primary
                             : theme.colorScheme.onSurface.withAlpha(120),
-                        fontWeight: isToday
-                            ? FontWeight.w700
-                            : FontWeight.w400,
+                        fontWeight: isToday ? FontWeight.w700 : FontWeight.w400,
                       ),
                     ),
                   );

@@ -220,6 +220,7 @@ class AppStrings {
   static const currentStreak = 'Current Streak';
   static const longestStreak = 'Longest Streak';
   static const last7Days = 'Last 7 days';
+  static const last30Days = 'Last 30 days';
   static const totals = 'Totals';
   static String dayCount(int value) => '$value day${value == 1 ? '' : 's'}';
   static const unitProblemsSolved = 'problems solved';
@@ -229,7 +230,12 @@ class AppStrings {
   static const unitNotes = 'notes';
   static const unitSessionsLogged = 'sessions logged';
 
-  static const contributionHeatmapTitle = 'Last 3 months';
+  static const contributionHeatmapTitle = 'Last year';
+  static String heatmapMomentumText(int count) => count > 0
+      ? '$count win${count == 1 ? '' : 's'} stacked'
+      : 'Start with one win';
+  static String heatmapSelectedDay(String dateLabel, int count) =>
+      '$dateLabel • $count log${count == 1 ? '' : 's'}';
   static const contributionHeatmapWeekdayLabels = [
     'M',
     '',

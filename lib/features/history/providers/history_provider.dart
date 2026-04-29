@@ -1,10 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:isar/isar.dart';
 
 import '../../../core/models/category.dart';
 import '../../../core/models/log_entry.dart';
 import '../../../core/providers/isar_provider.dart';
 import '../../../util/string_constant.dart';
+import '../data/history_repository.dart';
+
+final historyRepositoryProvider = Provider<HistoryRepository>((ref) {
+  final isar = ref.watch(isarProvider);
+  return HistoryRepository(isar);
+});
 
 // ── Filter state ──────────────────────────────────────────────────────────────
 
@@ -78,27 +83,13 @@ class DayLogs {
 // ── Provider ──────────────────────────────────────────────────────────────────
 
 final historyProvider = FutureProvider.autoDispose<List<DayLogs>>((ref) async {
-  final isar = ref.watch(isarProvider);
+  final repository = ref.watch(historyRepositoryProvider);
   final query = ref.watch(historySearchProvider);
   final categoryFilter = ref.watch(historyCategoryFilterProvider);
 
-  List<LogEntry> all;
-  if (categoryFilter != null) {
-    all = await isar.logEntrys
-        .where()
-        .categoryIndexEqualTo(categoryFilter.index)
-        .sortByCreatedAtDesc()
-        .findAll();
-  } else {
-    all = await isar.logEntrys
-        .where()
-        .createdAtBetween(
-          DateTime.fromMillisecondsSinceEpoch(0),
-          DateTime(2100),
-        )
-        .sortByCreatedAtDesc()
-        .findAll();
-  }
+  List<LogEntry> all = await repository.fetchLogs(
+    categoryFilter: categoryFilter,
+  );
 
   // Search filter
   if (query.isNotEmpty) {
@@ -121,3 +112,18 @@ final historyProvider = FutureProvider.autoDispose<List<DayLogs>>((ref) async {
   final days = byDay.keys.toList()..sort((a, b) => b.compareTo(a));
   return days.map((d) => DayLogs(date: d, logs: byDay[d]!)).toList();
 });
+
+class HistoryLogNotifier extends AutoDisposeNotifier<void> {
+  @override
+  void build() {}
+
+  Future<void> deleteLog(int id) async {
+    final repository = ref.read(historyRepositoryProvider);
+    await repository.deleteLog(id);
+  }
+}
+
+final historyLogNotifierProvider =
+    NotifierProvider.autoDispose<HistoryLogNotifier, void>(
+      HistoryLogNotifier.new,
+    );
