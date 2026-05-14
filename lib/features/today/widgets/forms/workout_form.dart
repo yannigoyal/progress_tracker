@@ -110,7 +110,8 @@ class _WorkoutFormState extends State<WorkoutForm> {
     if (payload['exercise'] != null) summary.add('${payload['exercise']}');
     summary.add('sets: ${payload['sets'] ?? 0}');
     if (payload['count'] != null) summary.add('count: ${payload['count']}');
-    if (payload['duration'] != null) summary.add('duration: ${payload['duration']}s');
+    if (payload['duration'] != null)
+      summary.add('duration: ${payload['duration']}s');
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -118,7 +119,11 @@ class _WorkoutFormState extends State<WorkoutForm> {
         action: SnackBarAction(
           label: 'View',
           onPressed: () {
-            final hasDetails = payload['exercise'] != null || payload['count'] != null || payload['duration'] != null || ((payload['sets'] is int) && payload['sets'] > 0);
+            final hasDetails =
+                payload['exercise'] != null ||
+                payload['count'] != null ||
+                payload['duration'] != null ||
+                ((payload['sets'] is int) && payload['sets'] > 0);
             final subtitle = hasDetails
                 ? summary.join(' • ')
                 : (payload['wentToGym'] == true ? 'No exercise logged' : '');
@@ -130,9 +135,14 @@ class _WorkoutFormState extends State<WorkoutForm> {
                 child: ListTile(
                   leading: CircleAvatar(
                     backgroundColor: Category.workout.color(context),
-                    child: Icon(Category.workout.icon, color: Category.workout.surfaceColor(context)),
+                    child: Icon(
+                      Category.workout.icon,
+                      color: Category.workout.surfaceColor(context),
+                    ),
                   ),
-                  title: Text(payload['exercise'] ?? AppStrings.workoutFormTitle),
+                  title: Text(
+                    payload['exercise'] ?? AppStrings.workoutFormTitle,
+                  ),
                   subtitle: subtitle.isNotEmpty ? Text(subtitle) : null,
                 ),
               ),
@@ -163,7 +173,10 @@ class _WorkoutFormState extends State<WorkoutForm> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 6),
-                    Text('Did you go to the gym today?', style: theme.textTheme.bodyMedium),
+                    Text(
+                      'Did you go to the gym today?',
+                      style: theme.textTheme.bodyMedium,
+                    ),
                     Row(
                       children: [
                         Expanded(
@@ -195,8 +208,13 @@ class _WorkoutFormState extends State<WorkoutForm> {
                     if (field.hasError)
                       Padding(
                         padding: const EdgeInsets.only(left: 12.0, top: 4),
-                        child: Text(field.errorText!,
-                            style: TextStyle(color: theme.colorScheme.error, fontSize: 12)),
+                        child: Text(
+                          field.errorText!,
+                          style: TextStyle(
+                            color: theme.colorScheme.error,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                   ],
                 );
@@ -207,7 +225,9 @@ class _WorkoutFormState extends State<WorkoutForm> {
               DropdownButtonFormField<String>(
                 value: _exercise,
                 hint: const Text('Select exercise'),
-                decoration: const InputDecoration(labelText: AppStrings.exercise),
+                decoration: const InputDecoration(
+                  labelText: AppStrings.exercise,
+                ),
                 isExpanded: true,
                 items: _exercises
                     .map((e) => DropdownMenuItem(value: e, child: Text(e)))
