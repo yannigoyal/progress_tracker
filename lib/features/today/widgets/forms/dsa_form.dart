@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
@@ -19,6 +20,7 @@ class DsaForm extends StatefulWidget {
 class _DsaFormState extends State<DsaForm> {
   final _formKey = GlobalKey<FormState>();
   DsaProblem? _selectedProblem;
+  late final TextEditingController _titleCtrl;
   String _topic = AppStrings.dsaTopicDp;
   String _approach = AppStrings.dsaApproachMemoization;
   bool _isSolved = true;
@@ -34,6 +36,7 @@ class _DsaFormState extends State<DsaForm> {
     super.initState();
     final p = widget.existingLog?.payload ?? {};
     _selectedProblem = _problemFromPayload(p);
+    _titleCtrl = TextEditingController(text: _selectedProblem?.name ?? '');
     if (p['topic'] != null && _topics.contains(p['topic'])) {
       _topic = p['topic'] as String;
     } else if (_selectedProblem != null) {
@@ -45,6 +48,12 @@ class _DsaFormState extends State<DsaForm> {
     if (p['status'] != null) {
       _isSolved = p['status'] == AppStrings.solved;
     }
+  }
+
+  @override
+  void dispose() {
+    _titleCtrl.dispose();
+    super.dispose();
   }
 
   void _submit() {
@@ -86,30 +95,62 @@ class _DsaFormState extends State<DsaForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DropdownButtonFormField<DsaProblem>(
-              initialValue: _selectedProblem,
-              decoration: const InputDecoration(
-                labelText: AppStrings.problemNameRequired,
-              ),
-              isExpanded: true,
-              items: blind75Problems
-                  .map(
-                    (problem) => DropdownMenuItem(
-                      value: problem,
-                      child: Text(
-                        '#${problem.id} · ${problem.name}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (problem) => setState(() {
+            TypeAheadField<DsaProblem>(
+              controller: _titleCtrl,
+              direction: VerticalDirection.down,
+              debounceDuration: Duration.zero,
+              hideOnEmpty: true,
+              constraints: const BoxConstraints(maxHeight: 220),
+              suggestionsCallback: (pattern) {
+                final q = pattern.trim().toLowerCase();
+                if (q.isEmpty) return const <DsaProblem>[];
+                return blind75Problems
+                    .where(
+                      (p) =>
+                          p.name.toLowerCase().contains(q) ||
+                          p.id.toString().contains(q),
+                    )
+                    .take(8)
+                    .toList(growable: false);
+              },
+              builder: (context, controller, focusNode) {
+                return TextFormField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  decoration: const InputDecoration(
+                    labelText: AppStrings.problemNameRequired,
+                  ),
+                  validator: (v) => _selectedProblem == null
+                      ? AppStrings.requiredField
+                      : null,
+                  onChanged: (v) => setState(() {
+                    DsaProblem? match;
+                    final q = v.trim().toLowerCase();
+                    if (q.isNotEmpty) {
+                      for (final p in blind75Problems) {
+                        if (p.name.toLowerCase() == q ||
+                            p.id.toString() == q.replaceAll('#', '')) {
+                          match = p;
+                          break;
+                        }
+                      }
+                    }
+                    _selectedProblem = match;
+                  }),
+                );
+              },
+              itemBuilder: (context, problem) {
+                return ListTile(
+                  dense: true,
+                  title: Text('#${problem.id} · ${problem.name}'),
+                );
+              },
+              onSelected: (problem) => setState(() {
                 _selectedProblem = problem;
-                if (problem != null) _topic = problem.topic;
+                _titleCtrl.text = problem.name;
+                _topic = problem.topic;
               }),
-              validator: (problem) =>
-                  problem == null ? AppStrings.requiredField : null,
+              decorationBuilder: _buildSuggestionsDecoration,
             ),
             const SizedBox(height: 12),
             DropdownButtonFormField<String>(
@@ -155,6 +196,16 @@ class _DsaFormState extends State<DsaForm> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSuggestionsDecoration(BuildContext context, Widget child) {
+    return Material(
+      elevation: 4,
+      color: Theme.of(context).colorScheme.surface,
+      borderRadius: BorderRadius.circular(8),
+      clipBehavior: Clip.antiAlias,
+      child: child,
     );
   }
 }

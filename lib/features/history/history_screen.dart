@@ -286,13 +286,14 @@ class _DayCardState extends State<_DayCard> {
                     ),
                   ],
                 ),
-                AnimatedCrossFade(
-                  firstChild: _LogsList(logs: widget.dayLogs.actualLogs),
-                  secondChild: const SizedBox.shrink(),
-                  crossFadeState: _expanded
-                      ? CrossFadeState.showFirst
-                      : CrossFadeState.showSecond,
+                AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
+                  child: _expanded
+                      ? _LogsList(
+                          key: ValueKey(widget.dayLogs.date),
+                          logs: widget.dayLogs.actualLogs,
+                        )
+                      : const SizedBox.shrink(),
                 ),
               ],
             ),
@@ -306,7 +307,7 @@ class _DayCardState extends State<_DayCard> {
 class _LogsList extends ConsumerWidget {
   final List<LogEntry> logs;
 
-  const _LogsList({required this.logs});
+  const _LogsList({Key? key, required this.logs}) : super(key: key);
 
   bool _isJournalEntry(LogEntry log) =>
       log.category == Category.misc &&
@@ -320,68 +321,75 @@ class _LogsList extends ConsumerWidget {
         const SizedBox(height: 12),
         Divider(height: 1, color: theme.colorScheme.outlineVariant),
         const SizedBox(height: 8),
-        ...logs.map((log) {
-          final cat = log.category;
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    color: cat.surfaceColor(context),
-                    borderRadius: BorderRadius.circular(6),
+        ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: logs.length,
+          separatorBuilder: (_, __) => const SizedBox(height: 8),
+          itemBuilder: (ctx, index) {
+            final log = logs[index];
+            final cat = log.category;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: cat.surfaceColor(context),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Icon(cat.icon, size: 12, color: cat.color(context)),
                   ),
-                  child: Icon(cat.icon, size: 12, color: cat.color(context)),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        log.displayTitle,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                        maxLines: _isJournalEntry(log) ? 2 : 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (log.displaySubtitle.isNotEmpty)
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          log.displaySubtitle,
-                          style: theme.textTheme.bodySmall,
-                          maxLines: _isJournalEntry(log) ? 4 : 1,
+                          log.displayTitle,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: _isJournalEntry(log) ? 2 : 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                    ],
+                        if (log.displaySubtitle.isNotEmpty)
+                          Text(
+                            log.displaySubtitle,
+                            style: theme.textTheme.bodySmall,
+                            maxLines: _isJournalEntry(log) ? 4 : 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
                   ),
-                ),
-                Text(
-                  DateFormat('HH:mm').format(log.createdAt.toLocal()),
-                  style: theme.textTheme.labelSmall,
-                ),
-                const SizedBox(width: 4),
-                IconButton(
-                  tooltip: AppStrings.delete,
-                  visualDensity: VisualDensity.compact,
-                  constraints: const BoxConstraints.tightFor(
-                    width: 32,
-                    height: 32,
+                  Text(
+                    DateFormat('HH:mm').format(log.createdAt.toLocal()),
+                    style: theme.textTheme.labelSmall,
                   ),
-                  padding: EdgeInsets.zero,
-                  icon: Icon(
-                    Icons.delete_outline,
-                    size: 18,
-                    color: theme.colorScheme.error,
+                  const SizedBox(width: 4),
+                  IconButton(
+                    tooltip: AppStrings.delete,
+                    visualDensity: VisualDensity.compact,
+                    constraints: const BoxConstraints.tightFor(
+                      width: 32,
+                      height: 32,
+                    ),
+                    padding: EdgeInsets.zero,
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: theme.colorScheme.error,
+                    ),
+                    onPressed: () => _confirmDelete(context, ref, log),
                   ),
-                  onPressed: () => _confirmDelete(context, ref, log),
-                ),
-              ],
-            ),
-          );
-        }),
+                ],
+              ),
+            );
+          },
+        ),
       ],
     );
   }

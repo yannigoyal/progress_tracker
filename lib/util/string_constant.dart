@@ -13,6 +13,7 @@ class AppStrings {
   static const deleteAll = 'Delete all';
   static const requiredField = 'Required';
   static const logDate = 'Date';
+  static const noOfLogs = 'No. of Logs';
 
   static const todayScreenAddLogTooltip = 'Add log';
   static const todayScreenEmptyEmoji = '🌱';

@@ -43,12 +43,13 @@ class LogEntry {
       }(),
       Category.content => p['title'] as String? ?? '',
       Category.workout => () {
-        final ex = p['exercise'] as String? ?? '';
+        final ex = (p['exercise'] as String?)?.trim() ?? '';
         final cnt = p['count'];
         final dur = p['duration'];
-        if (cnt != null) return '$ex × $cnt';
-        if (dur != null) return '$ex — ${dur}s';
-        return ex;
+        if (cnt != null && ex.isNotEmpty) return '$ex × $cnt';
+        if (dur != null && ex.isNotEmpty) return '$ex — ${dur}s';
+        // If no exercise name provided, fall back to category label
+        return Category.workout.label;
       }(),
       Category.reading => () {
         final book = p['bookName'] as String? ?? '';
@@ -106,7 +107,9 @@ class LogEntry {
       }(),
       Category.workout => () {
         final sets = p['sets'];
-        return sets != null ? '$sets sets' : '';
+        if (sets is int && sets > 0) return '$sets sets';
+        if (p['wentToGym'] == true) return 'Went to gym';
+        return '';
       }(),
       Category.reading => () {
         final quote = p['quote'] as String?;

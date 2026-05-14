@@ -110,17 +110,17 @@ class SettingsScreen extends ConsumerWidget {
                         indent: 56,
                         color: theme.colorScheme.outlineVariant,
                       ),
-                      ListTile(
-                        leading: Icon(
-                          Icons.delete_outline,
-                          color: context.danger,
-                        ),
-                        title: Text(
-                          AppStrings.clearAllData,
-                          style: TextStyle(color: context.danger),
-                        ),
-                        onTap: () => _confirmClear(context, ref),
-                      ),
+                      // ListTile(
+                      //   leading: Icon(
+                      //     Icons.delete_outline,
+                      //     color: context.danger,
+                      //   ),
+                      //   title: Text(
+                      //     AppStrings.clearAllData,
+                      //     style: TextStyle(color: context.danger),
+                      //   ),
+                      //   onTap: () => _confirmClear(context, ref),
+                      // ),
                     ],
                   ),
                 ),

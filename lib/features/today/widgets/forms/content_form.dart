@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
+import '../../../dsa_tracker/data/blind75_problems.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 import '../../../../util/string_constant.dart';
 import 'form_shell.dart';
 
@@ -91,15 +93,61 @@ class _ContentFormState extends State<ContentForm> {
               onChanged: (v) => setState(() => _platform = v!),
             ),
             const SizedBox(height: 12),
-            TextFormField(
+            TypeAheadField<String>(
               controller: _titleCtrl,
-              decoration: const InputDecoration(
-                labelText: AppStrings.titleOrTopicRequired,
+              direction: VerticalDirection.down,
+              debounceDuration: Duration.zero,
+              hideOnEmpty: true,
+              constraints: const BoxConstraints(maxHeight: 220),
+              suggestionsCallback: (pattern) {
+                final q = pattern.trim().toLowerCase();
+                if (q.isEmpty) return const <String>[];
+                return blind75Problems
+                    .where(
+                      (p) =>
+                          p.name.toLowerCase().contains(q) ||
+                          p.id.toString().contains(q),
+                    )
+                    .map((p) => '#${p.id} · ${p.name}')
+                    .take(8)
+                    .toList(growable: false);
+              },
+              builder: (context, controller, focusNode) {
+                return TextFormField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  decoration: const InputDecoration(
+                    labelText: AppStrings.titleOrTopicRequired,
+                  ),
+                  textCapitalization: TextCapitalization.sentences,
+                  validator: (v) => v == null || v.trim().isEmpty
+                      ? AppStrings.requiredField
+                      : null,
+                );
+              },
+              itemBuilder: (context, suggestion) {
+                return ListTile(
+                  dense: true,
+                  title: Text(
+                    suggestion,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                );
+              },
+              onSelected: (s) {
+                _titleCtrl.text = s;
+                _titleCtrl.selection = TextSelection.collapsed(
+                  offset: s.length,
+                );
+              },
+              decorationBuilder: (context, child) => Material(
+                elevation: 4,
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(8),
+                clipBehavior: Clip.antiAlias,
+                child: child,
               ),
-              textCapitalization: TextCapitalization.sentences,
-              validator: (v) => v == null || v.trim().isEmpty
-                  ? AppStrings.requiredField
-                  : null,
             ),
             const SizedBox(height: 16),
             Text(

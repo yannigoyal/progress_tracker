@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../core/models/category.dart';
 import '../../core/theme/color_utils.dart';
@@ -68,21 +69,70 @@ class _StatsBody extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
+              // Top 3 workout PRs
+              // if (data.topWorkoutPRs.isNotEmpty) ...[
+              //   Card(
+              //     child: Padding(
+              //       padding: const EdgeInsets.all(16),
+              //       child: Column(
+              //         crossAxisAlignment: CrossAxisAlignment.start,
+              //         children: [
+              //           Text('Top 3 PRs', style: theme.textTheme.titleSmall),
+              //           const SizedBox(height: 12),
+              //           ...data.topWorkoutPRs.map(
+              //             (pr) => Padding(
+              //               padding: const EdgeInsets.only(bottom: 8),
+              //               child: Row(
+              //                 children: [
+              //                   Expanded(
+              //                     child: Text(
+              //                       pr.exercise,
+              //                       style: theme.textTheme.bodyLarge?.copyWith(
+              //                         fontWeight: FontWeight.w500,
+              //                       ),
+              //                     ),
+              //                   ),
+              //                   Text(
+              //                     pr.isDuration
+              //                         ? '${pr.value}s'
+              //                         : '${pr.value}',
+              //                     style: theme.textTheme.bodyMedium?.copyWith(
+              //                       color: theme.colorScheme.primary,
+              //                     ),
+              //                   ),
+              //                 ],
+              //               ),
+              //             ),
+              //           ),
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              //   const SizedBox(height: 16),
+              // ],
               _buildContributionHeatmap(),
               const SizedBox(height: 16),
 
               _buildLineChart(theme),
-              // const SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               // ── Category totals ──────────────────────────────────────
-              // Text(AppStrings.totals, style: theme.textTheme.titleMedium),
-              // const SizedBox(height: 12),
-              // ...Category.values.map(
-              //   (cat) => _CategoryStatRow(
-              //     category: cat,
-              //     value: data.categoryTotals[cat] ?? 0,
-              //   ),
-              // ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(AppStrings.totals, style: theme.textTheme.titleMedium),
+                  Text(AppStrings.noOfLogs, style: theme.textTheme.titleMedium),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ...Category.values.map(
+                (cat) => _CategoryStatRow(
+                  category: cat,
+                  value: data.categoryTotals[cat] ?? 0,
+                  stats: data.categoryStats[cat],
+                  logCount: data.categoryLogCounts[cat] ?? 0,
+                ),
+              ),
             ]),
           ),
         ),
@@ -156,8 +206,15 @@ class _StreakCard extends StatelessWidget {
 class _CategoryStatRow extends StatelessWidget {
   final Category category;
   final int value;
+  final dynamic stats;
+  final int logCount;
 
-  const _CategoryStatRow({required this.category, required this.value});
+  const _CategoryStatRow({
+    required this.category,
+    required this.value,
+    this.stats,
+    this.logCount = 0,
+  });
 
   String get _unit => switch (category) {
     Category.dsa => AppStrings.unitProblemsSolved,
@@ -172,6 +229,17 @@ class _CategoryStatRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    String subtitle = '';
+    if (stats != null) {
+      final int longest = stats.longestStreak ?? 0;
+      final DateTime? last = stats.lastLogged as DateTime?;
+      if (longest > 0) {
+        subtitle = 'Longest streak: ${longest} day${longest == 1 ? '' : 's'}';
+      } else if (last != null) {
+        subtitle = 'Last logged: ${DateFormat.yMMMd().format(last.toLocal())}';
+      }
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Row(
@@ -200,12 +268,15 @@ class _CategoryStatRow extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                Text('$value $_unit', style: theme.textTheme.bodySmall),
+                if (subtitle.isNotEmpty)
+                  Text(subtitle, style: theme.textTheme.bodySmall)
+                else
+                  Text('$value $_unit', style: theme.textTheme.bodySmall),
               ],
             ),
           ),
           Text(
-            '$value',
+            '$logCount',
             style: theme.textTheme.titleMedium?.copyWith(
               color: category.color(context),
             ),
