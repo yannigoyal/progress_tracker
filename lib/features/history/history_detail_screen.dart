@@ -60,17 +60,21 @@ class _LogDetailCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(7),
                   decoration: BoxDecoration(
-                    color: category.surfaceColor,
+                    color: category.surfaceColor(context),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(category.icon, color: category.color, size: 16),
+                  child: Icon(
+                    category.icon,
+                    color: category.color(context),
+                    size: 16,
+                  ),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     category.label,
                     style: theme.textTheme.labelLarge?.copyWith(
-                      color: category.color,
+                      color: category.color(context),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -125,22 +129,15 @@ class _LogDetailCard extends StatelessWidget {
         add('Type', p['videoType']);
       case Category.workout:
         add('Exercise', p['exercise']);
-        add('Reps', p['count']);
         add('Duration', p['duration']);
-        add('Sets', p['sets']);
         add('Breakdown', p['setBreakdown']);
       case Category.reading:
-        add('Book', p['bookName']);
-        add('Pages', p['pagesRead']);
-        add('Note', p['quote']);
       case Category.learning:
-        add('Note', p['note']);
         add('Tags', p['tags']);
       case Category.misc:
         add('Note', p['note']);
       case Category.project:
         add('Project', p['projectName']);
-        add('Done', p['whatDone']);
         add('Learned', p['whatLearnt']);
     }
 

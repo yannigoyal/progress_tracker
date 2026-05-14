@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/dsa_tracker/dsa_tracker_screen.dart';
 import '../../features/history/history_screen.dart';
+import '../../features/more/more_screen.dart';
 import '../../features/project/project_screen.dart';
 import '../../features/settings/settings_screen.dart';
 import '../../features/stats/stats_screen.dart';
@@ -14,25 +15,52 @@ final appRouter = GoRouter(
     StatefulShellRoute.indexedStack(
       builder: (context, state, shell) => _ScaffoldWithNavBar(shell: shell),
       branches: [
-        StatefulShellBranch(routes: [
-          GoRoute(path: '/', builder: (_, __) => const TodayScreen()),
-        ]),
-        StatefulShellBranch(routes: [
-          GoRoute(path: '/stats', builder: (_, __) => const StatsScreen()),
-        ]),
-        StatefulShellBranch(routes: [
-          GoRoute(path: '/history', builder: (_, __) => const HistoryScreen()),
-        ]),
-        StatefulShellBranch(routes: [
-          GoRoute(path: '/dsa', builder: (_, __) => const DsaTrackerScreen()),
-        ]),
-        StatefulShellBranch(routes: [
-          GoRoute(path: '/projects', builder: (_, __) => const ProjectScreen()),
-        ]),
-        StatefulShellBranch(routes: [
-          GoRoute(
-              path: '/settings', builder: (_, __) => const SettingsScreen()),
-        ]),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/',
+              builder: (context, state) => const TodayScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/stats',
+              builder: (context, state) => const StatsScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/history',
+              builder: (context, state) => const HistoryScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/more',
+              builder: (context, state) => const MoreScreen(),
+              routes: [
+                GoRoute(
+                  path: 'dsa',
+                  builder: (context, state) => const DsaTrackerScreen(),
+                ),
+                GoRoute(
+                  path: 'projects',
+                  builder: (context, state) => const ProjectScreen(),
+                ),
+                GoRoute(
+                  path: 'settings',
+                  builder: (context, state) => const SettingsScreen(),
+                ),
+              ],
+            ),
+          ],
+        ),
       ],
     ),
   ],
@@ -45,46 +73,59 @@ class _ScaffoldWithNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final navTheme = NavigationBarTheme.of(context);
+    final primaryColor = Theme.of(context).primaryColor;
+
     return Scaffold(
       body: shell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: shell.currentIndex,
-        onDestinationSelected: (i) => shell.goBranch(
-          i,
-          initialLocation: i == shell.currentIndex,
+      bottomNavigationBar: NavigationBarTheme(
+        data: navTheme.copyWith(
+          indicatorColor: primaryColor.withAlpha(28),
+          iconTheme: WidgetStateProperty.resolveWith((states) {
+            final selected = states.contains(WidgetState.selected);
+            final baseTheme = navTheme.iconTheme?.resolve(states);
+            return (baseTheme ?? const IconThemeData()).copyWith(
+              color: selected ? primaryColor : baseTheme?.color,
+            );
+          }),
+          labelTextStyle: WidgetStateProperty.resolveWith((states) {
+            final selected = states.contains(WidgetState.selected);
+            final baseStyle =
+                navTheme.labelTextStyle?.resolve(states) ??
+                Theme.of(context).textTheme.labelMedium ??
+                const TextStyle();
+            return baseStyle.copyWith(
+              color: selected ? primaryColor : baseStyle.color,
+            );
+          }),
         ),
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.today_outlined),
-            selectedIcon: Icon(Icons.today),
-            label: 'Today',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: 'Stats',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.history_outlined),
-            selectedIcon: Icon(Icons.history),
-            label: 'History',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.code_outlined),
-            selectedIcon: Icon(Icons.code),
-            label: 'DSA',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.folder_outlined),
-            selectedIcon: Icon(Icons.folder),
-            label: 'Projects',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
+        child: NavigationBar(
+          selectedIndex: shell.currentIndex,
+          onDestinationSelected: (i) =>
+              shell.goBranch(i, initialLocation: i == shell.currentIndex),
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.today_outlined),
+              selectedIcon: Icon(Icons.today),
+              label: 'Today',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.bar_chart_outlined),
+              selectedIcon: Icon(Icons.bar_chart),
+              label: 'Stats',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.history_outlined),
+              selectedIcon: Icon(Icons.history),
+              label: 'History',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.more_horiz_outlined),
+              selectedIcon: Icon(Icons.more_horiz),
+              label: 'More',
+            ),
+          ],
+        ),
       ),
     );
   }

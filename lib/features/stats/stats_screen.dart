@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/models/category.dart';
-import '../../util/colors.dart';
+import '../../core/theme/color_utils.dart';
 import '../../util/string_constant.dart';
 import 'providers/stats_provider.dart';
 import 'widgets/contribution_heatmap.dart';
@@ -40,7 +40,7 @@ class _StatsBody extends StatelessWidget {
           pinned: true,
           title: const Text(AppStrings.statsScreenTitle),
           backgroundColor: theme.scaffoldBackgroundColor,
-          surfaceTintColor: AppColors.transparent,
+          surfaceTintColor: context.transparent,
         ),
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
@@ -180,10 +180,14 @@ class _CategoryStatRow extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: category.surfaceColor,
+              color: category.surfaceColor(context),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(category.icon, color: category.color, size: 18),
+            child: Icon(
+              category.icon,
+              color: category.color(context),
+              size: 18,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -202,7 +206,9 @@ class _CategoryStatRow extends StatelessWidget {
           ),
           Text(
             '$value',
-            style: theme.textTheme.titleMedium?.copyWith(color: category.color),
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: category.color(context),
+            ),
           ),
         ],
       ),

@@ -1,19 +1,15 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/models/category.dart';
-import '../../core/models/log_entry.dart';
-import '../../core/models/project.dart';
 import '../../core/providers/theme_provider.dart';
-import '../../util/colors.dart';
+import '../../core/theme/color_utils.dart';
 import '../../util/string_constant.dart';
 import '../dsa_tracker/providers/dsa_provider.dart';
 import '../history/providers/history_provider.dart';
 import '../project/providers/project_provider.dart';
 import '../stats/providers/stats_provider.dart';
 import '../today/providers/today_provider.dart';
+import 'data/dailylog_report_exporter.dart';
 import 'providers/settings_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -31,10 +27,10 @@ class SettingsScreen extends ConsumerWidget {
             pinned: true,
             title: const Text(AppStrings.settingsScreenTitle),
             backgroundColor: theme.scaffoldBackgroundColor,
-            surfaceTintColor: AppColors.transparent,
+            surfaceTintColor: context.transparent,
           ),
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(14),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // ── Appearance ─────────────────────────────────────────
@@ -54,17 +50,17 @@ class SettingsScreen extends ConsumerWidget {
                           segments: const [
                             ButtonSegment(
                               value: ThemeMode.dark,
-                              icon: Icon(Icons.dark_mode_outlined, size: 16),
+                              icon: Icon(Icons.dark_mode_outlined, size: 12),
                               label: Text(AppStrings.dark),
                             ),
                             ButtonSegment(
                               value: ThemeMode.light,
-                              icon: Icon(Icons.light_mode_outlined, size: 16),
+                              icon: Icon(Icons.light_mode_outlined, size: 12),
                               label: Text(AppStrings.light),
                             ),
                             ButtonSegment(
                               value: ThemeMode.system,
-                              icon: Icon(Icons.contrast_outlined, size: 16),
+                              icon: Icon(Icons.contrast_outlined, size: 12),
                               label: Text(AppStrings.system),
                             ),
                           ],
@@ -115,13 +111,13 @@ class SettingsScreen extends ConsumerWidget {
                         color: theme.colorScheme.outlineVariant,
                       ),
                       ListTile(
-                        leading: const Icon(
+                        leading: Icon(
                           Icons.delete_outline,
-                          color: AppColors.danger,
+                          color: context.danger,
                         ),
-                        title: const Text(
+                        title: Text(
                           AppStrings.clearAllData,
-                          style: TextStyle(color: AppColors.danger),
+                          style: TextStyle(color: context.danger),
                         ),
                         onTap: () => _confirmClear(context, ref),
                       ),
@@ -138,37 +134,34 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   Future<void> _exportData(BuildContext context, WidgetRef ref) async {
-    final data = await ref.refresh(settingsExportProvider.future);
-    final logs = data.logs;
-    final projects = data.projects;
-    final export = {
-      'app': AppStrings.appName,
-      'exportedAt': DateTime.now().toUtc().toIso8601String(),
-      'progress': _progressSummary(logs, projects),
-      'projects': projects.map((p) => _projectToExport(p, logs)).toList(),
-      'history': _historyToExport(logs),
-    };
-    final jsonStr = const JsonEncoder.withIndent('  ').convert(export);
+    try {
+      final data = await ref.refresh(settingsExportProvider.future);
+      final report = await const DailyLogReportExporter().export(
+        logs: data.logs,
+        projects: data.projects,
+      );
 
-    if (!context.mounted) return;
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text(AppStrings.exportDataTitle),
-        content: SingleChildScrollView(
-          child: SelectableText(
-            jsonStr,
-            style: const TextStyle(fontFamily: 'monospace', fontSize: 11),
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppStrings.reportExported(report.displayPath)),
+          behavior: SnackBarBehavior.floating,
+          action: SnackBarAction(
+            label: AppStrings.open,
+            onPressed: () => _openExportedReport(context, report),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text(AppStrings.close),
-          ),
-        ],
-      ),
-    );
+      );
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppStrings.errorWithDetails(error)),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: context.danger,
+        ),
+      );
+    }
   }
 
   Future<void> _confirmClear(BuildContext context, WidgetRef ref) async {
@@ -184,9 +177,9 @@ class SettingsScreen extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
+            child: Text(
               AppStrings.deleteAll,
-              style: TextStyle(color: AppColors.danger),
+              style: TextStyle(color: context.danger),
             ),
           ),
         ],
@@ -218,87 +211,22 @@ class SettingsScreen extends ConsumerWidget {
     ref.invalidate(dsaSolvedCountProvider);
   }
 
-  Map<String, Object> _progressSummary(
-    List<LogEntry> logs,
-    List<Project> projects,
-  ) {
-    final days = logs.map((log) {
-      final local = log.createdAt.toLocal();
-      return DateTime(local.year, local.month, local.day);
-    }).toSet();
-
-    return {
-      'totalEntries': logs.length,
-      'trackedDays': days.length,
-      'totalProjects': projects.length,
-      'activeProjects': projects
-          .where((project) => project.status == ProjectStatus.active)
-          .length,
-      'byCategory': {
-        for (final category in Category.values)
-          category.name: logs.where((log) => log.category == category).length,
-      },
-    };
-  }
-
-  Map<String, Object?> _projectToExport(Project project, List<LogEntry> logs) {
-    final entries = logs
-        .where((log) => _isProjectEntry(log, project))
-        .map(_logToExport)
-        .toList();
-
-    return {
-      'id': project.id,
-      'name': project.name,
-      'description': project.description,
-      'status': project.status.name,
-      'createdAt': project.createdAt.toLocal().toIso8601String(),
-      'entries': entries,
-    };
-  }
-
-  List<Map<String, Object?>> _historyToExport(List<LogEntry> logs) {
-    final byDay = <DateTime, List<LogEntry>>{};
-    for (final log in logs) {
-      final local = log.createdAt.toLocal();
-      final day = DateTime(local.year, local.month, local.day);
-      (byDay[day] ??= []).add(log);
+  Future<void> _openExportedReport(
+    BuildContext context,
+    ExportedReport report,
+  ) async {
+    try {
+      await const DailyLogReportExporter().open(report);
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppStrings.errorWithDetails(error)),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: context.danger,
+        ),
+      );
     }
-
-    final days = byDay.keys.toList()..sort((a, b) => b.compareTo(a));
-    return [
-      for (final day in days)
-        {
-          'date': _dateKey(day),
-          'entries': byDay[day]!.map(_logToExport).toList(),
-        },
-    ];
-  }
-
-  Map<String, Object?> _logToExport(LogEntry log) {
-    final subtitle = log.displaySubtitle;
-    return {
-      'id': log.id,
-      'createdAt': log.createdAt.toLocal().toIso8601String(),
-      'category': log.category.name,
-      'title': log.displayTitle,
-      if (subtitle.isNotEmpty) 'subtitle': subtitle,
-      'payload': log.payload,
-    };
-  }
-
-  bool _isProjectEntry(LogEntry log, Project project) {
-    if (log.category != Category.project) return false;
-    final payload = log.payload;
-    if (payload['projectId'] == project.id) return true;
-    final projectName = (payload['projectName'] as String?)?.trim();
-    return projectName != null &&
-        projectName.toLowerCase() == project.name.trim().toLowerCase();
-  }
-
-  String _dateKey(DateTime date) {
-    String twoDigits(int value) => value.toString().padLeft(2, '0');
-    return '${date.year}-${twoDigits(date.month)}-${twoDigits(date.day)}';
   }
 }
 

@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../../core/models/category.dart';
 import '../../../core/models/log_entry.dart';
-import '../../../util/colors.dart';
+import '../../../core/theme/color_utils.dart';
 import '../../../util/string_constant.dart';
 import '../../dsa_tracker/providers/dsa_provider.dart';
 import '../../history/providers/history_provider.dart';
@@ -77,16 +77,16 @@ class _CategorySectionState extends State<_CategorySection> {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: cat.surfaceColor,
+                      color: cat.surfaceColor(context),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(cat.icon, color: cat.color, size: 15),
+                    child: Icon(cat.icon, color: cat.color(context), size: 15),
                   ),
                   const SizedBox(width: 10),
                   Text(
                     cat.label,
                     style: theme.textTheme.titleSmall?.copyWith(
-                      color: cat.color,
+                      color: cat.color(context),
                     ),
                   ),
                   const SizedBox(width: 6),
@@ -96,14 +96,14 @@ class _CategorySectionState extends State<_CategorySection> {
                       vertical: 1,
                     ),
                     decoration: BoxDecoration(
-                      color: cat.surfaceColor,
+                      color: cat.surfaceColor(context),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
                       '${widget.logs.length}',
                       style: TextStyle(
                         fontSize: 11,
-                        color: cat.color,
+                        color: cat.color(context),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -163,19 +163,19 @@ class _LogItem extends ConsumerWidget {
       background: Container(
         margin: const EdgeInsets.symmetric(vertical: 4),
         decoration: BoxDecoration(
-          color: AppColors.danger,
+          color: context.danger,
           borderRadius: BorderRadius.circular(12),
         ),
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 16),
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.delete_outline, color: AppColors.white, size: 20),
-            SizedBox(height: 2),
+            Icon(Icons.delete_outline, color: context.white, size: 20),
+            const SizedBox(height: 2),
             Text(
               AppStrings.delete,
-              style: TextStyle(color: AppColors.white, fontSize: 10),
+              style: TextStyle(color: context.white, fontSize: 10),
             ),
           ],
         ),
@@ -193,9 +193,9 @@ class _LogItem extends ConsumerWidget {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text(
+                child: Text(
                   AppStrings.delete,
-                  style: TextStyle(color: AppColors.danger),
+                  style: TextStyle(color: context.danger),
                 ),
               ),
             ],
@@ -223,7 +223,7 @@ class _LogItem extends ConsumerWidget {
                 width: 3,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: cat.color,
+                  color: cat.color(context),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -268,7 +268,7 @@ class _LogItem extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
+      backgroundColor: context.transparent,
       builder: (_) => LogFormSheet(
         category: log.category,
         existingLog: log,

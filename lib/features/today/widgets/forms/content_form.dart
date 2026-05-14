@@ -114,8 +114,8 @@ class _ContentFormState extends State<ContentForm> {
                 return FilterChip(
                   label: Text(s),
                   selected: selected,
-                  selectedColor: Category.content.color.withAlpha(40),
-                  checkmarkColor: Category.content.color,
+                  selectedColor: Category.content.color(context).withAlpha(40),
+                  checkmarkColor: Category.content.color(context),
                   onSelected: (_) => setState(() {
                     selected
                         ? _selectedStatuses.remove(s)

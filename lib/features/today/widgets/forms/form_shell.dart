@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../shared/widgets/log_date_selector.dart';
-import '../../../../util/colors.dart';
+import '../../../../core/theme/color_utils.dart';
 import '../../../../util/string_constant.dart';
 import '../log_form_date_scope.dart';
 
@@ -51,10 +51,14 @@ class FormShell extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: category.surfaceColor,
+                  color: category.surfaceColor(context),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(category.icon, color: category.color, size: 20),
+                child: Icon(
+                  category.icon,
+                  color: category.color(context),
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               Text(title, style: theme.textTheme.titleLarge),
@@ -96,14 +100,16 @@ class FormShell extends StatelessWidget {
           ),
           child: ElevatedButton(
             onPressed: isSaving ? null : onSave,
-            style: ElevatedButton.styleFrom(backgroundColor: category.color),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: category.color(context),
+            ),
             child: isSaving
-                ? const SizedBox(
+                ? SizedBox(
                     height: 20,
                     width: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppColors.white,
+                      color: context.white,
                     ),
                   )
                 : const Text(AppStrings.saveLog),

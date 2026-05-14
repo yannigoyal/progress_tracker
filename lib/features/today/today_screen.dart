@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/models/category.dart';
-import '../../util/colors.dart';
+import '../../core/theme/color_utils.dart';
 import '../../util/string_constant.dart';
 import '../dsa_tracker/providers/dsa_provider.dart';
 import '../history/providers/history_provider.dart';
@@ -105,7 +105,7 @@ class TodayScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
+      backgroundColor: context.transparent,
       builder: (sheetCtx) => AddLogBottomSheet(
         onCategorySelected: (category) {
           Navigator.of(sheetCtx).pop();
@@ -119,7 +119,7 @@ class TodayScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppColors.transparent,
+      backgroundColor: context.transparent,
       builder: (formCtx) => LogFormSheet(
         category: category,
         onSave: (entry) async {

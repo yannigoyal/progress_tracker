@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/models/category.dart';
 import '../../core/models/log_entry.dart';
-import '../../util/colors.dart';
+import '../../core/theme/color_utils.dart';
 import '../../util/string_constant.dart';
 import '../dsa_tracker/providers/dsa_provider.dart';
 import '../project/providers/project_provider.dart';
@@ -42,7 +42,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             pinned: true,
             title: const Text(AppStrings.historyScreenTitle),
             backgroundColor: theme.scaffoldBackgroundColor,
-            surfaceTintColor: AppColors.transparent,
+            surfaceTintColor: context.transparent,
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(104),
               child: Padding(
@@ -103,7 +103,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                                           )
                                           .state =
                                       cat,
-                              color: cat.color,
+                              color: cat.color(context),
                             ),
                           ),
                         ],
@@ -165,7 +165,7 @@ class _FilterChip extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           decoration: BoxDecoration(
-            color: selected ? color.withAlpha(40) : AppColors.transparent,
+            color: selected ? color.withAlpha(40) : context.transparent,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(color: selected ? color : color.withAlpha(60)),
           ),
@@ -330,10 +330,10 @@ class _LogsList extends ConsumerWidget {
                 Container(
                   padding: const EdgeInsets.all(5),
                   decoration: BoxDecoration(
-                    color: cat.surfaceColor,
+                    color: cat.surfaceColor(context),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Icon(cat.icon, size: 12, color: cat.color),
+                  child: Icon(cat.icon, size: 12, color: cat.color(context)),
                 ),
                 const SizedBox(width: 10),
                 Expanded(
@@ -403,9 +403,9 @@ class _LogsList extends ConsumerWidget {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text(
+            child: Text(
               AppStrings.delete,
-              style: TextStyle(color: AppColors.danger),
+              style: TextStyle(color: context.danger),
             ),
           ),
         ],

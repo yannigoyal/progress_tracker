@@ -87,8 +87,8 @@ class _LearningFormState extends State<LearningForm> {
                 return FilterChip(
                   label: Text(tag),
                   selected: selected,
-                  selectedColor: Category.learning.color.withAlpha(40),
-                  checkmarkColor: Category.learning.color,
+                  selectedColor: Category.learning.color(context).withAlpha(40),
+                  checkmarkColor: Category.learning.color(context),
                   onSelected: (_) => setState(() {
                     selected
                         ? _selectedTags.remove(tag)

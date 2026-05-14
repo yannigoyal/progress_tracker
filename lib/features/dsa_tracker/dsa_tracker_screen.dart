@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../util/colors.dart';
+import '../../core/theme/color_utils.dart';
 import '../../util/string_constant.dart';
 import '../history/providers/history_provider.dart';
 import '../stats/providers/stats_provider.dart';
@@ -24,7 +24,7 @@ class DsaTrackerScreen extends ConsumerWidget {
             pinned: true,
             title: const Text(AppStrings.dsaTrackerScreenTitle),
             backgroundColor: theme.scaffoldBackgroundColor,
-            surfaceTintColor: AppColors.transparent,
+            surfaceTintColor: context.transparent,
           ),
           statusesAsync.when(
             data: (statuses) {
@@ -185,7 +185,7 @@ class _ProblemRow extends ConsumerWidget {
                 height: 24,
                 decoration: BoxDecoration(
                   color: solved
-                      ? AppColors.success
+                      ? context.success
                       : theme.colorScheme.surfaceContainerHighest,
                   shape: BoxShape.circle,
                   border: solved
@@ -196,7 +196,7 @@ class _ProblemRow extends ConsumerWidget {
                         ),
                 ),
                 child: solved
-                    ? const Icon(Icons.check, color: AppColors.white, size: 14)
+                    ? Icon(Icons.check, color: context.white, size: 14)
                     : null,
               ),
             ),
@@ -232,7 +232,7 @@ class _ProblemRow extends ConsumerWidget {
     if (status.attempts.isEmpty) return;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.transparent,
+      backgroundColor: context.transparent,
       builder: (_) => _ProblemDetailsSheet(status: status),
     );
   }
@@ -269,25 +269,26 @@ class _DifficultyBadge extends StatelessWidget {
 
   const _DifficultyBadge({required this.difficulty});
 
-  Color get _color => switch (difficulty) {
-    'Easy' => AppColors.success,
-    'Medium' => AppColors.warning,
-    _ => AppColors.danger,
+  Color _color(BuildContext context) => switch (difficulty) {
+    'Easy' => context.success,
+    'Medium' => context.warning,
+    _ => context.danger,
   };
 
   @override
   Widget build(BuildContext context) {
+    final color = _color(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
       decoration: BoxDecoration(
-        color: _color.withAlpha(30),
+        color: color.withAlpha(30),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         difficulty,
         style: TextStyle(
           fontSize: 10,
-          color: _color,
+          color: color,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -352,8 +353,8 @@ class _ProblemDetailsSheet extends StatelessWidget {
                         ? Icons.check_circle
                         : Icons.refresh,
                     color: p['status'] == AppStrings.solved
-                        ? AppColors.success
-                        : AppColors.warning,
+                        ? context.success
+                        : context.warning,
                     size: 16,
                   ),
                   const SizedBox(width: 8),

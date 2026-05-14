@@ -255,16 +255,18 @@ class AppStrings {
   static const light = 'Light';
   static const system = 'System';
   static const data = 'Data';
-  static const exportDataAsJson = 'Export data as JSON';
-  static const saveAllLogsToJson = 'Save progress, history, and projects';
+  static const exportDataAsJson = 'Export progress report';
+  static const saveAllLogsToJson = 'Save dailylog_report.docx';
   static const about = 'About';
   static const aboutEmoji = '📓';
   static const clearAllData = 'Clear all data';
-  static const exportDataTitle = 'Export Data';
+  static const open = 'Open';
+  static const exportDataTitle = 'Export Report';
   static const clearAllDataTitle = 'Clear all data?';
   static const clearAllDataMessage =
       'This will permanently delete every log. Consider exporting first.';
   static const allDataCleared = 'All data cleared';
 
+  static String reportExported(String path) => 'Report saved to $path';
   static String errorWithDetails(Object error) => 'Error: $error';
 }
