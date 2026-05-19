@@ -1,4 +1,4 @@
-package com.example.progress_tracker
+package ghost.codes7.vaultlog
 
 import android.content.ActivityNotFoundException
 import android.content.ContentValues
@@ -154,6 +154,6 @@ class MainActivity : FlutterActivity() {
     }
 
     private companion object {
-        const val DOWNLOADS_CHANNEL = "daily_log/downloads"
+        const val DOWNLOADS_CHANNEL = "vaultlog/downloads"
     }
 }

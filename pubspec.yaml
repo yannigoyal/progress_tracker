@@ -1,5 +1,5 @@
-name: daily_log
-description: DailyLog — Personal daily progress tracker
+name: vaultlog
+description: Vaultlog - Personal daily progress tracker
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -21,6 +21,12 @@ dependencies:
   isar_flutter_libs:
     path: third_party/isar_flutter_libs
   path_provider: ^2.1.5
+  shared_preferences: ^2.5.5
+
+  # Firebase backup
+  firebase_core: ^4.9.0
+  firebase_auth: ^6.5.1
+  cloud_firestore: ^6.4.1
 
   # Navigation
   go_router: ^14.6.3
@@ -46,6 +52,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - PROGRESS.md
-    - PROGRESS.json

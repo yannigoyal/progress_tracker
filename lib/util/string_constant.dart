@@ -1,8 +1,8 @@
 class AppStrings {
   const AppStrings._();
 
-  static const appName = 'DailyLog';
-  static const appVersionSubtitle = 'v1.0.0 · Offline first · No cloud';
+  static const appName = 'Vaultlog';
+  static const appVersionSubtitle = 'v1.0.0 · Offline first · Optional backup';
 
   static const saveLog = 'Save log';
   static const saveSession = 'Save Session';
@@ -250,6 +250,38 @@ class AppStrings {
       '$dateLabel: $count log${count == 1 ? '' : 's'}';
 
   static const settingsScreenTitle = 'Settings';
+  static const backupScreenTitle = 'Backup Data';
+  static const backupScreenSubtitle = 'Firebase cloud backup';
+  static const backupUnavailableTitle = 'Firebase setup needed';
+  static const backupUnavailableMessage =
+      'Connect this build to a Firebase project before enabling backup.';
+  static const backupAccount = 'Backup account';
+  static const backupEmail = 'Email';
+  static const backupPassword = 'Password';
+  static const backupSignIn = 'Sign in';
+  static const backupCreateAccount = 'Create account';
+  static const backupForgotPassword = 'Reset password';
+  static const backupEnabled = 'Backup enabled';
+  static const backupEnabledSubtitle = 'Sync logs and projects to Firebase';
+  static const backupCloudFound = 'Cloud backup found';
+  static const backupCloudFoundMessage =
+      'Choose whether to restore the cloud copy or keep this device data.';
+  static const backupRestoreCloud = 'Restore cloud';
+  static const backupKeepDevice = 'Keep device';
+  static const backupNow = 'Back up now';
+  static const backupRestore = 'Restore backup';
+  static const backupRefresh = 'Refresh status';
+  static const backupSignOut = 'Sign out';
+  static const backupLocalData = 'This device';
+  static const backupCloudData = 'Cloud backup';
+  static const backupNoCloudData = 'No cloud backup yet';
+  static const backupNotSignedIn = 'Sign in to enable backup';
+  static const backupConfirmRestoreTitle = 'Restore cloud backup?';
+  static const backupConfirmRestoreMessage =
+      'This replaces the logs and projects currently on this device.';
+  static const backupConfirmKeepTitle = 'Overwrite cloud backup?';
+  static const backupConfirmKeepMessage =
+      'This saves the current device data over the cloud backup.';
   static const appearance = 'Appearance';
   static const theme = 'Theme';
   static const dark = 'Dark';
@@ -257,7 +289,7 @@ class AppStrings {
   static const system = 'System';
   static const data = 'Data';
   static const exportDataAsJson = 'Export progress report';
-  static const saveAllLogsToJson = 'Save dailylog_report.docx';
+  static const saveAllLogsToJson = 'Save vaultlog_report.docx';
   static const about = 'About';
   static const aboutEmoji = '📓';
   static const clearAllData = 'Clear all data';

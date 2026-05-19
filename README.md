@@ -1,6 +1,6 @@
-# DailyLog
+# Vaultlog
 
-DailyLog is an offline-first Flutter app for tracking personal progress across daily work, coding practice, projects, content, workouts, reading, learning, and notes.
+Vaultlog is an offline-first Flutter app for tracking personal progress across daily work, coding practice, projects, content, workouts, reading, learning, and notes.
 
 The app stores data locally with Isar, uses Riverpod for state management, and is organized feature-first with a lightweight repository layer.
 
@@ -11,7 +11,8 @@ The app stores data locally with Isar, uses Riverpod for state management, and i
 - **Stats**: View current streak, longest streak, 90-day contribution heatmap, last 7 days chart, and category totals.
 - **Blind 75**: Track solved DSA problems and view attempt history.
 - **Projects**: Create projects, cycle project status, and log project sessions.
-- **Settings**: Switch theme mode, export progress as JSON, and clear local logs.
+- **Backup Data**: Optional Firebase email/password backup and restore.
+- **Settings**: Switch theme mode, export progress report, and clear local logs.
 
 ## Categories
 
@@ -36,6 +37,17 @@ The app stores data locally with Isar, uses Riverpod for state management, and i
 | Navigation | go_router |
 | Charts | fl_chart |
 | Fonts / formatting | google_fonts, intl |
+| Cloud backup | Firebase Auth, Cloud Firestore |
+
+Note: `isar_flutter_libs` is vendored under `third_party/` with a small Android namespace patch so it builds with newer Android Gradle Plugin versions.
+
+## App Identity
+
+| Target | Value |
+|--------|-------|
+| App name | Vaultlog |
+| Android package / app ID | `ghost.codes7.vaultlog` |
+| iOS/macOS bundle ID | `ghost.codes7.vaultlog` |
 
 ## Architecture
 
@@ -109,6 +121,14 @@ lib/
         settings_provider.dart
       settings_screen.dart
 
+    backup/
+      data/
+        backup_models.dart
+        firebase_backup_repository.dart
+      providers/
+        backup_provider.dart
+      backup_screen.dart
+
     stats/
       data/
         stats_repository.dart
@@ -151,12 +171,83 @@ lib/
 
 ## Seed Data
 
-On startup, the app opens Isar and runs initial seeding from bundled progress assets:
+On startup, the app opens Isar and generates fallback sample data if the local database is empty.
 
-- `PROGRESS.json`
-- `PROGRESS.md`
+## Firebase Backup Setup
 
-If progress data cannot be loaded and the database is empty, fallback sample data is generated.
+The backup code is implemented, but a real Firebase project must be connected before it can be used.
+
+1. Create a Firebase project.
+2. Enable **Authentication -> Email/Password**.
+3. Create **Cloud Firestore**.
+4. Register an Android app with package name `ghost.codes7.vaultlog`.
+5. Register iOS/macOS apps with bundle ID `ghost.codes7.vaultlog` if you build those targets.
+6. Install FlutterFire CLI if needed:
+
+```bash
+dart pub global activate flutterfire_cli
+```
+
+7. Generate local Firebase configuration:
+
+```bash
+flutterfire configure
+```
+
+8. Keep generated Firebase config files local. They are ignored by git so each developer can use their own Firebase project.
+
+9. Run with Firebase enabled:
+
+```bash
+flutter run --dart-define=VAULTLOG_FIREBASE_ENABLED=true
+```
+
+The public repo intentionally does not include Firebase project files or API keys. Without local Firebase configuration, the app still runs, but the backup screen reports Firebase as unavailable.
+
+### Firestore Rules
+
+```js
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    match /userBackups/{uid} {
+      allow read, write: if isOwner(uid);
+
+      match /{document=**} {
+        allow read, write: if isOwner(uid);
+      }
+    }
+  }
+}
+```
+
+### Backup Data Shape
+
+```text
+/userBackups/{uid}
+  schemaVersion
+  status
+  lastBackupAt
+  logCount
+  projectCount
+
+/userBackups/{uid}/logs/{isarLogId}
+  isarId
+  createdAt
+  categoryIndex
+  payloadJson
+
+/userBackups/{uid}/projects/{isarProjectId}
+  isarId
+  name
+  description
+  statusIndex
+  createdAt
+```
 
 ## Getting Started
 

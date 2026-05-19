@@ -1,11 +1,11 @@
 {
-    "name": "progress_tracker",
-    "short_name": "progress_tracker",
+    "name": "Vaultlog",
+    "short_name": "Vaultlog",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Offline-first personal progress tracker with optional cloud backup.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

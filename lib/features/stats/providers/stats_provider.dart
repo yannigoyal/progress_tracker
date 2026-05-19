@@ -32,6 +32,7 @@ class StatsData {
   final List<int> last30DaysData;
   final List<WorkoutPR> topWorkoutPRs;
   final Map<Category, CategoryStats> categoryStats;
+  final DateTime? overallLastLogged;
 
   const StatsData({
     required this.currentStreak,
@@ -42,6 +43,7 @@ class StatsData {
     required this.last30DaysData,
     required this.topWorkoutPRs,
     required this.categoryStats,
+    required this.overallLastLogged,
   });
 }
 
@@ -95,6 +97,11 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
       if (runStreak > longestStreak) longestStreak = runStreak;
       prev = day;
     }
+
+    // Treat single isolated days as "no streak" (require at least 2 consecutive days
+    // to consider it a streak). This makes UI show last-logged date when there's
+    // no actual streak.
+    if (longestStreak < 2) longestStreak = 0;
 
     // Heatmap: last 365 days
     final heatmapData = {
@@ -178,6 +185,7 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
     final Map<Category, DateTime?> lastLoggedMap = {
       for (final c in Category.values) c: null,
     };
+    DateTime? overallLastLogged;
     for (final log in allLogs) {
       final local = log.createdAt.toLocal();
       final day = DateTime(local.year, local.month, local.day);
@@ -185,6 +193,10 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
       final prev = lastLoggedMap[log.category];
       if (prev == null || log.createdAt.isAfter(prev)) {
         lastLoggedMap[log.category] = log.createdAt;
+      }
+      if (overallLastLogged == null ||
+          log.createdAt.isAfter(overallLastLogged)) {
+        overallLastLogged = log.createdAt;
       }
     }
 
@@ -201,7 +213,7 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
       }
 
       // longest streak
-      int longest = cur;
+      int longest = 0;
       int run = 0;
       DateTime? prevDay;
       for (final day in days) {
@@ -213,6 +225,9 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
         if (run > longest) longest = run;
         prevDay = day;
       }
+
+      // Treat single isolated days as "no streak" for per-category stats as well.
+      if (longest < 2) longest = 0;
 
       categoryStats[c] = CategoryStats(
         currentStreak: cur,
@@ -230,6 +245,7 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
       last30DaysData: last30DaysData,
       topWorkoutPRs: topWorkoutPRs,
       categoryStats: categoryStats,
+      overallLastLogged: overallLastLogged,
     );
   }
 }

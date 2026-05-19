@@ -27,6 +27,11 @@ class MoreScreen extends StatelessWidget {
             title: AppStrings.settingsScreenTitle,
             route: '/more/settings',
           ),
+          _MoreRow(
+            icon: Icons.cloud_sync_outlined,
+            title: AppStrings.backupScreenTitle,
+            route: '/more/backup',
+          ),
         ],
       ),
     );

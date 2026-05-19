@@ -136,7 +136,7 @@ class SettingsScreen extends ConsumerWidget {
   Future<void> _exportData(BuildContext context, WidgetRef ref) async {
     try {
       final data = await ref.refresh(settingsExportProvider.future);
-      final report = await const DailyLogReportExporter().export(
+      final report = await const VaultlogReportExporter().export(
         logs: data.logs,
         projects: data.projects,
       );
@@ -164,6 +164,8 @@ class SettingsScreen extends ConsumerWidget {
     }
   }
 
+  // Kept for the local data clear action when that row is re-enabled.
+  // ignore: unused_element
   Future<void> _confirmClear(BuildContext context, WidgetRef ref) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -216,7 +218,7 @@ class SettingsScreen extends ConsumerWidget {
     ExportedReport report,
   ) async {
     try {
-      await const DailyLogReportExporter().open(report);
+      await const VaultlogReportExporter().open(report);
     } catch (error) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

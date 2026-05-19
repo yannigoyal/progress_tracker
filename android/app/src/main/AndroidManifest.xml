@@ -4,7 +4,7 @@
         android:maxSdkVersion="28" />
 
     <application
-        android:label="progress_tracker"
+        android:label="Vaultlog"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -62,6 +62,7 @@ class _StatsBody extends StatelessWidget {
                     child: _StreakCard(
                       label: AppStrings.longestStreak,
                       value: data.longestStreak,
+                      lastLogged: data.overallLastLogged,
                       emoji: '🏆',
                     ),
                   ),
@@ -170,11 +171,13 @@ class _StreakCard extends StatelessWidget {
   final String label;
   final int value;
   final String emoji;
+  final DateTime? lastLogged;
 
   const _StreakCard({
     required this.label,
     required this.value,
     required this.emoji,
+    this.lastLogged,
   });
 
   @override
@@ -188,12 +191,27 @@ class _StreakCard extends StatelessWidget {
           children: [
             Text(emoji, style: const TextStyle(fontSize: 28)),
             const SizedBox(height: 8),
-            Text(
-              AppStrings.dayCount(value),
-              style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.primary,
+            if (value > 0)
+              Text(
+                AppStrings.dayCount(value),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              )
+            else if (lastLogged != null)
+              Text(
+                DateFormat.yMMMd().format(lastLogged!.toLocal()),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
+              )
+            else
+              Text(
+                AppStrings.dayCount(value),
+                style: theme.textTheme.titleLarge?.copyWith(
+                  color: theme.colorScheme.primary,
+                ),
               ),
-            ),
             const SizedBox(height: 2),
             Text(label, style: theme.textTheme.bodySmall),
           ],

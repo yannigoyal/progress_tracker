@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/backup/backup_screen.dart';
 import '../../features/dsa_tracker/dsa_tracker_screen.dart';
 import '../../features/history/history_screen.dart';
 import '../../features/more/more_screen.dart';
@@ -56,6 +57,10 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: 'settings',
                   builder: (context, state) => const SettingsScreen(),
+                ),
+                GoRoute(
+                  path: 'backup',
+                  builder: (context, state) => const BackupScreen(),
                 ),
               ],
             ),
