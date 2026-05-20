@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'core/db/isar_service.dart';
 import 'core/providers/firebase_provider.dart';
 import 'core/providers/isar_provider.dart';
-import 'core/providers/progress_seed.dart';
 import 'core/providers/theme_provider.dart';
 import 'core/router/app_router.dart';
 import 'core/theme/app_theme.dart';
@@ -18,7 +17,6 @@ void main() async {
 
   final isar = await IsarService.open();
   final firebaseStatus = await _initializeFirebase();
-  await seedInitialData(isar);
 
   runApp(
     ProviderScope(

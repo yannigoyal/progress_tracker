@@ -80,8 +80,6 @@ lib/
       project.dart
     providers/
       isar_provider.dart
-      progress_seed.dart
-      seed_data.dart
       theme_provider.dart
     router/
       app_router.dart
