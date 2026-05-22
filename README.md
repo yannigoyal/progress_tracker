@@ -13,6 +13,8 @@ The app stores data locally with Isar, uses Riverpod for state management, and i
 - **Projects**: Create projects, cycle project status, and log project sessions.
 - **Backup Data**: Optional Firebase email/password backup and restore.
 - **Settings**: Switch theme mode, export progress report, and clear local logs.
+- **Custom activities**: Define your own log types (fields, labels, Material or 64×64 PNG icons) under Settings → Custom activities; log them from Today via the **Custom** category.
+- **Today layout**: Reorder built-in categories on the add-log grid via Settings → **Activity order on Today**.
 
 ## Categories
 
@@ -25,6 +27,11 @@ The app stores data locally with Isar, uses Riverpod for state management, and i
 | Learning | `note`, `tags` |
 | Misc | `title`, `note` |
 | Project | `projectId`, `projectName`, `whatDone`, `whatLearnt` |
+| Custom | Per-activity fields (`title`, `note`, `number`, `duration`, `tags`) and optional PNG icon |
+
+### Custom activity icons (Android / iOS)
+
+Importing a PNG icon uses the device photo library (`image_picker`). Android declares `READ_MEDIA_IMAGES` (and legacy `READ_EXTERNAL_STORAGE` on API ≤ 32). iOS uses `NSPhotoLibraryUsageDescription` in `ios/Runner/Info.plist`. Icons are resized to 64×64 and stored under the app documents directory; encrypted cloud backup can include them as base64.
 
 ## Tech Stack
 

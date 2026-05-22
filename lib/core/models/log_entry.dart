@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:isar/isar.dart';
 
+import '../../util/string_constant.dart';
 import 'category.dart';
 
 part 'log_entry.g.dart';
@@ -66,6 +67,13 @@ class LogEntry {
         final name = p['projectName'] as String? ?? '';
         final done = p['whatDone'] as String? ?? '';
         return name.isNotEmpty ? '$name — ${done.split('\n').first}' : done;
+      }(),
+      Category.custom => () {
+        final name = p['customActivityName'] as String?;
+        if (name != null && name.isNotEmpty) return name;
+        final title = (p['title'] as String?)?.trim();
+        if (title != null && title.isNotEmpty) return title;
+        return AppStrings.deletedActivityName;
       }(),
     };
   }
@@ -139,6 +147,20 @@ class LogEntry {
           return '$done · $learnt';
         }
         return done.isNotEmpty ? done : learnt;
+      }(),
+      Category.custom => () {
+        final parts = <String>[];
+        final title = (p['title'] as String?)?.trim();
+        if (title != null && title.isNotEmpty) parts.add(title);
+        final note = (p['note'] as String?)?.trim();
+        if (note != null && note.isNotEmpty) parts.add(note);
+        if (p['number'] != null) parts.add('${p['number']}');
+        if (p['durationMinutes'] != null) {
+          parts.add('${p['durationMinutes']} min');
+        }
+        final tags = (p['tags'] as List?)?.cast<String>() ?? [];
+        if (tags.isNotEmpty) parts.add(tags.map((t) => '#$t').join(' '));
+        return parts.join(' · ');
       }(),
     };
   }

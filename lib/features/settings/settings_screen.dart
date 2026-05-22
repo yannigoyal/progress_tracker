@@ -9,6 +9,8 @@ import '../history/providers/history_provider.dart';
 import '../project/providers/project_provider.dart';
 import '../stats/providers/stats_provider.dart';
 import '../today/providers/today_provider.dart';
+import 'category_order_screen.dart';
+import 'custom_activities_screen.dart';
 import 'data/dailylog_report_exporter.dart';
 import 'providers/settings_provider.dart';
 
@@ -70,6 +72,40 @@ class SettingsScreen extends ConsumerWidget {
                                   s.first,
                         ),
                       ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                _SectionHeader(title: AppStrings.loggingSection),
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.reorder_rounded),
+                    title: const Text(AppStrings.categoryOrderTitle),
+                    subtitle: const Text(AppStrings.categoryOrderSubtitle),
+                    trailing: const Icon(Icons.chevron_right, size: 18),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CategoryOrderScreen(),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                _SectionHeader(title: AppStrings.customActivitiesTitle),
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.tune_rounded),
+                    title: const Text(AppStrings.customActivitiesTitle),
+                    subtitle: const Text(AppStrings.customActivitiesSubtitle),
+                    trailing: const Icon(Icons.chevron_right, size: 18),
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CustomActivitiesScreen(),
+                      ),
                     ),
                   ),
                 ),

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/color_utils.dart';
 import '../../util/string_constant.dart';
 
-enum Category { dsa, content, workout, reading, learning, misc, project }
+enum Category { dsa, content, workout, reading, learning, misc, project, custom }
 
 extension CategoryX on Category {
   String get label => switch (this) {
@@ -14,6 +14,7 @@ extension CategoryX on Category {
     Category.learning => AppStrings.learningFormTitle,
     Category.misc => AppStrings.miscLabel,
     Category.project => AppStrings.projectFormTitle,
+    Category.custom => AppStrings.customLabel,
   };
 
   String get emoji => switch (this) {
@@ -24,6 +25,7 @@ extension CategoryX on Category {
     Category.learning => '🧠',
     Category.misc => '📝',
     Category.project => '📁',
+    Category.custom => '✨',
   };
 
   IconData get icon => switch (this) {
@@ -34,6 +36,7 @@ extension CategoryX on Category {
     Category.learning => Icons.lightbulb_outline,
     Category.misc => Icons.notes,
     Category.project => Icons.folder_outlined,
+    Category.custom => Icons.tune_rounded,
   };
 
   Color color(BuildContext context) => switch (this) {
@@ -44,6 +47,7 @@ extension CategoryX on Category {
     Category.learning => context.categoryLearning,
     Category.misc => context.categoryMisc,
     Category.project => context.categoryProject,
+    Category.custom => context.categoryCustom,
   };
 
   Color surfaceColor(BuildContext context) => color(context).withAlpha(26);

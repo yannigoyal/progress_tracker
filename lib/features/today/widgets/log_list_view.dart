@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../../core/models/category.dart';
+import '../../../core/models/custom_activity.dart';
 import '../../../core/models/log_entry.dart';
+import '../../settings/providers/custom_activity_provider.dart';
 import '../../../core/theme/color_utils.dart';
 import '../../../util/string_constant.dart';
 import '../../dsa_tracker/providers/dsa_provider.dart';
@@ -264,13 +266,25 @@ class _LogItem extends ConsumerWidget {
     );
   }
 
-  void _openEdit(BuildContext context, WidgetRef ref) {
+  Future<void> _openEdit(BuildContext context, WidgetRef ref) async {
+    CustomActivity? customActivity;
+    if (log.category == Category.custom) {
+      final id = log.payload['customActivityId'];
+      if (id is int) {
+        customActivity = await ref
+            .read(customActivityRepositoryProvider)
+            .getById(id);
+      }
+    }
+
+    if (!context.mounted) return;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: context.transparent,
       builder: (_) => LogFormSheet(
         category: log.category,
+        customActivity: customActivity,
         existingLog: log,
         onSave: (updated) async {
           Navigator.of(context).pop();

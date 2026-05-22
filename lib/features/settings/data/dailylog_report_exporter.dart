@@ -505,6 +505,7 @@ class _VaultlogDocxReport {
     Category.learning => '\u{1F9E0}',
     Category.misc => '\u{1F5D2}',
     Category.project => '\u{1F680}',
+    Category.custom => '\u{2728}',
   };
 
   List<_ProjectReport> _projectReports() {

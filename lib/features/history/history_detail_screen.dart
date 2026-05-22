@@ -139,6 +139,13 @@ class _LogDetailCard extends StatelessWidget {
       case Category.project:
         add('Project', p['projectName']);
         add('Learned', p['whatLearnt']);
+      case Category.custom:
+        add('Activity', p['customActivityName']);
+        add('Title', p['title']);
+        add('Note', p['note']);
+        add('Amount', p['number']);
+        add('Duration (min)', p['durationMinutes']);
+        add('Tags', p['tags']);
     }
 
     return rows;

@@ -180,8 +180,43 @@ class AppStrings {
   ];
 
   static const miscFormTitle = 'Quick Note';
-  static const titleOptional = 'Title (optional)';
-  static const whatsOnYourMindRequired = 'What\'s on your mind? *';
+  static const titleRequired = 'Title *';
+  static const whatsOnYourMindOptional = 'What\'s on your mind? (optional)';
+  static const customLabel = 'Custom';
+  static const customActivitiesTitle = 'Custom activities';
+  static const customActivitiesSubtitle =
+      'Create activities with your own icon and fields';
+  static const addCustomActivity = 'Add activity';
+  static const editCustomActivity = 'Edit activity';
+  static const customActivityNameRequired = 'Activity name *';
+  static const pickIcon = 'Icon';
+  static const pickColor = 'Color';
+  static const enabledFields = 'Fields to show when logging';
+  static const atLeastOneField = 'Enable at least one field';
+  static const deleteCustomActivityTitle = 'Delete activity?';
+  static const deleteCustomActivityMessage =
+      'Logs using this activity will show as deleted. This cannot be undone.';
+  static const deletedActivityName = 'Deleted activity';
+  static const customActivitiesEmptyTitle = 'No custom activities yet';
+  static const customActivitiesEmptySubtitle =
+      'Add activities in Settings, then log them from Custom';
+  static const customPickerTitle = 'Choose activity';
+  static const addActivityTile = 'Add activity';
+  static const loggingSection = 'Logging';
+  static const categoryOrderTitle = 'Activity order on Today';
+  static const categoryOrderSubtitle =
+      'Drag to reorder categories on “What did you work on?”';
+  static const importPngIcon = 'Import PNG (64×64)';
+  static const clearCustomIcon = 'Use Material icon';
+  static const customIconPreview = 'Custom icon preview';
+  static const pngOnlyHint = 'Only PNG files are resized to 64×64 pixels.';
+  static const fieldDisplayLabel = 'Field label';
+  static const materialIconsSection = 'Material icons';
+  static const customImageSection = 'Custom PNG icon';
+  static const addTag = 'Add tag';
+  static const addTagHint = 'New tag name';
+  static const learningAddTag = 'Add your own tags below';
+  static const removeTagFromLibrary = 'Remove from tag list?';
 
   static const historyScreenTitle = 'Journal';
   static const searchLogs = 'Search logs…';
@@ -228,7 +263,7 @@ class AppStrings {
   static const unitVideosUploaded = 'videos uploaded';
   static const unitTotalRepsOrSeconds = 'total reps / seconds';
   static const unitPagesRead = 'pages read';
-  static const unitNotes = 'notes';
+  static const unitLogs = 'logs';
   static const unitSessionsLogged = 'sessions logged';
 
   static const contributionHeatmapTitle = 'Last year';

@@ -4,15 +4,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
 import '../../core/models/category.dart';
+import '../../core/models/custom_activity.dart';
 import '../../core/theme/color_utils.dart';
 import '../../util/string_constant.dart';
 import '../dsa_tracker/providers/dsa_provider.dart';
 import '../history/providers/history_provider.dart';
 import '../project/providers/project_provider.dart';
 import '../stats/providers/stats_provider.dart';
+import '../settings/providers/category_order_provider.dart';
 import 'providers/today_provider.dart';
 import 'widgets/add_log_bottom_sheet.dart';
 import 'widgets/category_chip_row.dart';
+import 'widgets/custom_activity_picker_sheet.dart';
 import 'widgets/log_list_view.dart';
 
 class TodayScreen extends ConsumerWidget {
@@ -102,26 +105,58 @@ class TodayScreen extends ConsumerWidget {
 
   void _showCategoryPicker(BuildContext context, WidgetRef ref) {
     HapticFeedback.mediumImpact();
+    final categories =
+        ref.read(categoryOrderProvider).valueOrNull ?? Category.values;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: context.transparent,
       builder: (sheetCtx) => AddLogBottomSheet(
+        categories: categories,
         onCategorySelected: (category) {
           Navigator.of(sheetCtx).pop();
-          _showLogForm(context, ref, category);
+          if (category == Category.custom) {
+            _showCustomActivityPicker(context, ref);
+          } else {
+            _showLogForm(context, ref, category);
+          }
         },
       ),
     );
   }
 
-  void _showLogForm(BuildContext context, WidgetRef ref, Category category) {
+  void _showCustomActivityPicker(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: context.transparent,
+      builder: (pickerCtx) => CustomActivityPickerSheet(
+        onSelected: (activity) {
+          Navigator.of(pickerCtx).pop();
+          _showLogForm(
+            context,
+            ref,
+            Category.custom,
+            customActivity: activity,
+          );
+        },
+      ),
+    );
+  }
+
+  void _showLogForm(
+    BuildContext context,
+    WidgetRef ref,
+    Category category, {
+    CustomActivity? customActivity,
+  }) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: context.transparent,
       builder: (formCtx) => LogFormSheet(
         category: category,
+        customActivity: customActivity,
         onSave: (entry) async {
           Navigator.of(formCtx).pop();
           HapticFeedback.lightImpact();

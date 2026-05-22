@@ -13,6 +13,8 @@ class FormShell extends StatelessWidget {
   final VoidCallback onSave;
   final bool isSaving;
   final Widget child;
+  /// When set, replaces the default category icon in the title row.
+  final Widget? leading;
 
   const FormShell({
     super.key,
@@ -21,6 +23,7 @@ class FormShell extends StatelessWidget {
     required this.onSave,
     required this.child,
     this.isSaving = false,
+    this.leading,
   });
 
   @override
@@ -54,11 +57,12 @@ class FormShell extends StatelessWidget {
                   color: category.surfaceColor(context),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
-                  category.icon,
-                  color: category.color(context),
-                  size: 20,
-                ),
+                child: leading ??
+                    Icon(
+                      category.icon,
+                      color: category.color(context),
+                      size: 20,
+                    ),
               ),
               const SizedBox(width: 12),
               Text(title, style: theme.textTheme.titleLarge),

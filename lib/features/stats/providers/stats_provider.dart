@@ -141,6 +141,8 @@ class StatsNotifier extends AsyncNotifier<StatsData> {
           totals[Category.misc] = totals[Category.misc]! + 1;
         case Category.project:
           totals[Category.project] = totals[Category.project]! + 1;
+        case Category.custom:
+          totals[Category.custom] = totals[Category.custom]! + 1;
       }
     }
 

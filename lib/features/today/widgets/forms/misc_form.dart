@@ -37,12 +37,13 @@ class _MiscFormState extends State<MiscForm> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
+    final note = _noteCtrl.text.trim();
     final entry = (widget.existingLog ?? LogEntry())
       ..category = Category.misc
       ..createdAt = widget.existingLog?.createdAt ?? DateTime.now().toUtc()
       ..payload = {
         'title': _titleCtrl.text.trim(),
-        'note': _noteCtrl.text.trim(),
+        if (note.isNotEmpty) 'note': note,
         if (widget.existingLog?.payload['kind'] != null)
           'kind': widget.existingLog!.payload['kind'],
       };
@@ -62,24 +63,24 @@ class _MiscFormState extends State<MiscForm> {
             TextFormField(
               controller: _titleCtrl,
               decoration: const InputDecoration(
-                labelText: AppStrings.titleOptional,
+                labelText: AppStrings.titleRequired,
               ),
               textCapitalization: TextCapitalization.words,
               textInputAction: TextInputAction.next,
+              autofocus: true,
+              validator: (v) => v == null || v.trim().isEmpty
+                  ? AppStrings.requiredField
+                  : null,
             ),
             const SizedBox(height: 12),
             TextFormField(
               controller: _noteCtrl,
               decoration: const InputDecoration(
-                labelText: AppStrings.whatsOnYourMindRequired,
+                labelText: AppStrings.whatsOnYourMindOptional,
                 alignLabelWithHint: true,
               ),
               maxLines: 7,
               textCapitalization: TextCapitalization.sentences,
-              autofocus: true,
-              validator: (v) => v == null || v.trim().isEmpty
-                  ? AppStrings.requiredField
-                  : null,
             ),
           ],
         ),

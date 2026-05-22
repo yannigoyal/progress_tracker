@@ -3,8 +3,10 @@ import 'package:cryptography/cryptography.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:isar/isar.dart';
 
+import '../../../core/models/custom_activity.dart';
 import '../../../core/models/log_entry.dart';
 import '../../../core/models/project.dart';
+import '../../settings/data/custom_activity_icon_storage.dart';
 import 'backup_crypto.dart';
 import 'backup_models.dart';
 import 'backup_serializer.dart';
@@ -129,6 +131,8 @@ class FirebaseBackupRepository {
   }) async {
     final logs = await _isar.logEntrys.where().sortByCreatedAt().findAll();
     final projects = await _isar.projects.where().sortByCreatedAt().findAll();
+    final customActivities =
+        await _isar.customActivitys.where().sortBySortOrder().findAll();
 
     final backupDoc = _backupDoc(uid);
     final writer = _FirestoreBatchWriter(_firestore);
@@ -138,9 +142,14 @@ class FirebaseBackupRepository {
     final saltBase64 = existingData?['encryptionSalt'] as String? ??
         _crypto.generateSaltBase64();
 
-    final snapshot = BackupSnapshot(logs: logs, projects: projects);
+    final iconStorage = CustomActivityIconStorage();
+    final snapshot = BackupSnapshot(
+      logs: logs,
+      projects: projects,
+      customActivities: customActivities,
+    );
     final encrypted = await _crypto.encrypt(
-      plaintext: snapshot.toJsonString(),
+      plaintext: await snapshot.toJsonString(iconStorage: iconStorage),
       passphrase: passphrase,
       saltBase64: saltBase64,
     );
@@ -204,9 +213,14 @@ class FirebaseBackupRepository {
       snapshot = await _restoreLegacyPlaintext(backupDoc);
     }
 
+    final iconStorage = CustomActivityIconStorage();
+    await snapshot.restoreCustomIcons(iconStorage);
+
     await _isar.writeTxn(() async {
       await _isar.logEntrys.clear();
       await _isar.projects.clear();
+      await _isar.customActivitys.clear();
+      await _isar.customActivitys.putAll(snapshot.customActivities);
       await _isar.projects.putAll(snapshot.projects);
       await _isar.logEntrys.putAll(snapshot.logs);
     });

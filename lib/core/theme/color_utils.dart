@@ -37,6 +37,7 @@ abstract final class ThemePalette {
 
   static const categoryContent = Color(0xFFEC4899);
   static const categoryProject = Color(0xFF8B5CF6);
+  static const categoryCustom = Color(0xFF0EA5E9);
 }
 
 extension ColorUtil on BuildContext {
@@ -129,4 +130,5 @@ extension ColorUtil on BuildContext {
   Color get categoryLearning => secondary;
   Color get categoryMisc => neutral;
   Color get categoryProject => ThemePalette.categoryProject;
+  Color get categoryCustom => ThemePalette.categoryCustom;
 }

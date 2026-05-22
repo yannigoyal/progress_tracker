@@ -239,9 +239,10 @@ class _CategoryStatRow extends StatelessWidget {
     Category.content => AppStrings.unitVideosUploaded,
     Category.workout => AppStrings.unitTotalRepsOrSeconds,
     Category.reading => AppStrings.unitPagesRead,
-    Category.learning => AppStrings.unitNotes,
-    Category.misc => AppStrings.unitNotes,
+    Category.learning => AppStrings.unitLogs,
+    Category.misc => AppStrings.unitLogs,
     Category.project => AppStrings.unitSessionsLogged,
+    Category.custom => AppStrings.unitLogs,
   };
 
   @override

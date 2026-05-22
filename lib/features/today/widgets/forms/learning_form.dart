@@ -1,26 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
 import '../../../../util/string_constant.dart';
+import '../../data/learning_tags_store.dart';
+import '../tags_input_field.dart';
 import 'form_shell.dart';
 
-class LearningForm extends StatefulWidget {
+final _learningTagsStoreProvider = Provider((ref) => LearningTagsStore());
+
+class LearningForm extends ConsumerStatefulWidget {
   final void Function(LogEntry) onSave;
   final LogEntry? existingLog;
 
   const LearningForm({super.key, required this.onSave, this.existingLog});
 
   @override
-  State<LearningForm> createState() => _LearningFormState();
+  ConsumerState<LearningForm> createState() => _LearningFormState();
 }
 
-class _LearningFormState extends State<LearningForm> {
+class _LearningFormState extends ConsumerState<LearningForm> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _noteCtrl;
   late final Set<String> _selectedTags;
-
-  static const _availableTags = [...AppStrings.learningTags];
+  List<String> _userTags = [];
 
   @override
   void initState() {
@@ -30,6 +34,12 @@ class _LearningFormState extends State<LearningForm> {
     _selectedTags = Set<String>.from(
       (p['tags'] as List?)?.cast<String>() ?? [],
     );
+    _loadUserTags();
+  }
+
+  Future<void> _loadUserTags() async {
+    final tags = await ref.read(_learningTagsStoreProvider).loadUserTags();
+    if (mounted) setState(() => _userTags = tags);
   }
 
   @override
@@ -74,28 +84,24 @@ class _LearningFormState extends State<LearningForm> {
                   : null,
             ),
             const SizedBox(height: 16),
-            Text(
-              AppStrings.tags,
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: _availableTags.map((tag) {
-                final selected = _selectedTags.contains(tag);
-                return FilterChip(
-                  label: Text(tag),
-                  selected: selected,
-                  selectedColor: Category.learning.color(context).withAlpha(40),
-                  checkmarkColor: Category.learning.color(context),
-                  onSelected: (_) => setState(() {
-                    selected
-                        ? _selectedTags.remove(tag)
-                        : _selectedTags.add(tag);
-                  }),
-                );
-              }).toList(),
+            TagsInputField(
+              presetTags: AppStrings.learningTags,
+              userTags: _userTags,
+              selectedTags: _selectedTags,
+              chipColor: Category.learning.color(context),
+              onSelectedChanged: (tags) => setState(() {
+                _selectedTags
+                  ..clear()
+                  ..addAll(tags);
+              }),
+              onAddUserTag: (tag) async {
+                await ref.read(_learningTagsStoreProvider).addTag(tag);
+                await _loadUserTags();
+              },
+              onRemoveUserTag: (tag) async {
+                await ref.read(_learningTagsStoreProvider).removeTag(tag);
+                await _loadUserTags();
+              },
             ),
           ],
         ),

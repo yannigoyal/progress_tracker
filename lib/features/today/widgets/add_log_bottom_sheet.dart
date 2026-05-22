@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/models/category.dart';
+import '../../../core/models/custom_activity.dart';
 import '../../../core/models/log_entry.dart';
 import '../../../util/string_constant.dart';
 import 'forms/content_form.dart';
@@ -9,15 +10,21 @@ import 'forms/learning_form.dart';
 import 'forms/misc_form.dart';
 import 'forms/project_form.dart';
 import 'forms/reading_form.dart';
+import 'forms/custom_activity_form.dart';
 import 'forms/workout_form.dart';
 import 'log_form_date_scope.dart';
 
 // ── Category picker sheet ─────────────────────────────────────────────────────
 
 class AddLogBottomSheet extends StatelessWidget {
+  final List<Category> categories;
   final void Function(Category) onCategorySelected;
 
-  const AddLogBottomSheet({super.key, required this.onCategorySelected});
+  const AddLogBottomSheet({
+    super.key,
+    required this.categories,
+    required this.onCategorySelected,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +57,7 @@ class AddLogBottomSheet extends StatelessWidget {
             crossAxisSpacing: 12,
             childAspectRatio: 1.15,
             physics: const NeverScrollableScrollPhysics(),
-            children: Category.values
+            children: categories
                 .map(
                   (cat) => _CategoryTile(
                     category: cat,
@@ -113,12 +120,14 @@ class LogFormSheet extends StatefulWidget {
   final Category category;
   final void Function(LogEntry) onSave;
   final LogEntry? existingLog;
+  final CustomActivity? customActivity;
 
   const LogFormSheet({
     super.key,
     required this.category,
     required this.onSave,
     this.existingLog,
+    this.customActivity,
   });
 
   @override
@@ -174,6 +183,13 @@ class _LogFormSheetState extends State<LogFormSheet> {
             onSave: _saveWithSelectedDate,
             existingLog: widget.existingLog,
           ),
+          Category.custom => widget.customActivity == null
+              ? const Center(child: Text(AppStrings.customActivitiesEmptyTitle))
+              : CustomActivityForm(
+                  activity: widget.customActivity!,
+                  onSave: _saveWithSelectedDate,
+                  existingLog: widget.existingLog,
+                ),
         },
       ),
     );
