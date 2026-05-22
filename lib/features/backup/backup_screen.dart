@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +26,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   late final AnimationController _syncIconController;
+  bool _passphrasePromptInFlight = false;
 
   @override
   void initState() {
@@ -31,6 +34,26 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     _syncIconController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
+    );
+    ref.listenManual(
+      backupControllerProvider.select(
+        (s) => (
+          s.pendingPassphraseSetup,
+          s.pendingPassphraseForRestore,
+          s.isBusy,
+          s.account != null,
+        ),
+      ),
+      (previous, next) {
+        final (pending, forRestore, busy, signedIn) = next;
+        if (!pending || busy || !signedIn || _passphrasePromptInFlight) return;
+        final wasPending = previous?.$1 ?? false;
+        if (wasPending && pending) return;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          unawaited(_handlePendingPassphrasePrompt(forRestore: forRestore));
+        });
+      },
     );
   }
 
@@ -299,6 +322,33 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     await ref
         .read(backupControllerProvider.notifier)
         .keepDeviceData(passphrase: passphrase);
+  }
+
+  Future<void> _handlePendingPassphrasePrompt({required bool forRestore}) async {
+    if (_passphrasePromptInFlight) return;
+    _passphrasePromptInFlight = true;
+    final notifier = ref.read(backupControllerProvider.notifier);
+    try {
+      if (!mounted) return;
+      final passphrase = await showBackupPassphraseDialog(
+        context,
+        isCreate: !forRestore,
+      );
+      if (!mounted) return;
+      if (passphrase == null) {
+        notifier.dismissPendingPassphraseSetup();
+        return;
+      }
+      notifier.clearPendingPassphraseSetup();
+      if (forRestore) {
+        await notifier.restoreFromCloud(passphrase: passphrase);
+        _refreshProgressProviders();
+      } else {
+        await notifier.backupNow(passphrase: passphrase);
+      }
+    } finally {
+      _passphrasePromptInFlight = false;
+    }
   }
 
   Future<void> _viewSavedPassphrase(BuildContext context) async {

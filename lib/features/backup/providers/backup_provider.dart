@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/providers/firebase_provider.dart';
 import '../../../core/providers/isar_provider.dart';
+import '../../../util/string_constant.dart';
 import '../data/backup_models.dart';
 import '../data/backup_passphrase_store.dart';
 import '../data/firebase_backup_repository.dart';
@@ -23,6 +24,8 @@ class BackupState {
   final bool backupEnabled;
   final bool isBusy;
   final bool hasPendingRestoreChoice;
+  final bool pendingPassphraseSetup;
+  final bool pendingPassphraseForRestore;
   final BackupMetadata remoteMetadata;
   final LocalBackupSummary? localSummary;
   final String? statusMessage;
@@ -35,6 +38,8 @@ class BackupState {
     required this.backupEnabled,
     required this.isBusy,
     required this.hasPendingRestoreChoice,
+    this.pendingPassphraseSetup = false,
+    this.pendingPassphraseForRestore = false,
     required this.remoteMetadata,
     required this.localSummary,
     required this.statusMessage,
@@ -52,6 +57,8 @@ class BackupState {
       backupEnabled: false,
       isBusy: false,
       hasPendingRestoreChoice: false,
+      pendingPassphraseSetup: false,
+      pendingPassphraseForRestore: false,
       remoteMetadata: const BackupMetadata.empty(),
       localSummary: null,
       statusMessage: null,
@@ -68,6 +75,9 @@ class BackupState {
     bool? backupEnabled,
     bool? isBusy,
     bool? hasPendingRestoreChoice,
+    bool? pendingPassphraseSetup,
+    bool clearPendingPassphraseSetup = false,
+    bool? pendingPassphraseForRestore,
     BackupMetadata? remoteMetadata,
     LocalBackupSummary? localSummary,
     bool clearLocalSummary = false,
@@ -86,6 +96,12 @@ class BackupState {
       isBusy: isBusy ?? this.isBusy,
       hasPendingRestoreChoice:
           hasPendingRestoreChoice ?? this.hasPendingRestoreChoice,
+      pendingPassphraseSetup: clearPendingPassphraseSetup
+          ? false
+          : (pendingPassphraseSetup ?? this.pendingPassphraseSetup),
+      pendingPassphraseForRestore: clearPendingPassphraseSetup
+          ? false
+          : (pendingPassphraseForRestore ?? this.pendingPassphraseForRestore),
       remoteMetadata: remoteMetadata ?? this.remoteMetadata,
       localSummary: clearLocalSummary
           ? null
@@ -155,10 +171,7 @@ class BackupController extends Notifier<BackupState> {
       await _refreshForCurrentAccount(
         statusMessage: 'Backup enabled for this account.',
       );
-      final passphrase = await readStoredPassphrase();
-      if (passphrase != null) {
-        await _backupCurrentAccount(isAutomatic: true, passphrase: passphrase);
-      }
+      await _runPostAuthSync();
     });
   }
 
@@ -167,9 +180,8 @@ class BackupController extends Notifier<BackupState> {
       final repository = _requireRepository();
       await repository.signIn(email: email, password: password);
       await _setBackupEnabledPreference(true);
-      await _refreshForCurrentAccount(
-        statusMessage: 'Signed in. Checking for saved backup...',
-      );
+      await _refreshForCurrentAccount();
+      await _runPostAuthSync();
     });
   }
 
@@ -198,6 +210,7 @@ class BackupController extends Notifier<BackupState> {
         clearAccount: true,
         backupEnabled: false,
         hasPendingRestoreChoice: false,
+        clearPendingPassphraseSetup: true,
         remoteMetadata: const BackupMetadata.empty(),
         clearLocalSummary: true,
         statusMessage: 'Signed out.',
@@ -223,13 +236,7 @@ class BackupController extends Notifier<BackupState> {
         clearErrorMessage: true,
       );
       if (value) {
-        final passphrase = await readStoredPassphrase();
-        if (passphrase != null) {
-          await _backupCurrentAccount(
-            isAutomatic: true,
-            passphrase: passphrase,
-          );
-        }
+        await _runPostAuthSync();
       }
     });
   }
@@ -273,6 +280,7 @@ class BackupController extends Notifier<BackupState> {
           remoteMetadata: metadata,
           localSummary: localSummary,
           hasPendingRestoreChoice: false,
+          clearPendingPassphraseSetup: true,
           statusMessage: metadata.exists
               ? 'Cloud backup restored.'
               : 'No cloud backup found.',
@@ -320,7 +328,20 @@ class BackupController extends Notifier<BackupState> {
       remoteMetadata: metadata,
       localSummary: localSummary,
       hasPendingRestoreChoice: false,
+      clearPendingPassphraseSetup: true,
       statusMessage: isAutomatic ? 'Backup synced.' : 'Backup completed.',
+      clearErrorMessage: true,
+    );
+  }
+
+  void clearPendingPassphraseSetup() {
+    state = state.copyWith(clearPendingPassphraseSetup: true);
+  }
+
+  void dismissPendingPassphraseSetup({String? statusMessage}) {
+    state = state.copyWith(
+      clearPendingPassphraseSetup: true,
+      statusMessage: statusMessage ?? AppStrings.backupPassphraseDismissed,
       clearErrorMessage: true,
     );
   }
@@ -360,6 +381,7 @@ class BackupController extends Notifier<BackupState> {
       state = state.copyWith(
         clearAccount: true,
         hasPendingRestoreChoice: false,
+        clearPendingPassphraseSetup: true,
         remoteMetadata: const BackupMetadata.empty(),
         clearLocalSummary: true,
       );
@@ -369,6 +391,7 @@ class BackupController extends Notifier<BackupState> {
     state = state.copyWith(account: account);
     await _refreshForCurrentAccount();
     await _restoreAutomaticallyWhenSafe();
+    await _runPostAuthSync();
   }
 
   Future<void> _refreshForCurrentAccount({String? statusMessage}) async {
@@ -419,6 +442,50 @@ class BackupController extends Notifier<BackupState> {
     if (localSummary != null && localSummary.hasData) {
       state = state.copyWith(hasPendingRestoreChoice: true);
     }
+  }
+
+  Future<void> _runPostAuthSync() async {
+    if (!state.backupEnabled || state.account == null) {
+      return;
+    }
+    if (state.hasPendingRestoreChoice) {
+      return;
+    }
+
+    final passphrase = await readStoredPassphrase();
+    if (passphrase != null) {
+      await _backupCurrentAccount(isAutomatic: true, passphrase: passphrase);
+      return;
+    }
+
+    final localSummary = state.localSummary;
+    final remoteMetadata = state.remoteMetadata;
+
+    if (localSummary != null && localSummary.hasData) {
+      state = state.copyWith(
+        pendingPassphraseSetup: true,
+        pendingPassphraseForRestore: false,
+        statusMessage: AppStrings.backupSignedInNeedPassphrase,
+        clearErrorMessage: true,
+      );
+      return;
+    }
+
+    if (remoteMetadata.exists && remoteMetadata.encrypted) {
+      state = state.copyWith(
+        pendingPassphraseSetup: true,
+        pendingPassphraseForRestore: true,
+        statusMessage: AppStrings.backupSignedInNeedPassphraseRestore,
+        clearErrorMessage: true,
+      );
+      return;
+    }
+
+    state = state.copyWith(
+      clearPendingPassphraseSetup: true,
+      statusMessage: AppStrings.backupSignedIn,
+      clearErrorMessage: true,
+    );
   }
 
   void _scheduleAutoBackup() {

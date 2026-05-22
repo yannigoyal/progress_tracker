@@ -311,6 +311,13 @@ class AppStrings {
       'You need this to restore encrypted backups on a new device.';
   static const backupPassphraseCopy = 'Copy to clipboard';
   static const backupPassphraseCopied = 'Passphrase copied';
+  static const backupSignedIn = 'Signed in.';
+  static const backupSignedInNeedPassphrase =
+      'Signed in. Create a backup passphrase to sync.';
+  static const backupSignedInNeedPassphraseRestore =
+      'Signed in. Enter your backup passphrase to restore.';
+  static const backupPassphraseDismissed =
+      'Backup paused until you set a passphrase.';
   static const appearance = 'Appearance';
   static const theme = 'Theme';
   static const dark = 'Dark';
