@@ -9,7 +9,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/providers/firebase_provider.dart';
 import '../../../core/providers/isar_provider.dart';
 import '../data/backup_models.dart';
+import '../data/backup_passphrase_store.dart';
 import '../data/firebase_backup_repository.dart';
+
+final backupPassphraseStoreProvider = Provider<BackupPassphraseStore>(
+  (ref) => BackupPassphraseStore(),
+);
 
 class BackupState {
   final bool firebaseAvailable;
@@ -150,7 +155,10 @@ class BackupController extends Notifier<BackupState> {
       await _refreshForCurrentAccount(
         statusMessage: 'Backup enabled for this account.',
       );
-      await _backupCurrentAccount(isAutomatic: true);
+      final passphrase = await readStoredPassphrase();
+      if (passphrase != null) {
+        await _backupCurrentAccount(isAutomatic: true, passphrase: passphrase);
+      }
     });
   }
 
@@ -179,8 +187,12 @@ class BackupController extends Notifier<BackupState> {
   Future<void> signOut() async {
     await _runUserAction(() async {
       final repository = _requireRepository();
+      final uid = state.account?.uid;
       _autoBackupTimer?.cancel();
       await _setBackupEnabledPreference(false);
+      if (uid != null) {
+        await ref.read(backupPassphraseStoreProvider).delete(uid);
+      }
       await repository.signOut();
       state = state.copyWith(
         clearAccount: true,
@@ -210,24 +222,52 @@ class BackupController extends Notifier<BackupState> {
         statusMessage: value ? 'Backup enabled.' : 'Backup paused.',
         clearErrorMessage: true,
       );
-      if (value) await _backupCurrentAccount(isAutomatic: true);
+      if (value) {
+        final passphrase = await readStoredPassphrase();
+        if (passphrase != null) {
+          await _backupCurrentAccount(
+            isAutomatic: true,
+            passphrase: passphrase,
+          );
+        }
+      }
     });
   }
 
-  Future<void> backupNow({bool isAutomatic = false}) async {
+  Future<void> backupNow({
+    bool isAutomatic = false,
+    required String passphrase,
+    bool rememberPassphrase = true,
+  }) async {
     if (!state.backupEnabled || state.account == null) return;
 
-    await _runUserAction(() => _backupCurrentAccount(isAutomatic: isAutomatic));
+    await _runUserAction(
+      () => _backupCurrentAccount(
+        isAutomatic: isAutomatic,
+        passphrase: passphrase,
+        rememberPassphrase: rememberPassphrase,
+      ),
+    );
   }
 
-  Future<void> restoreFromCloud() async {
+  Future<void> restoreFromCloud({
+    required String passphrase,
+    bool rememberPassphrase = true,
+  }) async {
     if (state.account == null) return;
 
     await _runUserAction(() async {
       final repository = _requireRepository();
+      final uid = state.account!.uid;
       _isRestoring = true;
       try {
-        final metadata = await repository.restoreFullBackup(state.account!.uid);
+        final metadata = await repository.restoreFullBackup(
+          uid: uid,
+          passphrase: passphrase,
+        );
+        if (rememberPassphrase) {
+          await ref.read(backupPassphraseStoreProvider).write(uid, passphrase);
+        }
         final localSummary = await repository.fetchLocalSummary();
         state = state.copyWith(
           remoteMetadata: metadata,
@@ -244,15 +284,37 @@ class BackupController extends Notifier<BackupState> {
     });
   }
 
-  Future<void> keepDeviceData() async {
-    await backupNow();
+  Future<void> keepDeviceData({required String passphrase}) async {
+    await backupNow(passphrase: passphrase);
   }
 
-  Future<void> _backupCurrentAccount({required bool isAutomatic}) async {
+  Future<String?> readStoredPassphrase() async {
+    final uid = state.account?.uid;
+    if (uid == null) return null;
+    return ref.read(backupPassphraseStoreProvider).read(uid);
+  }
+
+  Future<bool> hasStoredPassphrase() async {
+    final stored = await readStoredPassphrase();
+    return stored != null && stored.isNotEmpty;
+  }
+
+  Future<void> _backupCurrentAccount({
+    required bool isAutomatic,
+    required String passphrase,
+    bool rememberPassphrase = true,
+  }) async {
     if (!state.backupEnabled || state.account == null) return;
 
     final repository = _requireRepository();
-    final metadata = await repository.saveFullBackup(state.account!.uid);
+    final uid = state.account!.uid;
+    final metadata = await repository.saveFullBackup(
+      uid: uid,
+      passphrase: passphrase,
+    );
+    if (rememberPassphrase) {
+      await ref.read(backupPassphraseStoreProvider).write(uid, passphrase);
+    }
     final localSummary = await repository.fetchLocalSummary();
     state = state.copyWith(
       remoteMetadata: metadata,
@@ -347,7 +409,10 @@ class BackupController extends Notifier<BackupState> {
 
     final localSummary = state.localSummary;
     if (localSummary != null && !localSummary.hasData) {
-      await restoreFromCloud();
+      final passphrase = await readStoredPassphrase();
+      if (passphrase != null) {
+        await restoreFromCloud(passphrase: passphrase);
+      }
       return;
     }
 
@@ -365,8 +430,10 @@ class BackupController extends Notifier<BackupState> {
     }
 
     _autoBackupTimer?.cancel();
-    _autoBackupTimer = Timer(_autoBackupDelay, () {
-      unawaited(backupNow(isAutomatic: true));
+    _autoBackupTimer = Timer(_autoBackupDelay, () async {
+      final passphrase = await readStoredPassphrase();
+      if (passphrase == null) return;
+      await backupNow(isAutomatic: true, passphrase: passphrase);
     });
   }
 
@@ -386,6 +453,8 @@ class BackupController extends Notifier<BackupState> {
     );
     try {
       await action();
+    } on BackupDecryptException catch (error) {
+      state = state.copyWith(errorMessage: error.message);
     } on FirebaseAuthException catch (error) {
       state = state.copyWith(errorMessage: _authErrorMessage(error));
     } on FirebaseException catch (error) {

@@ -10,19 +10,32 @@ class BackupMetadata {
   final DateTime? lastBackupAt;
   final int logCount;
   final int projectCount;
+  final bool encrypted;
 
   const BackupMetadata({
     required this.exists,
     this.lastBackupAt,
     this.logCount = 0,
     this.projectCount = 0,
+    this.encrypted = false,
   });
 
   const BackupMetadata.empty()
     : exists = false,
       lastBackupAt = null,
       logCount = 0,
-      projectCount = 0;
+      projectCount = 0,
+      encrypted = false;
+}
+
+/// Thrown when decrypting a cloud backup fails (wrong passphrase or corrupt data).
+class BackupDecryptException implements Exception {
+  final String message;
+
+  const BackupDecryptException(this.message);
+
+  @override
+  String toString() => message;
 }
 
 class LocalBackupSummary {

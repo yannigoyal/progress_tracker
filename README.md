@@ -167,10 +167,6 @@ lib/
 
 `Project` is a separate Isar collection used by the Projects feature. Project logs are still saved as `LogEntry` records with project metadata in the payload.
 
-## Seed Data
-
-On startup, the app opens Isar and generates fallback sample data if the local database is empty.
-
 ## Firebase Backup Setup
 
 The backup code is implemented, but a real Firebase project must be connected before it can be used.
@@ -202,49 +198,29 @@ flutter run --dart-define=VAULTLOG_FIREBASE_ENABLED=true
 
 The public repo intentionally does not include Firebase project files or API keys. Without local Firebase configuration, the app still runs, but the backup screen reports Firebase as unavailable.
 
-### Firestore Rules
+### Firestore security rules
 
-```js
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    function isOwner(uid) {
-      return request.auth != null && request.auth.uid == uid;
-    }
+Deploy the rules in [`firestore.rules`](firestore.rules) from the Firebase Console (Firestore → Rules → Publish). They restrict each signed-in user to their own `userBackups/{userId}` tree only.
 
-    match /userBackups/{uid} {
-      allow read, write: if isOwner(uid);
+### Encrypted cloud backup
 
-      match /{document=**} {
-        allow read, write: if isOwner(uid);
-      }
-    }
-  }
-}
-```
+Backups are **encrypted on the device** (AES-256-GCM) before upload. Firestore stores ciphertext and non-sensitive metadata (counts, timestamps, salt). Log and project content is not stored in plaintext in the cloud.
 
-### Backup Data Shape
+The user chooses a **backup passphrase** (separate from the Firebase sign-in password). The same passphrase is required to restore on a new device. The app can remember the passphrase locally (Android Keystore / iOS Keychain) for automatic sync.
+
+Older backups created before encryption used plain subcollections (`logs`, `projects`); restore still supports those until the user runs a new encrypted backup.
+
+### Backup data shape (encrypted)
 
 ```text
-/userBackups/{uid}
-  schemaVersion
-  status
-  lastBackupAt
-  logCount
-  projectCount
+/userBackups/{userId}
+  schemaVersion: 2
+  encrypted: true
+  encryptionSalt        # public; used with passphrase for key derivation
+  status, lastBackupAt, logCount, projectCount
 
-/userBackups/{uid}/logs/{isarLogId}
-  isarId
-  createdAt
-  categoryIndex
-  payloadJson
-
-/userBackups/{uid}/projects/{isarProjectId}
-  isarId
-  name
-  description
-  statusIndex
-  createdAt
+/userBackups/{userId}/encrypted/payload
+  ciphertext            # AES-GCM blob (logs + projects JSON inside)
 ```
 
 ## Getting Started

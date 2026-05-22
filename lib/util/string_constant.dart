@@ -282,6 +282,35 @@ class AppStrings {
   static const backupConfirmKeepTitle = 'Overwrite cloud backup?';
   static const backupConfirmKeepMessage =
       'This saves the current device data over the cloud backup.';
+  static const backupPassphraseCreateTitle = 'Create backup passphrase';
+  static const backupPassphraseEnterTitle = 'Enter backup passphrase';
+  static const backupPassphraseCreateMessage =
+      'Cloud backups are encrypted on your device before upload. '
+      'Choose a passphrase you will remember — it is not your sign-in password.';
+  static const backupPassphraseEnterMessage =
+      'Enter the passphrase you used when creating this backup.';
+  static const backupPassphraseLabel = 'Backup passphrase';
+  static const backupPassphraseConfirmLabel = 'Confirm passphrase';
+  static const backupPassphraseSave = 'Save passphrase';
+  static const backupPassphraseContinue = 'Continue';
+  static const backupPassphraseTooShort =
+      'Use at least 8 characters for the backup passphrase.';
+  static const backupPassphraseMismatch = 'Passphrases do not match.';
+  static const backupPassphraseSavedTitle = 'Backup passphrase on this device';
+  static const backupPassphraseSavedSubtitle =
+      'Saved locally for automatic sync. Store a copy somewhere safe.';
+  static const backupPassphraseNotSaved =
+      'No passphrase saved on this device yet. Complete a backup first.';
+  static const backupPassphraseShow = 'View passphrase';
+  static const backupPassphraseRevealConfirmTitle = 'Show backup passphrase?';
+  static const backupPassphraseRevealConfirmMessage =
+      'Anyone with access to your unlocked phone can see it. '
+      'Only continue in a private place, then copy it to a password manager or safe note.';
+  static const backupPassphraseRevealTitle = 'Your backup passphrase';
+  static const backupPassphraseRevealHint =
+      'You need this to restore encrypted backups on a new device.';
+  static const backupPassphraseCopy = 'Copy to clipboard';
+  static const backupPassphraseCopied = 'Passphrase copied';
   static const appearance = 'Appearance';
   static const theme = 'Theme';
   static const dark = 'Dark';

@@ -10,6 +10,7 @@ import '../project/providers/project_provider.dart';
 import '../stats/providers/stats_provider.dart';
 import '../today/providers/today_provider.dart';
 import 'providers/backup_provider.dart';
+import 'widgets/backup_passphrase_dialog.dart';
 
 class BackupScreen extends ConsumerStatefulWidget {
   const BackupScreen({super.key});
@@ -122,6 +123,13 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
             ),
             const SizedBox(height: 14),
 
+            _SavedPassphraseCard(
+              isBusy: state.isBusy,
+              refreshKey: state.statusMessage,
+              onView: () => _viewSavedPassphrase(context),
+            ),
+            const SizedBox(height: 14),
+
             // --- Data summary (device vs cloud side by side) ---
             Row(
               children: [
@@ -158,8 +166,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
               isBusy: state.isBusy,
               backupEnabled: state.backupEnabled,
               hasCloudBackup: state.remoteMetadata.exists,
-              onBackupNow: () =>
-                  ref.read(backupControllerProvider.notifier).backupNow(),
+              onBackupNow: () => _backupNow(context),
               onRestore: () => _restoreCloudBackup(context),
               onRefresh: () =>
                   ref.read(backupControllerProvider.notifier).refresh(),
@@ -238,6 +245,17 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     return true;
   }
 
+  Future<void> _backupNow(BuildContext context) async {
+    final passphrase = await _resolveBackupPassphrase(
+      context,
+      isCreate: true,
+    );
+    if (passphrase == null || !context.mounted) return;
+    await ref
+        .read(backupControllerProvider.notifier)
+        .backupNow(passphrase: passphrase);
+  }
+
   Future<void> _restoreCloudBackup(BuildContext context) async {
     final confirmed = await _confirm(
       context,
@@ -246,7 +264,20 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
       actionLabel: AppStrings.backupRestoreCloud,
     );
     if (!confirmed) return;
-    await ref.read(backupControllerProvider.notifier).restoreFromCloud();
+    if (!context.mounted) return;
+
+    final state = ref.read(backupControllerProvider);
+    String passphrase = '';
+    if (state.remoteMetadata.encrypted) {
+      final resolved = await _resolveBackupPassphrase(context, isCreate: false);
+      if (resolved == null) return;
+      passphrase = resolved;
+    }
+    if (!context.mounted) return;
+
+    await ref
+        .read(backupControllerProvider.notifier)
+        .restoreFromCloud(passphrase: passphrase);
     _refreshProgressProviders();
   }
 
@@ -258,7 +289,39 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
       actionLabel: AppStrings.backupKeepDevice,
     );
     if (!confirmed) return;
-    await ref.read(backupControllerProvider.notifier).keepDeviceData();
+    if (!context.mounted) return;
+    final passphrase = await _resolveBackupPassphrase(
+      context,
+      isCreate: true,
+    );
+    if (passphrase == null) return;
+    if (!context.mounted) return;
+    await ref
+        .read(backupControllerProvider.notifier)
+        .keepDeviceData(passphrase: passphrase);
+  }
+
+  Future<void> _viewSavedPassphrase(BuildContext context) async {
+    if (!context.mounted) return;
+    await showSavedBackupPassphraseFlow(
+      context,
+      readPassphrase: () => ref
+          .read(backupControllerProvider.notifier)
+          .readStoredPassphrase(),
+    );
+  }
+
+  /// Uses the passphrase saved on this device, or prompts the user.
+  Future<String?> _resolveBackupPassphrase(
+    BuildContext context, {
+    required bool isCreate,
+  }) async {
+    final stored = await ref
+        .read(backupControllerProvider.notifier)
+        .readStoredPassphrase();
+    if (stored != null) return stored;
+    if (!context.mounted) return null;
+    return showBackupPassphraseDialog(context, isCreate: isCreate);
   }
 
   Future<bool> _confirm(
@@ -487,6 +550,96 @@ class _AccountTile extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Shows whether a passphrase is saved on this device and lets the user view it.
+class _SavedPassphraseCard extends ConsumerStatefulWidget {
+  final bool isBusy;
+  final String? refreshKey;
+  final VoidCallback onView;
+
+  const _SavedPassphraseCard({
+    required this.isBusy,
+    required this.refreshKey,
+    required this.onView,
+  });
+
+  @override
+  ConsumerState<_SavedPassphraseCard> createState() =>
+      _SavedPassphraseCardState();
+}
+
+class _SavedPassphraseCardState extends ConsumerState<_SavedPassphraseCard> {
+  late Future<bool> _hasPassphrase;
+
+  @override
+  void initState() {
+    super.initState();
+    _reload();
+  }
+
+  @override
+  void didUpdateWidget(covariant _SavedPassphraseCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.refreshKey != widget.refreshKey) {
+      _reload();
+    }
+  }
+
+  void _reload() {
+    _hasPassphrase = ref
+        .read(backupControllerProvider.notifier)
+        .hasStoredPassphrase();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<bool>(
+      future: _hasPassphrase,
+      builder: (context, snapshot) {
+        final hasSaved = snapshot.data == true;
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
+            child: Row(
+              children: [
+                Icon(
+                  hasSaved ? Icons.key_rounded : Icons.key_off_outlined,
+                  color: hasSaved
+                      ? ThemePalette.primary
+                      : Theme.of(context).colorScheme.outline,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppStrings.backupPassphraseSavedTitle,
+                        style: Theme.of(context).textTheme.titleSmall,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        hasSaved
+                            ? AppStrings.backupPassphraseSavedSubtitle
+                            : AppStrings.backupPassphraseNotSaved,
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ),
+                if (hasSaved)
+                  TextButton(
+                    onPressed: widget.isBusy ? null : widget.onView,
+                    child: const Text(AppStrings.backupPassphraseShow),
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

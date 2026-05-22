@@ -1,26 +1,33 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cryptography/cryptography.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:isar/isar.dart';
 
 import '../../../core/models/log_entry.dart';
 import '../../../core/models/project.dart';
+import 'backup_crypto.dart';
 import 'backup_models.dart';
+import 'backup_serializer.dart';
 
 class FirebaseBackupRepository {
-  static const int schemaVersion = 1;
+  static const int legacySchemaVersion = 1;
   static const String _rootCollection = 'userBackups';
+  static const String _encryptedDocId = 'payload';
 
   final Isar _isar;
   final FirebaseAuth _auth;
   final FirebaseFirestore _firestore;
+  final BackupCrypto _crypto;
 
-  const FirebaseBackupRepository({
+  FirebaseBackupRepository({
     required Isar isar,
     required FirebaseAuth auth,
     required FirebaseFirestore firestore,
+    BackupCrypto? crypto,
   }) : _isar = isar,
        _auth = auth,
-       _firestore = firestore;
+       _firestore = firestore,
+       _crypto = crypto ?? BackupCrypto();
 
   BackupAccount? get currentAccount {
     final user = _auth.currentUser;
@@ -112,43 +119,55 @@ class FirebaseBackupRepository {
       lastBackupAt: _readDate(data['lastBackupAt']),
       logCount: _readInt(data['logCount']) ?? 0,
       projectCount: _readInt(data['projectCount']) ?? 0,
+      encrypted: data['encrypted'] == true,
     );
   }
 
-  Future<BackupMetadata> saveFullBackup(String uid) async {
+  Future<BackupMetadata> saveFullBackup({
+    required String uid,
+    required String passphrase,
+  }) async {
     final logs = await _isar.logEntrys.where().sortByCreatedAt().findAll();
     final projects = await _isar.projects.where().sortByCreatedAt().findAll();
 
     final backupDoc = _backupDoc(uid);
     final writer = _FirestoreBatchWriter(_firestore);
 
+    final existing = await backupDoc.get();
+    final existingData = existing.data();
+    final saltBase64 = existingData?['encryptionSalt'] as String? ??
+        _crypto.generateSaltBase64();
+
+    final snapshot = BackupSnapshot(logs: logs, projects: projects);
+    final encrypted = await _crypto.encrypt(
+      plaintext: snapshot.toJsonString(),
+      passphrase: passphrase,
+      saltBase64: saltBase64,
+    );
+
     writer.set(backupDoc, {
-      'schemaVersion': schemaVersion,
+      'schemaVersion': BackupCrypto.schemaVersion,
       'status': 'writing',
+      'encrypted': true,
+      'encryptionSalt': saltBase64,
       'startedAt': FieldValue.serverTimestamp(),
     }, merge: true);
 
     await _deleteCollection(backupDoc.collection('logs'), writer);
     await _deleteCollection(backupDoc.collection('projects'), writer);
 
-    for (final log in logs) {
-      writer.set(
-        backupDoc.collection('logs').doc(log.id.toString()),
-        _logToFirestore(log),
-      );
-    }
-
-    for (final project in projects) {
-      writer.set(
-        backupDoc.collection('projects').doc(project.id.toString()),
-        _projectToFirestore(project),
-      );
-    }
+    writer.set(_encryptedPayloadRef(uid), {
+      'ciphertext': encrypted.ciphertextBase64,
+      'nonceLength': encrypted.nonceLength,
+      'macLength': encrypted.macLength,
+    });
 
     final clientBackupAt = DateTime.now().toUtc();
     writer.set(backupDoc, {
-      'schemaVersion': schemaVersion,
+      'schemaVersion': BackupCrypto.schemaVersion,
       'status': 'complete',
+      'encrypted': true,
+      'encryptionSalt': saltBase64,
       'lastBackupAt': FieldValue.serverTimestamp(),
       'clientBackupAt': Timestamp.fromDate(clientBackupAt),
       'logCount': logs.length,
@@ -162,14 +181,83 @@ class FirebaseBackupRepository {
       lastBackupAt: clientBackupAt,
       logCount: logs.length,
       projectCount: projects.length,
+      encrypted: true,
     );
   }
 
-  Future<BackupMetadata> restoreFullBackup(String uid) async {
+  Future<BackupMetadata> restoreFullBackup({
+    required String uid,
+    required String passphrase,
+  }) async {
     final metadata = await fetchRemoteMetadata(uid);
     if (!metadata.exists) return metadata;
 
     final backupDoc = _backupDoc(uid);
+    final root = await backupDoc.get();
+    final rootData = root.data();
+    if (rootData == null) return const BackupMetadata.empty();
+
+    final BackupSnapshot snapshot;
+    if (rootData['encrypted'] == true) {
+      snapshot = await _restoreEncrypted(uid, passphrase, rootData);
+    } else {
+      snapshot = await _restoreLegacyPlaintext(backupDoc);
+    }
+
+    await _isar.writeTxn(() async {
+      await _isar.logEntrys.clear();
+      await _isar.projects.clear();
+      await _isar.projects.putAll(snapshot.projects);
+      await _isar.logEntrys.putAll(snapshot.logs);
+    });
+
+    return BackupMetadata(
+      exists: true,
+      lastBackupAt: metadata.lastBackupAt,
+      logCount: snapshot.logs.length,
+      projectCount: snapshot.projects.length,
+      encrypted: metadata.encrypted,
+    );
+  }
+
+  Future<BackupSnapshot> _restoreEncrypted(
+    String uid,
+    String passphrase,
+    Map<String, dynamic> rootData,
+  ) async {
+    final saltBase64 = rootData['encryptionSalt'] as String?;
+    if (saltBase64 == null) {
+      throw const BackupDecryptException('Backup is missing encryption salt.');
+    }
+
+    final payloadDoc = await _encryptedPayloadRef(uid).get();
+    final payloadData = payloadDoc.data();
+    final ciphertext = payloadData?['ciphertext'] as String?;
+    if (ciphertext == null) {
+      throw const BackupDecryptException('Encrypted backup payload not found.');
+    }
+
+    try {
+      final jsonString = await _crypto.decrypt(
+        ciphertextBase64: ciphertext,
+        passphrase: passphrase,
+        saltBase64: saltBase64,
+      );
+      return BackupSnapshot.fromJsonString(jsonString);
+    } on SecretBoxAuthenticationError {
+      throw const BackupDecryptException(
+        'Wrong backup passphrase. Check the phrase you used when backing up.',
+      );
+    } catch (_) {
+      throw const BackupDecryptException(
+        'Could not decrypt backup. The passphrase may be wrong or the file is corrupt.',
+      );
+    }
+  }
+
+  Future<BackupSnapshot> _restoreLegacyPlaintext(
+    DocumentReference<Map<String, dynamic>> backupDoc,
+  ) async {
     final logDocs = await backupDoc
         .collection('logs')
         .orderBy('createdAt')
@@ -188,23 +276,15 @@ class FirebaseBackupRepository {
         .whereType<Project>()
         .toList();
 
-    await _isar.writeTxn(() async {
-      await _isar.logEntrys.clear();
-      await _isar.projects.clear();
-      await _isar.projects.putAll(projects);
-      await _isar.logEntrys.putAll(logs);
-    });
-
-    return BackupMetadata(
-      exists: true,
-      lastBackupAt: metadata.lastBackupAt,
-      logCount: logs.length,
-      projectCount: projects.length,
-    );
+    return BackupSnapshot(logs: logs, projects: projects);
   }
 
   DocumentReference<Map<String, dynamic>> _backupDoc(String uid) {
     return _firestore.collection(_rootCollection).doc(uid);
+  }
+
+  DocumentReference<Map<String, dynamic>> _encryptedPayloadRef(String uid) {
+    return _backupDoc(uid).collection('encrypted').doc(_encryptedDocId);
   }
 
   Future<void> _deleteCollection(
@@ -215,25 +295,6 @@ class FirebaseBackupRepository {
     for (final doc in snapshot.docs) {
       writer.delete(doc.reference);
     }
-  }
-
-  Map<String, dynamic> _logToFirestore(LogEntry log) {
-    return {
-      'isarId': log.id,
-      'createdAt': Timestamp.fromDate(log.createdAt.toUtc()),
-      'categoryIndex': log.categoryIndex,
-      'payloadJson': log.payloadJson,
-    };
-  }
-
-  Map<String, dynamic> _projectToFirestore(Project project) {
-    return {
-      'isarId': project.id,
-      'name': project.name,
-      'description': project.description,
-      'statusIndex': project.statusIndex,
-      'createdAt': Timestamp.fromDate(project.createdAt.toUtc()),
-    };
   }
 
   LogEntry? _logFromFirestore(Map<String, dynamic> data) {
