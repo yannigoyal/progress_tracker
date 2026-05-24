@@ -7,12 +7,13 @@ The app stores data locally with Isar, uses Riverpod for state management, and i
 ## Features
 
 - **Today**: Add and edit daily logs with category-specific forms.
-- **Journal**: Search, filter, expand, delete, and inspect past log entries.
-- **Stats**: View current streak, longest streak, 90-day contribution heatmap, last 7 days chart, and category totals.
+- **Journal**: Search, filter, expand, delete, and inspect past log entries (bottom nav label: History).
+- **Stats**: View current streak, longest streak, year-long contribution heatmap, last 30 days chart, and category totals.
 - **Blind 75**: Track solved DSA problems and view attempt history.
 - **Projects**: Create projects, cycle project status, and log project sessions.
 - **Backup Data**: Optional Firebase email/password backup and restore.
-- **Settings**: Switch theme mode, export progress report, and clear local logs.
+- **More**: Hub for Blind 75, Projects, Settings, and Backup (bottom navigation).
+- **Settings**: Switch theme mode, manage custom activities and Today category order, export progress report, and clear local logs.
 - **Custom activities**: Define your own log types (fields, labels, Material or 64×64 PNG icons) under Settings → Custom activities; log them from Today via the **Custom** category.
 - **Today layout**: Reorder built-in categories on the add-log grid via Settings → **Activity order on Today**.
 
@@ -100,14 +101,17 @@ Current approach:
 
 ```text
 lib/
+  main.dart
   core/
     db/
       isar_service.dart
     models/
       category.dart
+      custom_activity.dart
       log_entry.dart
       project.dart
     providers/
+      firebase_provider.dart
       isar_provider.dart
       theme_provider.dart
     router/
@@ -116,6 +120,39 @@ lib/
       app_theme.dart
 
   features/
+    today/
+      data/
+        today_repository.dart
+      providers/
+        today_provider.dart
+      widgets/
+        forms/
+        add_log_bottom_sheet.dart
+        category_chip_row.dart
+        log_list_view.dart
+      today_screen.dart
+
+    history/                    # Journal tab
+      data/
+        history_repository.dart
+      providers/
+        history_provider.dart
+      history_screen.dart
+      history_detail_screen.dart
+
+    stats/
+      data/
+        stats_repository.dart
+      providers/
+        stats_provider.dart
+      widgets/
+        contribution_heatmap.dart
+        line_chart_last_30_days.dart
+      stats_screen.dart
+
+    more/
+      more_screen.dart
+
     dsa_tracker/
       data/
         blind75_problems.dart
@@ -123,14 +160,6 @@ lib/
       providers/
         dsa_provider.dart
       dsa_tracker_screen.dart
-
-    history/
-      data/
-        history_repository.dart
-      providers/
-        history_provider.dart
-      history_screen.dart
-      history_detail_screen.dart
 
     project/
       data/
@@ -144,39 +173,27 @@ lib/
     settings/
       data/
         settings_repository.dart
+        custom_activity_repository.dart
+        category_order_store.dart
       providers/
         settings_provider.dart
+        custom_activity_provider.dart
+        category_order_provider.dart
       settings_screen.dart
+      custom_activities_screen.dart
+      custom_activity_editor_screen.dart
+      category_order_screen.dart
 
     backup/
       data/
         backup_models.dart
+        backup_crypto.dart
         firebase_backup_repository.dart
       providers/
         backup_provider.dart
+      widgets/
+        backup_passphrase_dialog.dart
       backup_screen.dart
-
-    stats/
-      data/
-        stats_repository.dart
-      providers/
-        stats_provider.dart
-      widgets/
-        contribution_heatmap.dart
-        weekly_bar_chart.dart
-      stats_screen.dart
-
-    today/
-      data/
-        today_repository.dart
-      providers/
-        today_provider.dart
-      widgets/
-        forms/
-        add_log_bottom_sheet.dart
-        category_chip_row.dart
-        log_list_view.dart
-      today_screen.dart
 
   shared/
     widgets/
@@ -195,6 +212,8 @@ lib/
 - `payloadJson` for category-specific fields.
 
 `Project` is a separate Isar collection used by the Projects feature. Project logs are still saved as `LogEntry` records with project metadata in the payload.
+
+`CustomActivity` stores user-defined activity types (field kinds, labels, optional icon path) for the Custom category on Today.
 
 ## Firebase Backup Setup
 
