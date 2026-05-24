@@ -48,6 +48,28 @@ Importing a PNG icon uses the device photo library (`image_picker`). Android dec
 
 Note: `isar_flutter_libs` is vendored under `third_party/` with a small Android namespace patch so it builds with newer Android Gradle Plugin versions.
 
+## Open source
+
+This repository is intended to be **public**. It contains app source only — not user logs, backup passphrases, or Firebase project credentials.
+
+| Topic | Detail |
+|-------|--------|
+| License | [MIT](LICENSE) |
+| Secrets | Never commit `google-services.json`, `GoogleService-Info.plist`, `lib/firebase_options.dart`, or `firebase.json` (all listed in `.gitignore`). |
+| Your Firebase | Each developer / fork uses their **own** Firebase project via `flutterfire configure`. |
+| Cloud data | Backups are encrypted on-device before upload; Firestore holds ciphertext and metadata. |
+| Security rules | Use [`firestore.rules`](firestore.rules) (or copy from [`firestore.rules.example`](firestore.rules.example)) so users can only access `userBackups/{theirUid}`. |
+
+### Fork or clone checklist
+
+1. `flutter pub get` and run the app locally (backup stays unavailable until Firebase is configured).
+2. Create a Firebase project, enable Email/Password auth and Firestore, then run `flutterfire configure`.
+3. Publish Firestore rules from `firestore.rules` (see [Firestore security rules](#firestore-security-rules)).
+4. Run with backup enabled: `flutter run --dart-define=VAULTLOG_FIREBASE_ENABLED=true`.
+5. Before your first public push, scan history for leaked keys: `git log -p --all -S 'AIza'`.
+
+Do **not** open GitHub issues with backup passphrases, Firebase passwords, or exported log data.
+
 ## App Identity
 
 | Target | Value |
@@ -207,7 +229,12 @@ The public repo intentionally does not include Firebase project files or API key
 
 ### Firestore security rules
 
-Deploy the rules in [`firestore.rules`](firestore.rules) from the Firebase Console (Firestore → Rules → Publish). They restrict each signed-in user to their own `userBackups/{userId}` tree only.
+Deploy [`firestore.rules`](firestore.rules) (same content as [`firestore.rules.example`](firestore.rules.example)):
+
+1. **Firebase Console** — Firestore → Rules → paste → **Publish**.
+2. **Firebase CLI** — copy `firestore.rules` into your project, then `firebase deploy --only firestore:rules`.
+
+Rules allow read/write only when `request.auth.uid` matches the `userId` in `userBackups/{userId}`, including the `encrypted/payload` document and legacy `logs` / `projects` subcollections. Everything else is denied.
 
 ### Encrypted cloud backup
 

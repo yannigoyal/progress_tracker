@@ -1,0 +1,27 @@
+rules_version = '2';
+
+// Vaultlog cloud backup — owner-only access.
+//
+// Copy to firestore.rules and publish in Firebase Console:
+//   Firestore → Rules → Publish
+// Or deploy with Firebase CLI after linking your project:
+//   firebase deploy --only firestore:rules
+//
+// Data layout (see README):
+//   /userBackups/{userId}                    — backup metadata
+//   /userBackups/{userId}/encrypted/payload  — encrypted blob
+//   /userBackups/{userId}/logs/{...}         — legacy plaintext (pre-encryption)
+//   /userBackups/{userId}/projects/{...}     — legacy plaintext (pre-encryption)
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Deny all paths by default; only userBackups is opened below.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /userBackups/{userId}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}

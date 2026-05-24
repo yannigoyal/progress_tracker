@@ -19,7 +19,7 @@ class AppStrings {
   static const todayScreenEmptyEmoji = '🌱';
   static const todayScreenEmptyTitle = 'Nothing logged yet today';
   static const todayScreenEmptySubtitle = 'Tap + to add your first entry';
-  static const todayScreenLoadingDay = 'Day —';
+  static const todayScreenLoadingDay = 'Day -';
   static String todayScreenDay(int dayNumber) => 'Day $dayNumber';
   static String genericScreenError(Object error) =>
       'Something went wrong\n$error';
@@ -91,6 +91,8 @@ class AppStrings {
   static const miscLabel = 'Misc';
   static const leetCodeOptional = 'LeetCode # (optional)';
   static const problemNameRequired = 'Problem Name *';
+  static const dsaProblemNameHint =
+      'Any name - Blind 75 suggestions appear as you type';
   static const topic = 'Topic';
   static const approach = 'Approach';
   static const status = 'Status';
@@ -321,7 +323,7 @@ class AppStrings {
   static const backupPassphraseEnterTitle = 'Enter backup passphrase';
   static const backupPassphraseCreateMessage =
       'Cloud backups are encrypted on your device before upload. '
-      'Choose a passphrase you will remember — it is not your sign-in password.';
+      'Choose a passphrase you will remember - it is not your sign-in password.';
   static const backupPassphraseEnterMessage =
       'Enter the passphrase you used when creating this backup.';
   static const backupPassphraseLabel = 'Backup passphrase';

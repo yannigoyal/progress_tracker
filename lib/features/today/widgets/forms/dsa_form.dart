@@ -36,7 +36,9 @@ class _DsaFormState extends State<DsaForm> {
     super.initState();
     final p = widget.existingLog?.payload ?? {};
     _selectedProblem = _problemFromPayload(p);
-    _titleCtrl = TextEditingController(text: _selectedProblem?.name ?? '');
+    _titleCtrl = TextEditingController(
+      text: _selectedProblem?.name ?? (p['problemName'] as String? ?? ''),
+    );
     if (p['topic'] != null && _topics.contains(p['topic'])) {
       _topic = p['topic'] as String;
     } else if (_selectedProblem != null) {
@@ -58,17 +60,21 @@ class _DsaFormState extends State<DsaForm> {
 
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
-    final problem = _selectedProblem!;
+    final name = _titleCtrl.text.trim();
+    final payload = <String, dynamic>{
+      'problemName': name,
+      'topic': _topic,
+      'approach': _approach,
+      'status': _isSolved ? AppStrings.solved : AppStrings.revised,
+    };
+    if (_selectedProblem != null) {
+      payload['problemNumber'] = _selectedProblem!.id;
+      payload['problemName'] = _selectedProblem!.name;
+    }
     final entry = (widget.existingLog ?? LogEntry())
       ..category = Category.dsa
       ..createdAt = widget.existingLog?.createdAt ?? DateTime.now().toUtc()
-      ..payload = {
-        'problemNumber': problem.id,
-        'problemName': problem.name,
-        'topic': _topic,
-        'approach': _approach,
-        'status': _isSolved ? AppStrings.solved : AppStrings.revised,
-      };
+      ..payload = payload;
     widget.onSave(entry);
   }
 
@@ -119,10 +125,10 @@ class _DsaFormState extends State<DsaForm> {
                   focusNode: focusNode,
                   decoration: const InputDecoration(
                     labelText: AppStrings.problemNameRequired,
+                    hintText: AppStrings.dsaProblemNameHint,
                   ),
-                  validator: (v) => _selectedProblem == null
-                      ? AppStrings.requiredField
-                      : null,
+                  validator: (v) =>
+                      v == null || v.trim().isEmpty ? AppStrings.requiredField : null,
                   onChanged: (v) => setState(() {
                     DsaProblem? match;
                     final q = v.trim().toLowerCase();
