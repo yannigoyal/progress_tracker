@@ -1,23 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
-import '../../../dsa_tracker/data/blind75_problems.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import '../../../../util/string_constant.dart';
+import '../../../dsa_tracker/providers/dsa_name_suggestions_provider.dart';
 import 'form_shell.dart';
 
-class ContentForm extends StatefulWidget {
+class ContentForm extends ConsumerStatefulWidget {
   final void Function(LogEntry) onSave;
   final LogEntry? existingLog;
 
   const ContentForm({super.key, required this.onSave, this.existingLog});
 
   @override
-  State<ContentForm> createState() => _ContentFormState();
+  ConsumerState<ContentForm> createState() => _ContentFormState();
 }
 
-class _ContentFormState extends State<ContentForm> {
+class _ContentFormState extends ConsumerState<ContentForm> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _titleCtrl;
   String _platform = AppStrings.contentPlatformYoutube;
@@ -74,6 +75,9 @@ class _ContentFormState extends State<ContentForm> {
 
   @override
   Widget build(BuildContext context) {
+    final dsaNamesAsync = ref.watch(dsaNameSuggestionsProvider);
+    final dsaNames = dsaNamesAsync.valueOrNull ?? const <String>[];
+
     return FormShell(
       title: AppStrings.contentFormTitle,
       category: Category.content,
@@ -102,13 +106,8 @@ class _ContentFormState extends State<ContentForm> {
               suggestionsCallback: (pattern) {
                 final q = pattern.trim().toLowerCase();
                 if (q.isEmpty) return const <String>[];
-                return blind75Problems
-                    .where(
-                      (p) =>
-                          p.name.toLowerCase().contains(q) ||
-                          p.id.toString().contains(q),
-                    )
-                    .map((p) => '#${p.id} · ${p.name}')
+                return dsaNames
+                    .where((name) => name.toLowerCase().contains(q))
                     .take(8)
                     .toList(growable: false);
               },

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
+import '../../../../shared/widgets/formatted_note_field.dart';
 import '../../../../util/string_constant.dart';
 import 'form_shell.dart';
 
@@ -73,14 +74,13 @@ class _MiscFormState extends State<MiscForm> {
                   : null,
             ),
             const SizedBox(height: 12),
-            TextFormField(
+            FormattedNoteField(
               controller: _noteCtrl,
               decoration: const InputDecoration(
                 labelText: AppStrings.whatsOnYourMindOptional,
                 alignLabelWithHint: true,
               ),
               maxLines: 7,
-              textCapitalization: TextCapitalization.sentences,
             ),
           ],
         ),

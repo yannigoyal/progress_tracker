@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
 import '../../../../util/string_constant.dart';
+import '../../../../shared/widgets/formatted_note_field.dart';
 import '../../data/learning_tags_store.dart';
 import '../tags_input_field.dart';
 import 'form_shell.dart';
@@ -71,14 +72,13 @@ class _LearningFormState extends ConsumerState<LearningForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextFormField(
+            FormattedNoteField(
               controller: _noteCtrl,
               decoration: const InputDecoration(
                 labelText: AppStrings.whatDidYouLearnRequired,
                 alignLabelWithHint: true,
               ),
               maxLines: 4,
-              textCapitalization: TextCapitalization.sentences,
               validator: (v) => v == null || v.trim().isEmpty
                   ? AppStrings.requiredField
                   : null,

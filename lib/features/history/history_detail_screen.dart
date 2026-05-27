@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/models/category.dart';
 import '../../core/models/log_entry.dart';
+import '../../shared/widgets/formatted_markdown_text.dart';
 import '../../util/string_constant.dart';
 import 'providers/history_provider.dart';
 
@@ -46,7 +47,56 @@ class _LogDetailCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final category = log.category;
+    final p = log.payload;
     final details = _detailRows(log);
+
+    String? markdownSubtitle() {
+      if ((p['kind'] as String?) == 'daily_progress') {
+        final note = (p['note'] as String?)?.trim();
+        final quote = (p['quote'] as String?)?.trim();
+        final source = note?.isNotEmpty == true ? note! : (quote ?? '');
+        return source.trim().isEmpty ? null : source;
+      }
+      return switch (category) {
+        Category.reading => (p['quote'] as String?)?.trim(),
+        Category.learning => (p['note'] as String?)?.trim(),
+        Category.misc => (p['note'] as String?)?.trim(),
+        Category.project => () {
+            final done = (p['whatDone'] as String?)?.trim() ?? '';
+            final learnt = (p['whatLearnt'] as String?)?.trim() ?? '';
+            if (done.isEmpty && learnt.isEmpty) return null;
+            if (done.isEmpty) return learnt;
+            if (learnt.isEmpty) return done;
+            return '$done\n\n$learnt';
+          }(),
+        Category.custom => (p['note'] as String?)?.trim(),
+        _ => null,
+      };
+    }
+
+    final noteBody = markdownSubtitle();
+    final showNote = noteBody != null && noteBody.trim().isNotEmpty;
+    final subtitle = noteBody ?? log.displaySubtitle;
+
+    final titleText = (showNote &&
+            (category == Category.learning ||
+                category == Category.misc ||
+                (p['kind'] as String?) == 'daily_progress'))
+        ? category.label
+        : log.displayTitle;
+
+    final filteredDetails = showNote
+        ? details.where((row) {
+            // If we're already showing the full note/quote/learned body as
+            // Markdown under the title, avoid repeating it in the detail rows.
+            if (category == Category.misc && row.label == 'Note') return false;
+            if (category == Category.custom && row.label == 'Note') return false;
+            if (category == Category.reading && row.label == 'Quote') return false;
+            if (category == Category.project && row.label == 'Learned') return false;
+            if (category == Category.dsa && row.label == 'Notes') return false;
+            return true;
+          }).toList()
+        : details;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 10),
@@ -87,18 +137,18 @@ class _LogDetailCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              log.displayTitle,
+              titleText,
               style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),
-            if (log.displaySubtitle.isNotEmpty) ...[
+            if (subtitle.isNotEmpty) ...[
               const SizedBox(height: 6),
-              Text(log.displaySubtitle, style: theme.textTheme.bodyMedium),
+              FormattedMarkdownText(subtitle),
             ],
-            if (details.isNotEmpty) ...[
+            if (filteredDetails.isNotEmpty) ...[
               const SizedBox(height: 12),
-              ...details.map((row) => _DetailRowView(row: row)),
+              ...filteredDetails.map((row) => _DetailRowView(row: row)),
             ],
           ],
         ),
@@ -132,6 +182,7 @@ class _LogDetailCard extends StatelessWidget {
         add('Duration', p['duration']);
         add('Breakdown', p['setBreakdown']);
       case Category.reading:
+        add('Quote', p['quote']);
       case Category.learning:
         add('Tags', p['tags']);
       case Category.misc:
@@ -187,7 +238,7 @@ class _DetailRowView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 2),
-          Text(row.value, style: theme.textTheme.bodyMedium),
+          FormattedMarkdownText(row.value),
         ],
       ),
     );

@@ -269,10 +269,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
   }
 
   Future<void> _backupNow(BuildContext context) async {
-    final passphrase = await _resolveBackupPassphrase(
-      context,
-      isCreate: true,
-    );
+    final passphrase = await _resolveBackupPassphrase(context, isCreate: true);
     if (passphrase == null || !context.mounted) return;
     await ref
         .read(backupControllerProvider.notifier)
@@ -313,10 +310,7 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     );
     if (!confirmed) return;
     if (!context.mounted) return;
-    final passphrase = await _resolveBackupPassphrase(
-      context,
-      isCreate: true,
-    );
+    final passphrase = await _resolveBackupPassphrase(context, isCreate: true);
     if (passphrase == null) return;
     if (!context.mounted) return;
     await ref
@@ -324,7 +318,9 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
         .keepDeviceData(passphrase: passphrase);
   }
 
-  Future<void> _handlePendingPassphrasePrompt({required bool forRestore}) async {
+  Future<void> _handlePendingPassphrasePrompt({
+    required bool forRestore,
+  }) async {
     if (_passphrasePromptInFlight) return;
     _passphrasePromptInFlight = true;
     final notifier = ref.read(backupControllerProvider.notifier);
@@ -355,9 +351,8 @@ class _BackupScreenState extends ConsumerState<BackupScreen>
     if (!context.mounted) return;
     await showSavedBackupPassphraseFlow(
       context,
-      readPassphrase: () => ref
-          .read(backupControllerProvider.notifier)
-          .readStoredPassphrase(),
+      readPassphrase: () =>
+          ref.read(backupControllerProvider.notifier).readStoredPassphrase(),
     );
   }
 

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../core/models/category.dart';
 import '../../../core/models/custom_activity.dart';
 import '../../../core/models/log_entry.dart';
+import '../../../shared/widgets/formatted_markdown_text.dart';
 import '../../settings/providers/custom_activity_provider.dart';
 import '../../../core/theme/color_utils.dart';
 import '../../../util/string_constant.dart';
@@ -158,6 +159,53 @@ class _LogItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final cat = log.category;
+    final p = log.payload;
+
+    String? markdownSubtitle() {
+      // Prefer raw payload text for markdown rendering. displaySubtitle often
+      // flattens multi-line text (joins with ' · '), losing bullets.
+      if ((p['kind'] as String?) == 'daily_progress') {
+        final note = (p['note'] as String?)?.trim();
+        final quote = (p['quote'] as String?)?.trim();
+        final source = note?.isNotEmpty == true ? note! : (quote ?? '');
+        return source.trim().isEmpty ? null : source;
+      }
+
+      return switch (cat) {
+        Category.reading => (p['quote'] as String?)?.trim(),
+        Category.learning => (p['note'] as String?)?.trim(),
+        Category.misc => (p['note'] as String?)?.trim(),
+        Category.project => () {
+            final done = (p['whatDone'] as String?)?.trim() ?? '';
+            final learnt = (p['whatLearnt'] as String?)?.trim() ?? '';
+            if (done.isEmpty && learnt.isEmpty) return null;
+            if (done.isEmpty) return learnt;
+            if (learnt.isEmpty) return done;
+            return '$done\n\n$learnt';
+          }(),
+        Category.custom => (p['note'] as String?)?.trim(),
+        _ => null,
+      };
+    }
+
+    final noteBody = markdownSubtitle();
+    final meta = log.displaySubtitle;
+    final showNote = noteBody != null &&
+        noteBody.isNotEmpty &&
+        (noteBody.contains('\n') || noteBody.trim() != log.displayTitle.trim());
+    final previewLines = _isJournalEntry
+        ? 3
+        : (showNote && noteBody.contains('\n') ? 3 : 1);
+
+    // If the title itself is derived from the note's first line (e.g. Learning,
+    // Misc daily progress), showing the note preview would repeat that first
+    // line. In that case, use the category label as title.
+    final titleText = (showNote &&
+            (cat == Category.learning ||
+                cat == Category.misc ||
+                (p['kind'] as String?) == 'daily_progress'))
+        ? cat.label
+        : log.displayTitle;
 
     return Dismissible(
       key: ValueKey(log.id),
@@ -235,19 +283,27 @@ class _LogItem extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      log.displayTitle,
+                      titleText,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         fontWeight: FontWeight.w500,
                       ),
                       maxLines: _isJournalEntry ? 2 : 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (log.displaySubtitle.isNotEmpty) ...[
+                    if (showNote) ...[
+                      const SizedBox(height: 2),
+                      FormattedMarkdownText(
+                        noteBody,
+                        maxPreviewLines: previewLines,
+                      ),
+                    ],
+                    if (meta.isNotEmpty &&
+                        (cat == Category.learning || !showNote)) ...[
                       const SizedBox(height: 2),
                       Text(
-                        log.displaySubtitle,
+                        meta,
                         style: theme.textTheme.bodySmall,
-                        maxLines: _isJournalEntry ? 3 : 1,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],

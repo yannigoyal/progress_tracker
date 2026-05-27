@@ -51,6 +51,14 @@ class AppStrings {
   static const whatDidYouLearn = 'What did you learn?';
   static const keyTakeaways = 'Key takeaways...';
 
+  // ── Text formatting (Markdown) ─────────────────────────────────────────────
+  static const formatBullets = 'Bullets';
+  static const formatNumberedList = 'Numbered list';
+  static const formatCheckbox = 'Checkbox';
+  static const formatBold = 'Bold';
+  static const formatItalic = 'Italic';
+  static const formatStrikethrough = 'Strikethrough';
+
   static const readingFormTitle = 'Reading';
   static const bookNameRequired = 'Book Name *';
   static const pagesReadRequired = 'Pages Read *';

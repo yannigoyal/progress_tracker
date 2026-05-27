@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/models/project.dart';
+import '../../../shared/widgets/formatted_note_field.dart';
 import '../../../util/string_constant.dart';
 
 class ProjectSessionForm extends StatefulWidget {
@@ -76,27 +77,27 @@ class _ProjectSessionFormState extends State<ProjectSessionForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextFormField(
+                FormattedNoteField(
                   controller: _whatDoneCtrl,
                   decoration: const InputDecoration(
                     labelText: AppStrings.whatDidYouDo,
                     hintText: AppStrings.describeYourProgress,
+                    alignLabelWithHint: true,
                   ),
                   maxLines: 4,
-                  textCapitalization: TextCapitalization.sentences,
                   validator: (v) => v == null || v.trim().isEmpty
                       ? AppStrings.requiredField
                       : null,
                 ),
                 const SizedBox(height: 16),
-                TextFormField(
+                FormattedNoteField(
                   controller: _whatLearntCtrl,
                   decoration: const InputDecoration(
                     labelText: AppStrings.whatDidYouLearn,
                     hintText: AppStrings.keyTakeaways,
+                    alignLabelWithHint: true,
                   ),
                   maxLines: 3,
-                  textCapitalization: TextCapitalization.sentences,
                 ),
                 const SizedBox(height: 24),
                 SizedBox(

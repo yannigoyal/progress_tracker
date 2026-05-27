@@ -6,6 +6,7 @@ import '../../../../core/models/category.dart';
 import '../../../../core/models/custom_activity.dart';
 import '../../../../core/models/log_entry.dart';
 import '../../../../core/models/log_field_kind.dart';
+import '../../../../shared/widgets/formatted_note_field.dart';
 import '../../../../util/string_constant.dart';
 import '../../data/learning_tags_store.dart';
 import '../activity_icon.dart';
@@ -150,7 +151,7 @@ class _CustomActivityFormState extends ConsumerState<CustomActivityForm> {
                 _fields.contains(LogFieldKind.note))
               const SizedBox(height: 12),
             if (_fields.contains(LogFieldKind.note))
-              TextFormField(
+              FormattedNoteField(
                 controller: _noteCtrl,
                 decoration: InputDecoration(
                   labelText: _label(LogFieldKind.note),

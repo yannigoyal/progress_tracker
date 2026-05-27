@@ -4,6 +4,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
+import '../../../../shared/widgets/formatted_note_field.dart';
 import '../../../../util/string_constant.dart';
 import '../../../project/providers/project_provider.dart';
 import 'form_shell.dart';
@@ -113,27 +114,27 @@ class _ProjectFormState extends ConsumerState<ProjectForm> {
               decorationBuilder: _buildSuggestionsDecoration,
             ),
             const SizedBox(height: 12),
-            TextFormField(
+            FormattedNoteField(
               controller: _whatDoneCtrl,
               decoration: const InputDecoration(
                 labelText: AppStrings.whatDidYouDo,
                 hintText: AppStrings.describeYourProgress,
+                alignLabelWithHint: true,
               ),
               maxLines: 4,
-              textCapitalization: TextCapitalization.sentences,
               validator: (v) => v == null || v.trim().isEmpty
                   ? AppStrings.requiredField
                   : null,
             ),
             const SizedBox(height: 12),
-            TextFormField(
+            FormattedNoteField(
               controller: _whatLearntCtrl,
               decoration: const InputDecoration(
                 labelText: AppStrings.whatDidYouLearn,
                 hintText: AppStrings.keyTakeaways,
+                alignLabelWithHint: true,
               ),
               maxLines: 3,
-              textCapitalization: TextCapitalization.sentences,
             ),
           ],
         ),

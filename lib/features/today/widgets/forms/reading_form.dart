@@ -5,6 +5,7 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 import '../../../../core/models/category.dart';
 import '../../../../core/models/log_entry.dart';
+import '../../../../shared/widgets/formatted_note_field.dart';
 import '../../../../util/string_constant.dart';
 import '../../providers/today_provider.dart';
 import 'form_shell.dart';
@@ -117,14 +118,13 @@ class _ReadingFormState extends ConsumerState<ReadingForm> {
                   : null,
             ),
             const SizedBox(height: 12),
-            TextFormField(
+            FormattedNoteField(
               controller: _quoteCtrl,
               decoration: const InputDecoration(
                 labelText: AppStrings.keyTakeawayOrQuoteOptional,
                 alignLabelWithHint: true,
               ),
               maxLines: 3,
-              textCapitalization: TextCapitalization.sentences,
             ),
           ],
         ),
