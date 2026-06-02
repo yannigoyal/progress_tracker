@@ -6,7 +6,7 @@ The app stores data locally with Isar, uses Riverpod for state management, and i
 
 **👋 Visiting this repo?** Tap the badge below — you’ll be counted once (no signup, takes 2 seconds).
 
-[![Unique visitors](https://github-profile-counter.yannigoyal.workers.dev/profileBadge?user=yannigoyal)](https://github-profile-counter.yannigoyal.workers.dev/profileHit?user=yannigoyal)
+[![Unique visitors](https://img.shields.io/endpoint?url=https://github-profile-counter.yannigoyal.workers.dev/badge.json?user=yannigoyal)](https://github-profile-counter.yannigoyal.workers.dev/profileHit?user=yannigoyal)
 
 ## Features
 

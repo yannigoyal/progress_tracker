@@ -55,6 +55,31 @@ async function registerUniqueVisit(request, env, username) {
   return { counted: true, visitorId };
 }
 
+async function getTotal(env, username) {
+  return Number((await env.KV.get(`total:${username}`)) || "0");
+}
+
+function noCacheHeaders(extra = {}) {
+  return {
+    "Cache-Control":
+      "no-store, no-cache, must-revalidate, max-age=0, s-maxage=0",
+    Pragma: "no-cache",
+    Expires: "0",
+    "CDN-Cache-Control": "no-store",
+    "Cloudflare-CDN-Cache-Control": "no-store",
+    ...extra,
+  };
+}
+
+function shieldsBadgeJson(total) {
+  return JSON.stringify({
+    schemaVersion: 1,
+    label: "unique visitors",
+    message: String(total),
+    color: "6366F1",
+  });
+}
+
 function badgeSvg(total) {
   const label = `👥 ${total} unique visitor${total === 1 ? "" : "s"}`;
   const width = Math.max(180, label.length * 7 + 24);
@@ -120,19 +145,27 @@ export default {
       );
     }
 
-    if (path === "/profileBadge" || path === "/badge") {
-      const total = Number(
-        (await env.KV.get(`total:${username}`)) || "0",
-      );
-      return new Response(badgeSvg(total), {
-        headers: {
-          "Content-Type": "image/svg+xml; charset=utf-8",
-          "Cache-Control": "no-cache, no-store, must-revalidate",
-        },
+    if (path === "/badge.json") {
+      const total = await getTotal(env, username);
+      return new Response(shieldsBadgeJson(total), {
+        headers: noCacheHeaders({
+          "Content-Type": "application/json; charset=utf-8",
+        }),
       });
     }
 
-    return new Response("GitHub profile counter — use /profileHit or /profileBadge", {
+    if (path === "/profileBadge" || path === "/badge") {
+      const total = await getTotal(env, username);
+      return new Response(badgeSvg(total), {
+        headers: noCacheHeaders({
+          "Content-Type": "image/svg+xml; charset=utf-8",
+        }),
+      });
+    }
+
+    return new Response(
+      "GitHub profile counter — /profileHit, /badge.json, /profileBadge",
+      {
       status: 404,
     });
   },

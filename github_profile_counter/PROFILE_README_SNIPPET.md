@@ -7,7 +7,7 @@ After deploy completes, use your workers.dev URL below.
 
 ## 👥 Profile visitors
 
-[![Unique visitors](https://github-profile-counter.yannigoyal.workers.dev/profileBadge?user=yannigoyal)](https://github-profile-counter.yannigoyal.workers.dev/profileHit?user=yannigoyal)
+[![Unique visitors](https://img.shields.io/endpoint?url=https://github-profile-counter.yannigoyal.workers.dev/badge.json?user=yannigoyal)](https://github-profile-counter.yannigoyal.workers.dev/profileHit?user=yannigoyal)
 
 👆 **Click the badge** to count yourself — each person is counted only once.
 ```
