@@ -4,6 +4,10 @@ Vaultlog is an offline-first Flutter app for tracking personal progress across d
 
 The app stores data locally with Isar, uses Riverpod for state management, and is organized feature-first with a lightweight repository layer.
 
+**👋 Visiting this repo?** Tap the badge below — you’ll be counted once (no signup, takes 2 seconds).
+
+[![Unique visitors](https://github-profile-counter.yannigoyal.workers.dev/profileBadge?user=yannigoyal)](https://github-profile-counter.yannigoyal.workers.dev/profileHit?user=yannigoyal)
+
 ## Features
 
 - **Today**: Add and edit daily logs with category-specific forms.
