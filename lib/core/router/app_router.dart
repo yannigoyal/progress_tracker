@@ -7,12 +7,17 @@ import '../../features/history/history_screen.dart';
 import '../../features/more/more_screen.dart';
 import '../../features/project/project_screen.dart';
 import '../../features/settings/settings_screen.dart';
+import '../../features/splash/splash_screen.dart';
 import '../../features/stats/stats_screen.dart';
 import '../../features/today/today_screen.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: '/splash',
   routes: [
+    GoRoute(
+      path: '/splash',
+      builder: (context, state) => const SplashScreen(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, shell) => _ScaffoldWithNavBar(shell: shell),
       branches: [

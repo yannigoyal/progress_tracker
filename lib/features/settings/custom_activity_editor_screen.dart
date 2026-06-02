@@ -28,6 +28,7 @@ class _CustomActivityEditorScreenState
   late int _iconCodePoint;
   late int _colorValue;
   late Set<String> _enabledFields;
+  late bool _numberUseCounter;
   String? _customIconPath;
   Uint8List? _pendingPngBytes;
   final Map<String, TextEditingController> _labelControllers = {};
@@ -43,6 +44,7 @@ class _CustomActivityEditorScreenState
     _enabledFields = Set<String>.from(
       e?.enabledFields ?? [LogFieldKind.title, LogFieldKind.note],
     );
+    _numberUseCounter = e?.numberUseCounter ?? false;
     _customIconPath = e?.customIconPath;
     final labels =
         e?.fieldLabels.withDefaultsFor(_enabledFields) ??
@@ -127,6 +129,8 @@ class _CustomActivityEditorScreenState
       ..iconCodePoint = _iconCodePoint
       ..colorValue = _colorValue
       ..enabledFields = _enabledFields.toList()
+      ..numberUseCounter =
+          _enabledFields.contains(LogFieldKind.number) && _numberUseCounter
       ..fieldLabelsJson =
           CustomActivityFieldLabels(_collectFieldLabels()).toJsonString();
 
@@ -319,9 +323,20 @@ class _CustomActivityEditorScreenState
                         _enabledFields.add(kind);
                       } else {
                         _enabledFields.remove(kind);
+                        if (kind == LogFieldKind.number) {
+                          _numberUseCounter = false;
+                        }
                       }
                     }),
                   ),
+                  if (kind == LogFieldKind.number &&
+                      _enabledFields.contains(kind))
+                    SwitchListTile(
+                      contentPadding: const EdgeInsets.only(left: 16),
+                      title: Text(AppStrings.numberUseCounter),
+                      value: _numberUseCounter,
+                      onChanged: (v) => setState(() => _numberUseCounter = v),
+                    ),
                   if (_enabledFields.contains(kind))
                     Padding(
                       padding: const EdgeInsets.only(

@@ -47,8 +47,13 @@ const CustomActivitySchema = CollectionSchema(
       name: r'name',
       type: IsarType.string,
     ),
-    r'sortOrder': PropertySchema(
+    r'numberUseCounter': PropertySchema(
       id: 6,
+      name: r'numberUseCounter',
+      type: IsarType.bool,
+    ),
+    r'sortOrder': PropertySchema(
+      id: 7,
       name: r'sortOrder',
       type: IsarType.long,
     )
@@ -103,7 +108,8 @@ void _customActivitySerialize(
   writer.writeString(offsets[3], object.fieldLabelsJson);
   writer.writeLong(offsets[4], object.iconCodePoint);
   writer.writeString(offsets[5], object.name);
-  writer.writeLong(offsets[6], object.sortOrder);
+  writer.writeBool(offsets[6], object.numberUseCounter);
+  writer.writeLong(offsets[7], object.sortOrder);
 }
 
 CustomActivity _customActivityDeserialize(
@@ -120,7 +126,8 @@ CustomActivity _customActivityDeserialize(
   object.iconCodePoint = reader.readLong(offsets[4]);
   object.id = id;
   object.name = reader.readString(offsets[5]);
-  object.sortOrder = reader.readLong(offsets[6]);
+  object.numberUseCounter = reader.readBool(offsets[6]);
+  object.sortOrder = reader.readLong(offsets[7]);
   return object;
 }
 
@@ -144,6 +151,8 @@ P _customActivityDeserializeProp<P>(
     case 5:
       return (reader.readString(offset)) as P;
     case 6:
+      return (reader.readBool(offset)) as P;
+    case 7:
       return (reader.readLong(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -1065,6 +1074,16 @@ extension CustomActivityQueryFilter
   }
 
   QueryBuilder<CustomActivity, CustomActivity, QAfterFilterCondition>
+      numberUseCounterEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(FilterCondition.equalTo(
+        property: r'numberUseCounter',
+        value: value,
+      ));
+    });
+  }
+
+  QueryBuilder<CustomActivity, CustomActivity, QAfterFilterCondition>
       sortOrderEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
@@ -1197,6 +1216,20 @@ extension CustomActivityQuerySortBy
     });
   }
 
+  QueryBuilder<CustomActivity, CustomActivity, QAfterSortBy>
+      sortByNumberUseCounter() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'numberUseCounter', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CustomActivity, CustomActivity, QAfterSortBy>
+      sortByNumberUseCounterDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'numberUseCounter', Sort.desc);
+    });
+  }
+
   QueryBuilder<CustomActivity, CustomActivity, QAfterSortBy> sortBySortOrder() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'sortOrder', Sort.asc);
@@ -1293,6 +1326,20 @@ extension CustomActivityQuerySortThenBy
     });
   }
 
+  QueryBuilder<CustomActivity, CustomActivity, QAfterSortBy>
+      thenByNumberUseCounter() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'numberUseCounter', Sort.asc);
+    });
+  }
+
+  QueryBuilder<CustomActivity, CustomActivity, QAfterSortBy>
+      thenByNumberUseCounterDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'numberUseCounter', Sort.desc);
+    });
+  }
+
   QueryBuilder<CustomActivity, CustomActivity, QAfterSortBy> thenBySortOrder() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'sortOrder', Sort.asc);
@@ -1354,6 +1401,13 @@ extension CustomActivityQueryWhereDistinct
   }
 
   QueryBuilder<CustomActivity, CustomActivity, QDistinct>
+      distinctByNumberUseCounter() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'numberUseCounter');
+    });
+  }
+
+  QueryBuilder<CustomActivity, CustomActivity, QDistinct>
       distinctBySortOrder() {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(r'sortOrder');
@@ -1405,6 +1459,13 @@ extension CustomActivityQueryProperty
   QueryBuilder<CustomActivity, String, QQueryOperations> nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
+    });
+  }
+
+  QueryBuilder<CustomActivity, bool, QQueryOperations>
+      numberUseCounterProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'numberUseCounter');
     });
   }
 

@@ -92,6 +92,7 @@ class BackupSnapshot {
       'colorValue': activity.colorValue,
       'enabledFields': activity.enabledFields,
       'sortOrder': activity.sortOrder,
+      'numberUseCounter': activity.numberUseCounter,
       'fieldLabelsJson': activity.fieldLabelsJson,
       if (activity.customIconPath != null)
         'customIconPath': activity.customIconPath,
@@ -176,6 +177,7 @@ class BackupSnapshot {
       ..colorValue = colorValue
       ..enabledFields = fields.whereType<String>().toList()
       ..sortOrder = sortOrder
+      ..numberUseCounter = data['numberUseCounter'] as bool? ?? false
       ..fieldLabelsJson = data['fieldLabelsJson'] as String? ?? '{}'
       ..customIconPath = data['customIconPath'] as String?;
 

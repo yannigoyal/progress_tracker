@@ -1,0 +1,8 @@
+name = "github-profile-counter"
+main = "src/index.js"
+compatibility_date = "2024-11-01"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "a4ebc29f3d86428a892d081ec861e06f"
+preview_id = "a73943b9745c4b7b85643bd2755166fa"

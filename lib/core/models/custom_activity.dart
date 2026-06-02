@@ -25,6 +25,9 @@ class CustomActivity {
   /// JSON map of field kind → display label.
   String fieldLabelsJson = '{}';
 
+  /// When true and [LogFieldKind.number] is enabled, log form shows +/- counter.
+  bool numberUseCounter = false;
+
   @ignore
   IconData get icon => IconData(iconCodePoint, fontFamily: 'MaterialIcons');
 

@@ -3,6 +3,7 @@ class AppStrings {
 
   static const appName = 'Vaultlog';
   static const appVersionSubtitle = 'v1.0.0 · Offline first · Optional backup';
+  static const splashTagline = 'Track your daily progress';
 
   static const saveLog = 'Save log';
   static const saveSession = 'Save Session';
@@ -221,6 +222,9 @@ class AppStrings {
   static const customIconPreview = 'Custom icon preview';
   static const pngOnlyHint = 'Only PNG files are resized to 64×64 pixels.';
   static const fieldDisplayLabel = 'Field label';
+  static const numberUseCounter = 'Use counter (+ / −)';
+  static const typeManually = 'Type manually';
+  static const useCounter = 'Use counter';
   static const materialIconsSection = 'Material icons';
   static const customImageSection = 'Custom PNG icon';
   static const addTag = 'Add tag';

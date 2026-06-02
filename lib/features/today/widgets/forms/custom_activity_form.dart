@@ -39,6 +39,12 @@ class _CustomActivityFormState extends ConsumerState<CustomActivityForm> {
   late final TextEditingController _durationCtrl;
   late Set<String> _selectedTags;
   List<String> _userTags = [];
+  late int _counterValue;
+  bool _numberManualEdit = false;
+
+  bool get _useNumberCounter =>
+      widget.activity.numberUseCounter &&
+      _fields.contains(LogFieldKind.number);
 
   Set<String> get _fields => widget.activity.enabledFields.toSet();
 
@@ -51,6 +57,7 @@ class _CustomActivityFormState extends ConsumerState<CustomActivityForm> {
     _numberCtrl = TextEditingController(
       text: p['number']?.toString() ?? '',
     );
+    _counterValue = int.tryParse(p['number']?.toString() ?? '') ?? 0;
     _durationCtrl = TextEditingController(
       text: p['durationMinutes']?.toString() ?? '',
     );
@@ -107,7 +114,9 @@ class _CustomActivityFormState extends ConsumerState<CustomActivityForm> {
       if (note.isNotEmpty) payload['note'] = note;
     }
     if (_fields.contains(LogFieldKind.number)) {
-      final n = int.tryParse(_numberCtrl.text.trim());
+      final n = _useNumberCounter && !_numberManualEdit
+          ? _counterValue
+          : int.tryParse(_numberCtrl.text.trim());
       if (n != null) payload['number'] = n;
     }
     if (_fields.contains(LogFieldKind.duration)) {
@@ -166,14 +175,46 @@ class _CustomActivityFormState extends ConsumerState<CustomActivityForm> {
               ),
             if (_fields.contains(LogFieldKind.number)) ...[
               const SizedBox(height: 12),
-              TextFormField(
-                controller: _numberCtrl,
-                decoration: InputDecoration(
-                  labelText: _label(LogFieldKind.number),
+              if (_useNumberCounter && !_numberManualEdit)
+                _NumberCounterField(
+                  label: _label(LogFieldKind.number),
+                  value: _counterValue,
+                  onChanged: (v) => setState(() {
+                    _counterValue = v;
+                    _numberCtrl.text = v.toString();
+                  }),
+                  onTypeManually: () => setState(() {
+                    _numberManualEdit = true;
+                    _numberCtrl.text = _counterValue.toString();
+                  }),
+                )
+              else ...[
+                TextFormField(
+                  controller: _numberCtrl,
+                  decoration: InputDecoration(
+                    labelText: _label(LogFieldKind.number),
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  onChanged: (v) {
+                    _counterValue = int.tryParse(v.trim()) ?? _counterValue;
+                  },
                 ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              ),
+                if (_useNumberCounter)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: () => setState(() {
+                        _numberManualEdit = false;
+                        _counterValue =
+                            int.tryParse(_numberCtrl.text.trim()) ??
+                            _counterValue;
+                        _numberCtrl.text = _counterValue.toString();
+                      }),
+                      child: const Text(AppStrings.useCounter),
+                    ),
+                  ),
+              ],
             ],
             if (_fields.contains(LogFieldKind.duration)) ...[
               const SizedBox(height: 12),
@@ -211,6 +252,62 @@ class _CustomActivityFormState extends ConsumerState<CustomActivityForm> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _NumberCounterField extends StatelessWidget {
+  const _NumberCounterField({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    required this.onTypeManually,
+  });
+
+  final String label;
+  final int value;
+  final ValueChanged<int> onChanged;
+  final VoidCallback onTypeManually;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: Theme.of(context).textTheme.labelLarge),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            IconButton.filledTonal(
+              onPressed: value > 0 ? () => onChanged(value - 1) : null,
+              icon: const Icon(Icons.remove),
+            ),
+            Expanded(
+              child: InkWell(
+                onTap: onTypeManually,
+                borderRadius: BorderRadius.circular(8),
+                child: Center(
+                  child: Text(
+                    '$value',
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ),
+              ),
+            ),
+            IconButton.filledTonal(
+              onPressed: () => onChanged(value + 1),
+              icon: const Icon(Icons.add),
+            ),
+          ],
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+            onPressed: onTypeManually,
+            child: const Text(AppStrings.typeManually),
+          ),
+        ),
+      ],
     );
   }
 }
