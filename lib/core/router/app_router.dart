@@ -10,6 +10,7 @@ import '../../features/settings/settings_screen.dart';
 import '../../features/splash/splash_screen.dart';
 import '../../features/stats/stats_screen.dart';
 import '../../features/today/today_screen.dart';
+import '../../features/vault/vault_screen.dart';
 
 final appRouter = GoRouter(
   initialLocation: '/splash',
@@ -66,6 +67,18 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: 'backup',
                   builder: (context, state) => const BackupScreen(),
+                ),
+                GoRoute(
+                  path: 'vault',
+                  builder: (context, state) => const VaultScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'entry/:entryId',
+                      builder: (context, state) => VaultEntryScreen(
+                        entryId: state.pathParameters['entryId'],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

@@ -16,7 +16,8 @@ The app stores data locally with Isar, uses Riverpod for state management, and i
 - **Blind 75**: Track solved DSA problems and view attempt history.
 - **Projects**: Create projects, cycle project status, and log project sessions.
 - **Backup Data**: Optional Firebase email/password backup and restore.
-- **More**: Hub for Blind 75, Projects, Settings, and Backup (bottom navigation).
+- **Password Vault**: Store app logins behind a 6-digit PIN; encrypted locally and optionally synced to Firebase.
+- **More**: Hub for Blind 75, Projects, Password Vault, Settings, and Backup (bottom navigation).
 - **Settings**: Switch theme mode, manage custom activities and Today category order, export progress report, and clear local logs.
 - **Custom activities**: Define your own log types (fields, labels, Material or 64×64 PNG icons) under Settings → Custom activities; log them from Today via the **Custom** category.
 - **Today layout**: Reorder built-in categories on the add-log grid via Settings → **Activity order on Today**.
@@ -50,6 +51,7 @@ Importing a PNG icon uses the device photo library (`image_picker`). Android dec
 | Charts | fl_chart |
 | Fonts / formatting | google_fonts, intl |
 | Cloud backup | Firebase Auth, Cloud Firestore |
+| Password vault | AES-256-GCM encryption, flutter_secure_storage, share_plus |
 
 Note: `isar_flutter_libs` is vendored under `third_party/` with a small Android namespace patch so it builds with newer Android Gradle Plugin versions.
 
@@ -62,8 +64,8 @@ This repository is intended to be **public**. It contains app source only — no
 | License | [MIT](LICENSE) |
 | Secrets | Never commit `google-services.json`, `GoogleService-Info.plist`, `lib/firebase_options.dart`, or `firebase.json` (all listed in `.gitignore`). |
 | Your Firebase | Each developer / fork uses their **own** Firebase project via `flutterfire configure`. |
-| Cloud data | Backups are encrypted on-device before upload; Firestore holds ciphertext and metadata. |
-| Security rules | Use [`firestore.rules`](firestore.rules) (or copy from [`firestore.rules.example`](firestore.rules.example)) so users can only access `userBackups/{theirUid}`. |
+| Cloud data | Backups and vault passwords are encrypted on-device before upload; Firestore holds ciphertext and metadata. |
+| Security rules | Use [`firestore.rules`](firestore.rules) (or copy from [`firestore.rules.example`](firestore.rules.example)) so users can only access `userBackups/{theirUid}` and `userVaults/{theirUid}`. |
 
 ### Fork or clone checklist
 
@@ -114,6 +116,7 @@ lib/
       custom_activity.dart
       log_entry.dart
       project.dart
+      vault_blob.dart
     providers/
       firebase_provider.dart
       isar_provider.dart
@@ -199,6 +202,18 @@ lib/
         backup_passphrase_dialog.dart
       backup_screen.dart
 
+    vault/
+      data/
+        vault_models.dart
+        vault_pin_store.dart
+        vault_local_repository.dart
+        firebase_vault_repository.dart
+      providers/
+        vault_provider.dart
+      widgets/
+        vault_pin_pad.dart
+      vault_screen.dart
+
   shared/
     widgets/
       log_date_selector.dart
@@ -218,6 +233,33 @@ lib/
 `Project` is a separate Isar collection used by the Projects feature. Project logs are still saved as `LogEntry` records with project metadata in the payload.
 
 `CustomActivity` stores user-defined activity types (field kinds, labels, optional icon path) for the Custom category on Today.
+
+`VaultBlob` is a singleton Isar record holding the encrypted password-vault payload (ciphertext, salt, schema version).
+
+## Password Vault
+
+The vault stores app/website logins behind a **6-digit PIN**. Sensitive fields are encrypted on-device before they are written to local storage or uploaded to Firebase.
+
+- **Fields per entry**: app name, username, password, optional URL and notes.
+- **Password history**: when a password changes, the previous value is kept (last 3).
+- **PIN lock**: PIN verification hash lives in secure storage; failed attempts are rate-limited.
+- **Cloud sync**: when signed into the backup account, the encrypted vault blob syncs to Firestore (same zero-knowledge model as progress backup).
+- **Share**: share an entry via the system share sheet after a confirmation dialog.
+
+Vault works fully offline. Cloud sync requires Firebase and a signed-in backup account.
+
+### Vault data shape (encrypted)
+
+```text
+/userVaults/{userId}
+  schemaVersion: 1
+  encrypted: true
+  encryptionSalt        # public; used with vault PIN for key derivation
+  entryCount, lastSyncedAt
+
+/userVaults/{userId}/encrypted/payload
+  ciphertext            # AES-GCM blob (vault entries JSON inside)
+```
 
 ## Firebase Backup Setup
 
@@ -257,7 +299,7 @@ Deploy [`firestore.rules`](firestore.rules) (same content as [`firestore.rules.e
 1. **Firebase Console** — Firestore → Rules → paste → **Publish**.
 2. **Firebase CLI** — copy `firestore.rules` into your project, then `firebase deploy --only firestore:rules`.
 
-Rules allow read/write only when `request.auth.uid` matches the `userId` in `userBackups/{userId}`, including the `encrypted/payload` document and legacy `logs` / `projects` subcollections. Everything else is denied.
+Rules allow read/write only when `request.auth.uid` matches the `userId` in `userBackups/{userId}` or `userVaults/{userId}`, including each `encrypted/payload` document and legacy `logs` / `projects` subcollections. Everything else is denied.
 
 ### Encrypted cloud backup
 

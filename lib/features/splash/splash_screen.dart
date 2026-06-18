@@ -16,7 +16,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   static const _logoAsset = 'assets/images/vaultlog_logo.png';
-  static const _splashDuration = Duration(seconds: 3);
+  static const _splashDuration = Duration(seconds: 2);
 
   late final AnimationController _entranceController;
   late final Animation<double> _logoScale;

@@ -115,28 +115,27 @@ class AppStrings {
   static const dsaTopicDp = 'DP';
   static const dsaTopics = [
     'Array',
-    'Two Pointers',
-    'Sliding Window',
-    'Stack',
-    'Binary Search',
-    'Linked List',
-    'Trees',
-    'Heap',
-    dsaTopicDp,
-    'Graph',
-    'Backtracking',
-    'Greedy',
-    'Intervals',
-    'Math',
-    'Bit Manipulation',
     'HashMap',
+    'Linked List',
+    'Stack',
+    'Queue',
+    'Heap',
+    'Trees',
     'Trie',
+    'Graph',
+    'Intervals',
+    'Bit Manipulation',
+    'Math',
+    dsaTopicDp,
   ];
+
   static const dsaApproachMemoization = 'Memoization';
   static const dsaApproaches = [
     'Brute Force',
     'Two Pointers',
+    'Sliding Window',
     'BFS/DFS',
+    'Backtracking',
     dsaApproachMemoization,
     'Tabulation',
     'Space-Opt',
@@ -301,6 +300,45 @@ class AppStrings {
   static const settingsScreenTitle = 'Settings';
   static const backupScreenTitle = 'Backup Data';
   static const backupScreenSubtitle = 'Firebase cloud backup';
+
+  static const vaultScreenTitle = 'Password Vault';
+  static const vaultCreatePinTitle = 'Create vault PIN';
+  static const vaultCreatePinSubtitle = 'Choose a 6-digit PIN to protect your passwords.';
+  static const vaultConfirmPinTitle = 'Confirm vault PIN';
+  static const vaultConfirmPinSubtitle = 'Enter the same PIN again.';
+  static const vaultUnlockTitle = 'Unlock vault';
+  static const vaultUnlockSubtitle = 'Enter your 6-digit PIN.';
+  static String vaultLockoutMessage(int seconds) =>
+      'Too many attempts. Try again in ${seconds}s.';
+  static const vaultLock = 'Lock vault';
+  static const vaultSearchHint = 'Search apps or usernames';
+  static const vaultEmptyTitle = 'No passwords saved yet';
+  static const vaultEmptySubtitle = 'Tap + to add your first login.';
+  static const vaultNoSearchResults = 'No matching entries';
+  static const vaultCloudSyncEnabled =
+      'Encrypted cloud sync enabled via your backup account.';
+  static const vaultAddEntry = 'Add password';
+  static const vaultEditEntry = 'Edit password';
+  static const vaultAppName = 'App / website name *';
+  static const vaultUsername = 'Username / email *';
+  static const vaultPassword = 'Password *';
+  static const vaultWebsiteOptional = 'Website URL (optional)';
+  static const vaultNotesOptional = 'Notes (optional)';
+  static const vaultPasswordHistory = 'Previous passwords (last 3)';
+  static const vaultSaveEntry = 'Save';
+  static const vaultShare = 'Share';
+  static const vaultShareTitle = 'Share password?';
+  static String vaultShareMessage(String appName) =>
+      'You are about to share credentials for "$appName". '
+      'Anyone you send this to will be able to see the password. Continue?';
+  static const vaultShareFooter = 'shared from Vaultlog';
+  static const vaultShareWarning =
+      'Delete this message after the recipient saves the password.';
+  static const vaultCopied = 'Copied to clipboard';
+  static const vaultDeleteEntryTitle = 'Delete password?';
+  static String vaultDeleteEntryMessage(String appName) =>
+      'Remove "$appName" from your vault?';
+
   static const backupUnavailableTitle = 'Firebase setup needed';
   static const backupUnavailableMessage =
       'Connect this build to a Firebase project before enabling backup.';

@@ -4,6 +4,7 @@ import 'package:path_provider/path_provider.dart';
 import '../models/custom_activity.dart';
 import '../models/log_entry.dart';
 import '../models/project.dart';
+import '../models/vault_blob.dart';
 
 class IsarService {
   IsarService._();
@@ -14,7 +15,7 @@ class IsarService {
     if (_instance != null && _instance!.isOpen) return _instance!;
     final dir = await getApplicationDocumentsDirectory();
     _instance = await Isar.open(
-      [LogEntrySchema, ProjectSchema, CustomActivitySchema],
+      [LogEntrySchema, ProjectSchema, CustomActivitySchema, VaultBlobSchema],
       directory: dir.path,
       name: 'daily_log',
     );

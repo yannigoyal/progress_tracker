@@ -30,7 +30,7 @@ void main() async {
 }
 
 Future<FirebaseInitStatus> _initializeFirebase() async {
-  const firebaseEnabled = bool.fromEnvironment('VAULTLOG_FIREBASE_ENABLED');
+  const firebaseEnabled = true;
   if (!firebaseEnabled) {
     return const FirebaseInitStatus.unavailable(
       'Firebase disabled. Run with --dart-define=VAULTLOG_FIREBASE_ENABLED=true to enable backup.',
