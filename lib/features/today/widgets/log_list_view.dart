@@ -9,6 +9,7 @@ import '../../../shared/widgets/formatted_markdown_text.dart';
 import '../../settings/providers/custom_activity_provider.dart';
 import '../../../core/theme/color_utils.dart';
 import '../../../util/string_constant.dart';
+import '../../books/providers/books_provider.dart';
 import '../../dsa_tracker/providers/dsa_provider.dart';
 import '../../history/providers/history_provider.dart';
 import '../../project/providers/project_provider.dart';
@@ -355,6 +356,7 @@ class _LogItem extends ConsumerWidget {
 void _refreshLogDependents(WidgetRef ref) {
   ref.invalidate(dayNumberProvider);
   ref.invalidate(historyProvider);
+  ref.invalidate(booksProvider);
   ref.invalidate(projectsProvider);
   ref.invalidate(statsProvider);
   ref.invalidate(dsaTrackerProvider);

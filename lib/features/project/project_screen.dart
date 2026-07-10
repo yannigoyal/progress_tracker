@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/project.dart';
 import '../../core/theme/color_utils.dart';
 import '../../util/string_constant.dart';
+import '../books/providers/books_provider.dart';
 import '../dsa_tracker/providers/dsa_provider.dart';
 import '../history/providers/history_provider.dart';
 import '../stats/providers/stats_provider.dart';
@@ -129,6 +130,7 @@ class ProjectScreen extends ConsumerWidget {
     ref.invalidate(todayLogsProvider);
     ref.invalidate(dayNumberProvider);
     ref.invalidate(historyProvider);
+    ref.invalidate(booksProvider);
     ref.invalidate(statsProvider);
     ref.invalidate(dsaTrackerProvider);
     ref.invalidate(dsaSolvedCountProvider);

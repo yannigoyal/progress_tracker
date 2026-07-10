@@ -23,6 +23,11 @@ class MoreScreen extends StatelessWidget {
             route: '/more/projects',
           ),
           _MoreRow(
+            icon: Icons.menu_book_outlined,
+            title: AppStrings.booksScreenTitle,
+            route: '/more/books',
+          ),
+          _MoreRow(
             icon: Icons.settings_outlined,
             title: AppStrings.settingsScreenTitle,
             route: '/more/settings',

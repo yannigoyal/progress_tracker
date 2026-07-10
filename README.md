@@ -15,9 +15,10 @@ The app stores data locally with Isar, uses Riverpod for state management, and i
 - **Stats**: View current streak, longest streak, year-long contribution heatmap, last 30 days chart, and category totals.
 - **Blind 75**: Track solved DSA problems and view attempt history.
 - **Projects**: Create projects, cycle project status, and log project sessions.
+- **Books**: Browse reading takeaways grouped by book (only logs with a key quote).
 - **Backup Data**: Optional Firebase email/password backup and restore.
 - **Password Vault**: Store app logins behind a 6-digit PIN; encrypted locally and optionally synced to Firebase.
-- **More**: Hub for Blind 75, Projects, Password Vault, Settings, and Backup (bottom navigation).
+- **More**: Hub for Blind 75, Projects, Books, Password Vault, Settings, and Backup (bottom navigation).
 - **Settings**: Switch theme mode, manage custom activities and Today category order, export progress report, and clear local logs.
 - **Custom activities**: Define your own log types (fields, labels, Material or 64×64 PNG icons) under Settings → Custom activities; log them from Today via the **Custom** category.
 - **Today layout**: Reorder built-in categories on the add-log grid via Settings → **Activity order on Today**.
@@ -176,6 +177,15 @@ lib/
       widgets/
         project_session_form.dart
       project_screen.dart
+
+    books/
+      data/
+        books_repository.dart
+      providers/
+        books_provider.dart
+      widgets/
+        book_takeaway_card.dart
+      books_screen.dart
 
     settings/
       data/

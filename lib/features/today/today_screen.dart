@@ -7,6 +7,7 @@ import '../../core/models/category.dart';
 import '../../core/models/custom_activity.dart';
 import '../../core/theme/color_utils.dart';
 import '../../util/string_constant.dart';
+import '../books/providers/books_provider.dart';
 import '../dsa_tracker/providers/dsa_provider.dart';
 import '../history/providers/history_provider.dart';
 import '../project/providers/project_provider.dart';
@@ -170,6 +171,7 @@ class TodayScreen extends ConsumerWidget {
   void _refreshLogDependents(WidgetRef ref) {
     ref.invalidate(dayNumberProvider);
     ref.invalidate(historyProvider);
+    ref.invalidate(booksProvider);
     ref.invalidate(projectsProvider);
     ref.invalidate(statsProvider);
     ref.invalidate(dsaTrackerProvider);

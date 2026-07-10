@@ -7,6 +7,7 @@ import '../../core/models/log_entry.dart';
 import '../../core/theme/color_utils.dart';
 import '../../shared/widgets/formatted_markdown_text.dart';
 import '../../util/string_constant.dart';
+import '../books/providers/books_provider.dart';
 import '../dsa_tracker/providers/dsa_provider.dart';
 import '../project/providers/project_provider.dart';
 import '../stats/providers/stats_provider.dart';
@@ -479,6 +480,7 @@ class _LogsList extends ConsumerWidget {
     await ref.read(historyLogNotifierProvider.notifier).deleteLog(log.id);
 
     ref.invalidate(historyProvider);
+    ref.invalidate(booksProvider);
     ref.invalidate(todayLogsProvider);
     ref.invalidate(dayNumberProvider);
     ref.invalidate(projectsProvider);

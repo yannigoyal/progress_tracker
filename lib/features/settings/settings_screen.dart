@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/providers/theme_provider.dart';
 import '../../core/theme/color_utils.dart';
 import '../../util/string_constant.dart';
+import '../books/providers/books_provider.dart';
 import '../dsa_tracker/providers/dsa_provider.dart';
 import '../history/providers/history_provider.dart';
 import '../project/providers/project_provider.dart';
@@ -243,6 +244,7 @@ class SettingsScreen extends ConsumerWidget {
     ref.invalidate(todayLogsProvider);
     ref.invalidate(dayNumberProvider);
     ref.invalidate(historyProvider);
+    ref.invalidate(booksProvider);
     ref.invalidate(projectsProvider);
     ref.invalidate(statsProvider);
     ref.invalidate(dsaTrackerProvider);

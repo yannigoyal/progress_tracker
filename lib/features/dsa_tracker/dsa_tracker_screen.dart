@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/theme/color_utils.dart';
 import '../../util/string_constant.dart';
+import '../books/providers/books_provider.dart';
 import '../history/providers/history_provider.dart';
 import '../stats/providers/stats_provider.dart';
 import '../today/providers/today_provider.dart';
@@ -260,6 +261,7 @@ class _ProblemRow extends ConsumerWidget {
     ref.invalidate(todayLogsProvider);
     ref.invalidate(dayNumberProvider);
     ref.invalidate(historyProvider);
+    ref.invalidate(booksProvider);
     ref.invalidate(statsProvider);
   }
 }

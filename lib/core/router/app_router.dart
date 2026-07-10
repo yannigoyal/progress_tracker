@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/books/books_screen.dart';
 import '../../features/backup/backup_screen.dart';
 import '../../features/dsa_tracker/dsa_tracker_screen.dart';
 import '../../features/history/history_screen.dart';
@@ -59,6 +60,10 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: 'projects',
                   builder: (context, state) => const ProjectScreen(),
+                ),
+                GoRoute(
+                  path: 'books',
+                  builder: (context, state) => const BooksScreen(),
                 ),
                 GoRoute(
                   path: 'settings',

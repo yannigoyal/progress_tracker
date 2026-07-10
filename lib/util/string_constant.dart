@@ -32,6 +32,13 @@ class AppStrings {
 
   static const projectScreenTitle = 'Projects';
   static const projectDialogTitle = 'New Project';
+
+  static const booksScreenTitle = 'Books';
+  static const booksEmptyTitle = 'No takeaways yet';
+  static const booksEmptySubtitle =
+      'Log a reading session with a key takeaway or quote to see it here.';
+  static String booksTakeawayCount(int count) =>
+      count == 1 ? '1 takeaway' : '$count takeaways';
   static const projectName = 'Project Name *';
   static const description = 'Description';
   static const sessionLogged = 'Session logged';
